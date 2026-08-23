@@ -47,6 +47,7 @@ import { sessaoAtual, type Logado } from '@/lib/sessao';
 import { registra } from '@/lib/auditoria';
 import { ipDeQuemChama } from '@/lib/limite';
 import { sql } from '@/db';
+import { env } from '@/lib/env';
 
 /* -------------------------------------------------------------
    1. PRECISA ESTAR LOGADO
@@ -172,8 +173,8 @@ export async function exigeAdmin(): Promise<Logado> {
   const quem = await sessaoAtual();
 
   /* Quem não é admin recebe 404, não "acesso negado".
-     Assim descobrir se /painel existe fica impossível — a
-     resposta é a mesma de qualquer endereço inventado. */
+     Assim descobrir se o painel existe fica impossível: a resposta
+     é a mesma de qualquer endereço inventado. */
   if (!quem) naoExiste();
 
   if (!quem.ehAdmin) {
@@ -186,5 +187,34 @@ export async function exigeAdmin(): Promise<Logado> {
 
   if (!quem.emailVerificado) naoExiste();
 
+  /* SEGUNDO FATOR OBRIGATÓRIO.
+     A pergunta é feita ao BANCO, não à sessão: a função
+     `admin_pode_entrar` (migração 011) confere de uma vez que a
+     conta é admin, está ativa, com e-mail confirmado E com 2FA
+     ligado. Assim a regra vale igual mesmo para código novo que
+     esqueça de conferir alguma dessas coisas. */
+  const [ok] = await sql<{ pode: boolean }[]>`
+    SELECT admin_pode_entrar(${quem.id}::uuid) AS pode
+  `;
+
+  if (!ok?.pode) {
+    await registra({
+      ator: quem.id, acao: 'conta.entrar_negado', alvoTipo: 'painel',
+      depois: { motivo: 'admin sem segundo fator' }, ip: await ipDeQuemChama(),
+    });
+    naoExiste();
+  }
+
   return quem;
+}
+
+/** O painel mora num caminho que vem do ambiente, não do código.
+ *  Devolve 404 para qualquer outro — inclusive para /admin e
+ *  /painel, que é o que os robôs testam. */
+export function caminhoDoPainelConfere(caminho: string): boolean {
+  const esperado = env.PAINEL_CAMINHO;
+  /* Sem configurar, o painel simplesmente não existe. Melhor não
+     existir do que existir num endereço adivinhável. */
+  if (!esperado) return false;
+  return caminho === esperado;
 }

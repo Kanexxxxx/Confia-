@@ -20,7 +20,7 @@
    ============================================================= */
 
 import { citext } from './tipos';
-import { pgTable, index, foreignKey, unique, uuid, text, smallint, timestamp, inet, smallserial, integer, jsonb, boolean, uniqueIndex, check, char, date, bigserial, bigint, primaryKey, pgView, numeric, pgSequence, pgEnum } from "drizzle-orm/pg-core"
+import { pgTable, index, foreignKey, unique, uuid, text, inet, timestamp, boolean, smallserial, integer, jsonb, smallint, uniqueIndex, check, char, bigint, date, bigserial, primaryKey, pgView, numeric, pgSequence, pgEnum } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 export const categoriaLigacao = pgEnum("categoria_ligacao", ['golpe', 'telemarketing', 'cobranca', 'trote', 'robo', 'desconhecido', 'legitimo'])
@@ -52,27 +52,6 @@ export const veredito = pgEnum("veredito", ['confiavel', 'suspeito', 'perigoso',
 
 export const seqProtocolo = pgSequence("seq_protocolo", {  startWith: "1", increment: "1", minValue: "1", maxValue: "9223372036854775807", cache: "1", cycle: false })
 
-export const tokens = pgTable("tokens", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
-	contaId: uuid("conta_id").notNull(),
-	tipo: tipoToken().notNull(),
-	tokenHash: text("token_hash").notNull(),
-	// TODO: failed to parse database type 'citext'
-	destino: citext("destino"),
-	tentativas: smallint().default(0).notNull(),
-	expiraEm: timestamp("expira_em", { withTimezone: true, mode: 'date' }).notNull(),
-	usadoEm: timestamp("usado_em", { withTimezone: true, mode: 'date' }),
-	criadoEm: timestamp("criado_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
-}, (table) => [
-	index("idx_tokens_conta_tipo").using("btree", table.contaId.asc().nullsLast().op("uuid_ops"), table.tipo.asc().nullsLast().op("uuid_ops")).where(sql`(usado_em IS NULL)`),
-	foreignKey({
-			columns: [table.contaId],
-			foreignColumns: [contas.id],
-			name: "tokens_conta_id_fkey"
-		}).onDelete("cascade"),
-	unique("tokens_token_hash_key").on(table.tokenHash),
-]);
-
 export const sessoes = pgTable("sessoes", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	contaId: uuid("conta_id").notNull(),
@@ -82,6 +61,7 @@ export const sessoes = pgTable("sessoes", {
 	expiraEm: timestamp("expira_em", { withTimezone: true, mode: 'date' }).notNull(),
 	revogadaEm: timestamp("revogada_em", { withTimezone: true, mode: 'date' }),
 	criadaEm: timestamp("criada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+	aguardando2Fa: boolean("aguardando_2fa").default(false).notNull(),
 }, (table) => [
 	index("idx_sessoes_conta").using("btree", table.contaId.asc().nullsLast().op("uuid_ops")).where(sql`(revogada_em IS NULL)`),
 	foreignKey({
@@ -106,6 +86,27 @@ export const planos = pgTable("planos", {
 	unique("planos_slug_key").on(table.slug),
 ]);
 
+export const tokens = pgTable("tokens", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	contaId: uuid("conta_id").notNull(),
+	tipo: tipoToken().notNull(),
+	tokenHash: text("token_hash").notNull(),
+	// TODO: failed to parse database type 'citext'
+	destino: citext("destino"),
+	tentativas: smallint().default(0).notNull(),
+	expiraEm: timestamp("expira_em", { withTimezone: true, mode: 'date' }).notNull(),
+	usadoEm: timestamp("usado_em", { withTimezone: true, mode: 'date' }),
+	criadoEm: timestamp("criado_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+}, (table) => [
+	index("idx_tokens_conta_tipo").using("btree", table.contaId.asc().nullsLast().op("uuid_ops"), table.tipo.asc().nullsLast().op("uuid_ops")).where(sql`(usado_em IS NULL)`),
+	foreignKey({
+			columns: [table.contaId],
+			foreignColumns: [contas.id],
+			name: "tokens_conta_id_fkey"
+		}).onDelete("cascade"),
+	unique("tokens_token_hash_key").on(table.tokenHash),
+]);
+
 export const contas = pgTable("contas", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	// TODO: failed to parse database type 'citext'
@@ -127,6 +128,10 @@ export const contas = pgTable("contas", {
 	avatar: text().default('inicial').notNull(),
 	recuperacao: metodoRecuperacao().default('email').notNull(),
 	cnpj: char({ length: 14 }),
+	totpSegredo: text("totp_segredo"),
+	totpAtivadoEm: timestamp("totp_ativado_em", { withTimezone: true, mode: 'date' }),
+	// You can use { mode: "bigint" } if numbers are exceeding js number limitations
+	totpUltimoContador: bigint("totp_ultimo_contador", { mode: "number" }),
 }, (table) => [
 	uniqueIndex("idx_contas_cnpj").using("btree", table.cnpj.asc().nullsLast().op("bpchar_ops")).where(sql`((cnpj IS NOT NULL) AND (excluida_em IS NULL))`),
 	index("idx_contas_status").using("btree", table.status.asc().nullsLast().op("enum_ops")).where(sql`(excluida_em IS NULL)`),
@@ -426,6 +431,22 @@ export const emails = pgTable("emails", {
 		}).onDelete("set null"),
 ]);
 
+export const pedidosLgpd = pgTable("pedidos_lgpd", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	contaId: uuid("conta_id").notNull(),
+	tipo: tipoPedidoLgpd().notNull(),
+	status: text().default('pendente').notNull(),
+	arquivoUrl: text("arquivo_url"),
+	atendidoEm: timestamp("atendido_em", { withTimezone: true, mode: 'date' }),
+	criadoEm: timestamp("criado_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+}, (table) => [
+	foreignKey({
+			columns: [table.contaId],
+			foreignColumns: [contas.id],
+			name: "pedidos_lgpd_conta_id_fkey"
+		}).onDelete("cascade"),
+]);
+
 export const telefones = pgTable("telefones", {
 	numeroE164: text("numero_e164").primaryKey().notNull(),
 	ddd: smallint(),
@@ -494,22 +515,6 @@ export const logsExternos = pgTable("logs_externos", {
 			foreignColumns: [verificacoes.id],
 			name: "logs_externos_verificacao_id_fkey"
 		}).onDelete("set null"),
-]);
-
-export const pedidosLgpd = pgTable("pedidos_lgpd", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
-	contaId: uuid("conta_id").notNull(),
-	tipo: tipoPedidoLgpd().notNull(),
-	status: text().default('pendente').notNull(),
-	arquivoUrl: text("arquivo_url"),
-	atendidoEm: timestamp("atendido_em", { withTimezone: true, mode: 'date' }),
-	criadoEm: timestamp("criado_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
-}, (table) => [
-	foreignKey({
-			columns: [table.contaId],
-			foreignColumns: [contas.id],
-			name: "pedidos_lgpd_conta_id_fkey"
-		}).onDelete("cascade"),
 ]);
 
 export const campanhasGolpe = pgTable("campanhas_golpe", {
@@ -796,8 +801,6 @@ export const admins = pgTable("admins", {
 	contaId: uuid("conta_id").primaryKey().notNull(),
 	nivel: smallint().default(1).notNull(),
 	criadoEm: timestamp("criado_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
-	totpSegredo: text("totp_segredo"),
-	totpAtivadoEm: timestamp("totp_ativado_em", { withTimezone: true, mode: 'date' }),
 	ultimoIp: inet("ultimo_ip"),
 	ultimoAcessoEm: timestamp("ultimo_acesso_em", { withTimezone: true, mode: 'date' }),
 }, (table) => [
@@ -965,6 +968,22 @@ export const assinaturas = pgTable("assinaturas", {
 	unique("assinaturas_asaas_assinatura_id_key").on(table.asaasAssinaturaId),
 	check("assinaturas_documento_tipo_check", sql`documento_tipo = ANY (ARRAY['cpf'::text, 'cnpj'::text])`),
 	check("documento_so_os_ultimos", sql`(documento_ultimos IS NULL) OR (documento_ultimos ~ '^[0-9]{4}$'::text)`),
+]);
+
+export const codigosReserva = pgTable("codigos_reserva", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	contaId: uuid("conta_id").notNull(),
+	codigoHash: text("codigo_hash").notNull(),
+	usadoEm: timestamp("usado_em", { withTimezone: true, mode: 'date' }),
+	criadoEm: timestamp("criado_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+}, (table) => [
+	index("idx_reserva_conta").using("btree", table.contaId.asc().nullsLast().op("uuid_ops")).where(sql`(usado_em IS NULL)`),
+	uniqueIndex("idx_reserva_hash").using("btree", table.codigoHash.asc().nullsLast().op("text_ops")),
+	foreignKey({
+			columns: [table.contaId],
+			foreignColumns: [contas.id],
+			name: "codigos_reserva_conta_id_fkey"
+		}).onDelete("cascade"),
 ]);
 
 export const usoMensal = pgTable("uso_mensal", {

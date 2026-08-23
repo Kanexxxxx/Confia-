@@ -564,54 +564,17 @@ a{color:var(--azul-claro)}
 
 
 /* =============================================================
-   14. TRANCA DO PROTÓTIPO
-   Sai junto com assets/tranca.js quando o painel real subir.
+   14. (a tranca provisória saiu daqui)
+
+   Este arquivo tinha uma tela de senha caseira, porque o painel de
+   verdade ainda não existia e o HTML ficava aberto para quem
+   soubesse o endereço.
+
+   Agora existe: o painel real está no app Next, com sessão do
+   servidor, conferência da tabela `admins`, segundo fator
+   obrigatório e sessão de 12 horas. Quem chega sem isso recebe
+   404 — nem tela de login.
+
+   Este arquivo continua sendo o DESENHO das telas, com dados
+   inventados, e não vai para servidor nenhum.
    ============================================================= */
-
-body.trancado{overflow:hidden}
-body.trancado .rail,body.trancado .conteudo{filter:blur(9px);pointer-events:none;user-select:none}
-
-.tranca{
-  position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;
-  background:radial-gradient(circle at 50% 30%,#0b2038,var(--fundo) 72%);
-}
-.tranca-caixa{
-  width:min(420px,100%);padding:34px 32px 26px;border-radius:20px;text-align:center;
-  background:rgba(255,255,255,.045);border:1px solid var(--borda-forte);
-  box-shadow:0 40px 80px -40px rgba(0,0,0,.9);
-}
-.tranca-caixa img{width:120px;filter:brightness(0) invert(1);opacity:.95;margin-bottom:18px}
-.tranca-selo{
-  display:inline-flex;align-items:center;gap:6px;margin-bottom:20px;padding:5px 11px;border-radius:7px;
-  background:rgba(255,198,92,.12);border:1px solid rgba(255,198,92,.32);
-  color:var(--alerta);font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
-}
-.tranca-caixa h1{margin:0 0 8px;font-family:Poppins,sans-serif;font-size:19px;font-weight:600;
-  letter-spacing:-.02em;color:#fff}
-.tranca-caixa > p{margin:0 0 22px;font-size:13px;line-height:1.6;color:var(--texto-2)}
-
-.tranca-campo{display:block;text-align:left;margin-bottom:12px}
-.tranca-campo span{display:block;margin-bottom:6px;font-size:12px;font-weight:600;color:var(--texto-2)}
-.tranca-campo input{
-  width:100%;height:44px;padding:0 14px;border-radius:10px;
-  border:1px solid var(--borda);background:rgba(0,0,0,.28);
-  color:var(--texto);font-family:inherit;font-size:15px;outline:none;
-  transition:border-color .18s var(--ease),background .18s var(--ease);
-}
-.tranca-campo input:focus{border-color:var(--azul);background:rgba(0,0,0,.4)}
-
-.tranca-recado{margin:0 0 12px;padding:10px 13px;border-radius:9px;font-size:12.5px;text-align:left}
-.tranca-recado.ruim{background:rgba(224,82,63,.13);border:1px solid rgba(224,82,63,.3);color:#ff9d8f}
-
-.tranca-caixa .bt{width:100%;height:44px;margin-top:6px}
-.tranca-esqueci{
-  display:block;width:100%;margin-top:12px;padding:6px;border:none;background:none;cursor:pointer;
-  font-family:inherit;font-size:12px;color:var(--texto-3);text-decoration:underline;
-}
-.tranca-esqueci:hover{color:var(--texto-2)}
-.tranca-nota{
-  margin:22px 0 0;padding-top:16px;border-top:1px solid var(--borda);
-  font-size:11.5px;line-height:1.65;color:var(--texto-3);text-align:left;
-}
-.tranca-nota b{color:var(--texto-2)}
-.tranca-nota code{font-family:"JetBrains Mono",ui-monospace,monospace;color:var(--azul-claro)}

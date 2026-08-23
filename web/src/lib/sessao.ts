@@ -70,8 +70,14 @@ async function deOndeVeio() {
   return { ip, navegador };
 }
 
-/** Cria a sessão e entrega o cookie. Chame só de Server Action. */
-export async function criaSessao(contaId: string): Promise<void> {
+/** Cria a sessão e entrega o cookie. Chame só de Server Action.
+ *
+ *  @param aguardando2fa  true = a senha estava certa mas o código
+ *  do celular ainda não veio. A sessão existe (para ficar
+ *  registrada e revogável) mas NÃO dá acesso a nada — veja
+ *  `sessaoAtual`, que a ignora. O banco a faz expirar em 10
+ *  minutos (gatilho tg_sessao_admin, migração 011). */
+export async function criaSessao(contaId: string, aguardando2fa = false): Promise<void> {
   const token = randomBytes(32).toString('base64url');
   const expira = new Date(Date.now() + DIAS * 86400_000);
   const { ip, navegador } = await deOndeVeio();
@@ -82,6 +88,7 @@ export async function criaSessao(contaId: string): Promise<void> {
     ip,
     navegador,
     expiraEm: expira,
+    aguardando2Fa: aguardando2fa,
   });
 
   const caixa = await cookies();
@@ -126,6 +133,10 @@ export async function sessaoAtual(): Promise<Logado | null> {
         eq(sessoes.tokenHash, hashDo(token)),
         isNull(sessoes.revogadaEm),
         gt(sessoes.expiraEm, new Date()),
+        /* Sessão à espera do segundo fator NÃO é sessão. Esta
+           linha é a tranca inteira do 2FA: sem ela, acertar só a
+           senha já entraria. */
+        eq(sessoes.aguardando2Fa, false),
       ),
     )
     .limit(1);
@@ -147,6 +158,54 @@ export async function sessaoAtual(): Promise<Logado | null> {
     emailVerificado: linha.verificadoEm !== null,
     ehAdmin: Boolean(admin),
   };
+}
+
+/** A sessão que está esperando o código do celular.
+ *  Só a tela de digitar o código usa isto. */
+export async function sessaoPendente(): Promise<{ contaId: string; email: string; nome: string } | null> {
+  const caixa = await cookies();
+  const token = caixa.get(NOME_COOKIE)?.value;
+  if (!token) return null;
+
+  const [linha] = await db
+    .select({ contaId: contas.id, email: contas.email, nome: contas.nome })
+    .from(sessoes)
+    .innerJoin(contas, eq(contas.id, sessoes.contaId))
+    .where(
+      and(
+        eq(sessoes.tokenHash, hashDo(token)),
+        isNull(sessoes.revogadaEm),
+        gt(sessoes.expiraEm, new Date()),
+        eq(sessoes.aguardando2Fa, true),
+      ),
+    )
+    .limit(1);
+
+  return linha ?? null;
+}
+
+/** Código aceito: a sessão pela metade vira sessão de verdade, e
+ *  o prazo passa a ser o normal. */
+export async function completaSessao(): Promise<boolean> {
+  const caixa = await cookies();
+  const token = caixa.get(NOME_COOKIE)?.value;
+  if (!token) return false;
+
+  const expira = new Date(Date.now() + DIAS * 86400_000);
+
+  const feitos = await db
+    .update(sessoes)
+    .set({ aguardando2Fa: false, expiraEm: expira })
+    .where(and(eq(sessoes.tokenHash, hashDo(token)), eq(sessoes.aguardando2Fa, true)))
+    .returning({ id: sessoes.id });
+
+  if (feitos.length !== 1) return false;
+
+  /* O cookie também precisa durar mais: ele nasceu com 10 minutos. */
+  caixa.set(NOME_COOKIE, token, {
+    httpOnly: true, secure: emProducao, sameSite: 'lax', path: '/', expires: expira,
+  });
+  return true;
 }
 
 /** Marca o último acesso. Separado de `sessaoAtual` de propósito:

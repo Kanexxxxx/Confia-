@@ -40,11 +40,16 @@ export default async function Conta() {
           <h1>Olá, {quem.nome.split(' ')[0]}</h1>
           <p>Sua conta no confia?</p>
         </div>
-        <form action={sair}>
-          <button className="btn btn--calmo btn--linha" type="submit">
-            <i className="bi bi-box-arrow-right" aria-hidden="true" /> Sair
-          </button>
-        </form>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <Link className="btn btn--calmo btn--linha" href="/conta/seguranca">
+            <i className="bi bi-shield-lock" aria-hidden="true" /> Segurança
+          </Link>
+          <form action={sair}>
+            <button className="btn btn--calmo btn--linha" type="submit">
+              <i className="bi bi-box-arrow-right" aria-hidden="true" /> Sair
+            </button>
+          </form>
+        </div>
       </header>
 
       <section className="bloco">

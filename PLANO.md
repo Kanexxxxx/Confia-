@@ -23,8 +23,8 @@ você consegue ver**. Nada de "etapa concluída" sem prova na tela.
 [✅] 2. Banco de dados no ar
 [✅] 3. TypeScript ligado no banco
 [✅] 4. Conta: cadastro, login, e-mail
-[🔨] 5. 2FA e painel trancado de verdade   <-- é aqui que estamos
-[  ] 6. Site migrado para o Next
+[✅] 5. 2FA e painel trancado de verdade
+[🔨] 6. Site migrado para o Next          <-- é aqui que estamos
 [  ] 7. No ar com HTTPS
 [  ] 8. Motor de verificação
 [  ] 9. Planos e pagamento
@@ -183,30 +183,50 @@ testa o fluxo inteiro de quebra.
 
 ---
 
-## Etapa 5 — 2FA e painel trancado de verdade
+## ✅ Etapa 5 — 2FA e painel trancado de verdade
 
 **Objetivo:** o painel para de ser porta de banheiro.
 
-- [ ] TOTP com QR Code — **Google Authenticator** (escolhido)
-- [ ] Códigos de reserva — para você não se trancar fora se perder o celular
-- [ ] Login de admin **recusado sem 2FA ativo**
-- [ ] Conferência da tabela `admins` a cada requisição, no servidor
-- [ ] Sessão de admin vence em 12 horas
-- [ ] Apagar a tranca provisória (`prototipo/assets/tranca.js`)
-- [ ] Endereço do painel **não previsível** — nada de `/admin`, que todo robô testa
-- [ ] Quem chegar sem ser admin recebe **404**, não tela de login: nada confirma
-      que o painel existe
+- [x] TOTP com QR Code — **Google Authenticator**
+- [x] **Códigos de reserva** — dez, de uso único, para não se trancar fora
+- [x] Login de admin **recusado sem 2FA** — e a regra vale no BANCO
+- [x] Conferência da tabela `admins` a cada requisição
+- [x] Sessão de admin vence em **12 horas**
+- [x] Endereço do painel **fora do código** (vem do ambiente)
+- [x] Quem chega sem ser admin recebe **404**, não tela de login
+- [x] Tranca provisória do protótipo apagada
 
-**Prova:** você entra no painel com senha + código do celular. Sem o código,
-não entra — nem sabendo a senha.
+**2FA para TODAS as contas, não só admin.** A senha de um usuário comum
+abre o histórico dele — o que verificou, o que denunciou, o que perdeu num
+golpe. Para quem já foi vítima, essa lista é justamente o que não pode vazar.
 
-**Preciso de você:** o **Google Authenticator** no celular (já escolhido).
+### Provado, não prometido
 
-**Também entra aqui:**
-- [ ] **Códigos de reserva** — a alternativa ao e-mail para recuperar a conta.
-      A coluna `contas.recuperacao` já existe (migração 009); a tela de escolher
-      só faz sentido quando houver a segunda opção, que nasce aqui.
-- [ ] Melhorar os ícones do protótipo, tela por tela
+| Teste | Resultado |
+|---|---|
+| `/admin`, `/painel`, `/wp-admin` | **404** |
+| Caminho certo, sem sessão | **404** |
+| Caminho certo, admin com 2FA | abre |
+| Código errado no login | recusado, e registrado na auditoria |
+| Código certo | entra |
+| Promover a admin sem 2FA | **o banco recusa** |
+| Código já usado | recusado (contador guardado) |
+
+### Duas decisões que valem explicar
+
+**Código usado não vale de novo.** O código dura 30 segundos e funciona
+quantas vezes for usado dentro da janela. Se alguém o vir — por cima do
+ombro, num print, num teclado gravado — usa antes de você. Guardamos o
+contador do último aceito e recusamos qualquer igual ou anterior.
+
+**A sessão pela metade existe no banco.** Acertar a senha com 2FA ligado
+cria uma sessão que não dá acesso a nada e morre em 10 minutos. Ela existe
+para ficar **registrada**: se alguém acertar sua senha e travar no código,
+isso aparece na sua lista de aparelhos — e é o aviso de que sua senha vazou.
+
+**Arquivos:** `web/src/lib/dois-fatores.ts`, `acoes-seguranca.ts`, `guarda.ts`,
+`web/src/app/conta/seguranca/`, `web/src/app/entrar/codigo/`,
+`servidor/db/011_dois_fatores.sql` e `012_contador_totp.sql`
 
 ---
 

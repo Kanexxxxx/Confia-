@@ -97,9 +97,13 @@ ruído.
 **404** — a mesma resposta de qualquer endereço inventado. Não recebe tela de
 login, não recebe "acesso negado". Nada que confirme que existe.
 
-**3. A tranca de verdade, que vem na Etapa 5:** sessão válida **+** estar na
-tabela `admins` **+** segundo fator no celular **+** sessão que vence em 12h.
+**3. A tranca de verdade — já está de pé:** sessão válida **+** estar na tabela
+`admins` **+** segundo fator no celular **+** sessão que vence em 12h.
 Saber a senha não basta.
+
+E quem responde essa pergunta é o **banco**, não a aplicação: a função
+`admin_pode_entrar` confere tudo de uma vez. Assim a regra vale igual mesmo
+para código novo que esqueça de conferir alguma parte.
 
 E toda tentativa de acesso negado fica registrada em `auditoria`. Um pico
 dessas linhas é alguém varrendo — e isso a gente precisa **enxergar**.
@@ -136,6 +140,17 @@ dessas linhas é alguém varrendo — e isso a gente precisa **enxergar**.
 | Medir o tempo de resposta | Conferência em tempo constante. Conta que não existe demora igual. |
 | Chutar senha no site | 5 erros = 15 minutos parado. |
 | Usar a senha vazada de outro site | Nada impede — por isso a tela pede senha que você **não use em outro lugar**. |
+
+### O segundo fator
+
+| Ataque | O que impede |
+|---|---|
+| Senha vazada em outro site | Não basta. Falta o código do celular. |
+| Golpe do chip clonado (SIM swap) | Não existe contra TOTP: o código nasce no aparelho, não passa pela operadora. |
+| Ver o código por cima do ombro | Código usado não vale de novo — guardamos o contador do último aceito. |
+| Perder o celular | Dez códigos de reserva, de uso único. |
+| Admin sem 2FA | O banco **recusa** promover a admin, e recusa a entrada. |
+| Ficar logado para sempre | Admin: 12 horas. |
 
 ### A sessão
 
@@ -180,7 +195,7 @@ Esta lista existe porque esconder buraco não tapa buraco.
 |---|---|---|
 | **HTTPS** | Hoje o beta é HTTP. Senha trafega em claro numa rede aberta. | Etapa 7 |
 | **CSP** | Sem ela, um script injetado teria menos barreira. | Etapa 7 |
-| **2FA no admin** | Saber a senha do admin hoje basta. | **Etapa 5** |
+| ~~2FA no admin~~ | ~~Saber a senha do admin hoje basta.~~ | ✅ **feito** |
 | **Limite compartilhado** | O contador vive na memória de um servidor. Com dois, o limite real triplica. | Etapa 10 |
 | **Backup fora** | Existe cópia local, mas sem automação rodando. | você |
 | **DMARC firme** | Está em `p=none`. Dá para falsificar e-mail em nome do confia?. | Etapa 7 |

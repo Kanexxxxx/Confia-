@@ -43,49 +43,9 @@
   =============================================================
 -->
 
-<body class="trancado">
+<body>
 <a class="pular" href="#conteudo">Pular para o conteúdo</a>
 
-<!-- ============================================================
-     TRANCA DO PROTÓTIPO
-     Não é segurança de verdade — ver o cabeçalho de assets/tranca.js.
-     Este bloco inteiro some quando o painel real (Next.js) entrar
-     no ar. Se ainda estiver aqui depois disso, alguém esqueceu.
-     ============================================================ -->
-<div class="tranca" id="tranca">
-  <form class="tranca-caixa" id="tranca-form" autocomplete="off">
-    <img src="assets/logo-confia.svg" alt="confia?">
-
-    <div class="tranca-selo">
-      <i class="bi bi-cone-striped" aria-hidden="true"></i> protótipo · não publicar
-    </div>
-
-    <h1 id="tranca-titulo">Painel administrativo</h1>
-    <p id="tranca-texto">Digite a senha local deste protótipo.</p>
-
-    <label class="tranca-campo">
-      <span>Senha</span>
-      <input type="password" id="tranca-senha" autocomplete="new-password" required>
-    </label>
-
-    <label class="tranca-campo" id="tranca-nova" hidden>
-      <span>Repita a senha</span>
-      <input type="password" id="tranca-senha2" autocomplete="new-password">
-    </label>
-
-    <p class="tranca-recado" id="tranca-recado" hidden></p>
-
-    <button class="bt bt--principal" type="submit" id="tranca-botao">Entrar</button>
-    <button class="tranca-esqueci" type="button" id="tranca-esqueci">Esqueci a senha</button>
-
-    <p class="tranca-nota">
-      Esta senha existe só para o arquivo não ficar aberto na sua máquina. Ela fica neste
-      navegador, guardada como hash — não sai daqui. A proteção de verdade (sessão no
-      servidor, tabela <code>admins</code> e segundo fator) é do painel em produção,
-      e este arquivo <b>não vai para servidor nenhum</b>.
-    </p>
-  </form>
-</div>
 
 <!-- ============================================================
      TRILHO LATERAL
@@ -93,7 +53,7 @@
 <aside class="rail" id="rail">
   <div class="rail-topo">
     <img src="assets/logo-confia.svg" alt="confia?">
-    <span class="etiqueta-beta"><i class="bi bi-cone-striped" aria-hidden="true"></i> beta · dados de exemplo</span>
+    <span class="etiqueta-beta"><i class="bi bi-cone-striped" aria-hidden="true"></i> protótipo · dados de exemplo</span>
   </div>
 
   <nav aria-label="Seções do painel">
@@ -480,7 +440,6 @@
   <div class="gaveta-pe" id="gaveta-pe"></div>
 </aside>
 
-<script src="assets/tranca.js"></script>
 <script src="assets/admin.js"></script>
 <script src="assets/acessibilidade.js"></script>
 </body>

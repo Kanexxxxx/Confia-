@@ -200,6 +200,7 @@ export async function entrar(_anterior: Estado, form: FormData): Promise<Estado>
       id: contas.id, nome: contas.nome, senhaHash: contas.senhaHash,
       status: contas.status, verificadoEm: contas.emailVerificadoEm,
       excluidaEm: contas.excluidaEm,
+      totpAtivadoEm: contas.totpAtivadoEm,
     })
     .from(contas)
     .where(eq(contas.email, email))
@@ -235,6 +236,15 @@ export async function entrar(_anterior: Estado, form: FormData): Promise<Estado>
      ele tiver mudado desde o cadastro. */
   if (precisaRegravar) {
     await db.update(contas).set({ senhaHash: await guardaSenha(senha) }).where(eq(contas.id, conta.id));
+  }
+
+  /* ---- SEGUNDO FATOR ----
+     Com 2FA ligado, acertar a senha NÃO entra: cria uma sessão
+     pela metade, que não dá acesso a nada e morre em 10 minutos.
+     Só o código do celular a transforma em sessão de verdade. */
+  if (conta.totpAtivadoEm) {
+    await criaSessao(conta.id, true);
+    redirect('/entrar/codigo');
   }
 
   await zeraLimite('entrar', email);

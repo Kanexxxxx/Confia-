@@ -52,6 +52,17 @@ const forma = z.object({
   SAFEBROWSING_API_KEY: z.string().optional(),
   ASAAS_API_KEY: z.string().optional(),
   ASAAS_WEBHOOK_TOKEN: z.string().optional(),
+
+  /* ---------- painel administrativo ----------
+     O endereço do painel NÃO fica escrito no código: este
+     repositório é público, e caminho em repositório público não
+     é caminho secreto.
+
+     Isso não é a segurança — a segurança é a sessão + a tabela
+     `admins` + o segundo fator, e quem chega sem isso recebe 404.
+     O caminho difícil só evita que os robôs que varrem /admin e
+     /wp-admin encham o seu log. */
+  PAINEL_CAMINHO: z.string().min(8, 'use pelo menos 8 caracteres').optional(),
 });
 
 const resultado = forma.safeParse(process.env);

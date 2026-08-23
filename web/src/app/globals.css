@@ -259,3 +259,58 @@ body{
 @media (max-width:820px){
   .grade-avatar label{min-width:56px;min-height:56px;display:grid;place-items:center}
 }
+
+/* =============================================================
+   SEGUNDO FATOR
+   ============================================================= */
+
+/* Código de 6 dígitos: grande e espaçado. A pessoa está copiando
+   número de outra tela — cada dígito precisa ser inconfundível. */
+.codigo-grande{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace !important;
+  font-size:26px !important;letter-spacing:.34em !important;
+  text-align:center;font-weight:600;
+}
+
+.passos-2fa{margin:0 0 18px;padding-left:20px;display:grid;gap:9px}
+.passos-2fa li{font-size:14px;line-height:1.65;color:var(--on-dark-2)}
+.passos-2fa b{color:#fff}
+
+.caixa-qr{
+  display:flex;gap:20px;align-items:center;flex-wrap:wrap;
+  padding:18px;border-radius:14px;background:#fff;margin-bottom:16px;
+}
+.caixa-qr img{display:block;border-radius:8px;flex:none}
+.caixa-qr p{margin:0 0 8px;font-size:13px;color:var(--ink-2)}
+.caixa-qr code{
+  display:inline-block;padding:10px 12px;border-radius:9px;
+  background:var(--paper-2);border:1px solid var(--line);
+  font-family:ui-monospace,Menlo,monospace;font-size:14px;
+  letter-spacing:.12em;color:var(--navy-700);word-break:break-all;
+}
+
+/* Os dez códigos de reserva */
+.lista-reserva{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:8px;margin:16px 0 0;padding:0;list-style:none;
+}
+.lista-reserva li{
+  padding:11px 12px;border-radius:10px;text-align:center;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+  font-family:ui-monospace,Menlo,monospace;font-size:14.5px;
+  letter-spacing:.06em;color:#fff;
+}
+
+/* Ao imprimir os códigos, só eles vão para o papel */
+@media print{
+  body{background:#fff !important}
+  .cabeca-conta,.a11y-botao,.pular{display:none !important}
+  .bloco{border:1px solid #999 !important;background:#fff !important}
+  .bloco h2,.lista-reserva li,.recado{color:#000 !important;background:#fff !important}
+  .lista-reserva li{border:1px solid #666 !important}
+}
+
+@media (max-width:600px){
+  .caixa-qr{justify-content:center;text-align:center}
+  .codigo-grande{font-size:22px !important;letter-spacing:.22em !important}
+}
