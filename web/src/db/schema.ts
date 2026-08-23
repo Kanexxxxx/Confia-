@@ -20,7 +20,7 @@
    ============================================================= */
 
 import { citext } from './tipos';
-import { pgTable, index, unique, uuid, text, timestamp, foreignKey, inet, smallint, uniqueIndex, date, smallserial, integer, jsonb, boolean, bigserial, check, char, bigint, primaryKey, pgView, numeric, pgSequence, pgEnum } from "drizzle-orm/pg-core"
+import { pgTable, index, foreignKey, unique, uuid, text, smallint, timestamp, check, uniqueIndex, date, inet, smallserial, integer, jsonb, boolean, bigserial, char, bigint, primaryKey, pgView, numeric, pgSequence, pgEnum } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 export const categoriaLigacao = pgEnum("categoria_ligacao", ['golpe', 'telemarketing', 'cobranca', 'trote', 'robo', 'desconhecido', 'legitimo'])
@@ -43,51 +43,13 @@ export const tipoAlvo = pgEnum("tipo_alvo", ['link', 'dominio', 'perfil', 'image
 export const tipoContestacao = pgEnum("tipo_contestacao", ['remocao', 'correcao', 'direito_resposta', 'lgpd'])
 export const tipoDocumento = pgEnum("tipo_documento", ['contrato_social', 'cartao_cnpj', 'documento_socio', 'selfie_socio', 'comprovante_endereco', 'alvara', 'print_faturamento', 'outro'])
 export const tipoPedidoLgpd = pgEnum("tipo_pedido_lgpd", ['exportar', 'excluir', 'corrigir', 'revogar_consentimento'])
+export const tipoPessoa = pgEnum("tipo_pessoa", ['fisica', 'juridica'])
 export const tipoPropriedade = pgEnum("tipo_propriedade", ['site', 'instagram', 'facebook', 'whatsapp', 'tiktok', 'loja_marketplace'])
 export const tipoProva = pgEnum("tipo_prova", ['print_conversa', 'comprovante', 'anuncio', 'pagina', 'boletim_ocorrencia', 'outro'])
 export const tipoToken = pgEnum("tipo_token", ['verificar_email', 'trocar_senha', 'convite_familia', 'trocar_email'])
 export const veredito = pgEnum("veredito", ['confiavel', 'suspeito', 'perigoso', 'inconclusivo'])
 
 export const seqProtocolo = pgSequence("seq_protocolo", {  startWith: "1", increment: "1", minValue: "1", maxValue: "9223372036854775807", cache: "1", cycle: false })
-
-export const contas = pgTable("contas", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
-	// TODO: failed to parse database type 'citext'
-	email: citext("email").notNull(),
-	senhaHash: text("senha_hash"),
-	nome: text().notNull(),
-	telefone: text(),
-	status: statusConta().default('ativa').notNull(),
-	emailVerificadoEm: timestamp("email_verificado_em", { withTimezone: true, mode: 'date' }),
-	aceitouTermosEm: timestamp("aceitou_termos_em", { withTimezone: true, mode: 'date' }),
-	aceitouTermosVersao: text("aceitou_termos_versao"),
-	ultimoAcessoEm: timestamp("ultimo_acesso_em", { withTimezone: true, mode: 'date' }),
-	criadaEm: timestamp("criada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
-	atualizadaEm: timestamp("atualizada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
-	excluidaEm: timestamp("excluida_em", { withTimezone: true, mode: 'date' }),
-}, (table) => [
-	index("idx_contas_status").using("btree", table.status.asc().nullsLast().op("enum_ops")).where(sql`(excluida_em IS NULL)`),
-	unique("contas_email_key").on(table.email),
-]);
-
-export const sessoes = pgTable("sessoes", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
-	contaId: uuid("conta_id").notNull(),
-	tokenHash: text("token_hash").notNull(),
-	ip: inet(),
-	navegador: text(),
-	expiraEm: timestamp("expira_em", { withTimezone: true, mode: 'date' }).notNull(),
-	revogadaEm: timestamp("revogada_em", { withTimezone: true, mode: 'date' }),
-	criadaEm: timestamp("criada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
-}, (table) => [
-	index("idx_sessoes_conta").using("btree", table.contaId.asc().nullsLast().op("uuid_ops")).where(sql`(revogada_em IS NULL)`),
-	foreignKey({
-			columns: [table.contaId],
-			foreignColumns: [contas.id],
-			name: "sessoes_conta_id_fkey"
-		}).onDelete("cascade"),
-	unique("sessoes_token_hash_key").on(table.tokenHash),
-]);
 
 export const tokens = pgTable("tokens", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
@@ -108,6 +70,30 @@ export const tokens = pgTable("tokens", {
 			name: "tokens_conta_id_fkey"
 		}).onDelete("cascade"),
 	unique("tokens_token_hash_key").on(table.tokenHash),
+]);
+
+export const contas = pgTable("contas", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	// TODO: failed to parse database type 'citext'
+	email: citext("email").notNull(),
+	senhaHash: text("senha_hash"),
+	nome: text().notNull(),
+	telefone: text(),
+	status: statusConta().default('ativa').notNull(),
+	emailVerificadoEm: timestamp("email_verificado_em", { withTimezone: true, mode: 'date' }),
+	aceitouTermosEm: timestamp("aceitou_termos_em", { withTimezone: true, mode: 'date' }),
+	aceitouTermosVersao: text("aceitou_termos_versao"),
+	ultimoAcessoEm: timestamp("ultimo_acesso_em", { withTimezone: true, mode: 'date' }),
+	criadaEm: timestamp("criada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+	atualizadaEm: timestamp("atualizada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+	excluidaEm: timestamp("excluida_em", { withTimezone: true, mode: 'date' }),
+	tipoPessoa: tipoPessoa("tipo_pessoa").default('fisica').notNull(),
+	telefoneVerificadoEm: timestamp("telefone_verificado_em", { withTimezone: true, mode: 'date' }),
+}, (table) => [
+	index("idx_contas_status").using("btree", table.status.asc().nullsLast().op("enum_ops")).where(sql`(excluida_em IS NULL)`),
+	index("idx_contas_telefone").using("btree", table.telefone.asc().nullsLast().op("text_ops")).where(sql`((telefone IS NOT NULL) AND (excluida_em IS NULL))`),
+	unique("contas_email_key").on(table.email),
+	check("telefone_obrigatorio_para_empresa", sql`(tipo_pessoa = 'fisica'::tipo_pessoa) OR ((telefone IS NOT NULL) AND (length(regexp_replace(telefone, '\D'::text, ''::text, 'g'::text)) >= 10))`),
 ]);
 
 export const assinaturas = pgTable("assinaturas", {
@@ -137,6 +123,25 @@ export const assinaturas = pgTable("assinaturas", {
 			name: "assinaturas_plano_id_fkey"
 		}),
 	unique("assinaturas_asaas_assinatura_id_key").on(table.asaasAssinaturaId),
+]);
+
+export const sessoes = pgTable("sessoes", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	contaId: uuid("conta_id").notNull(),
+	tokenHash: text("token_hash").notNull(),
+	ip: inet(),
+	navegador: text(),
+	expiraEm: timestamp("expira_em", { withTimezone: true, mode: 'date' }).notNull(),
+	revogadaEm: timestamp("revogada_em", { withTimezone: true, mode: 'date' }),
+	criadaEm: timestamp("criada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+}, (table) => [
+	index("idx_sessoes_conta").using("btree", table.contaId.asc().nullsLast().op("uuid_ops")).where(sql`(revogada_em IS NULL)`),
+	foreignKey({
+			columns: [table.contaId],
+			foreignColumns: [contas.id],
+			name: "sessoes_conta_id_fkey"
+		}).onDelete("cascade"),
+	unique("sessoes_token_hash_key").on(table.tokenHash),
 ]);
 
 export const planos = pgTable("planos", {
@@ -276,41 +281,6 @@ export const cacheDominio = pgTable("cache_dominio", {
 	atualizadoEm: timestamp("atualizado_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
 }, (table) => [
 	index("idx_cache_expira").using("btree", table.expiraEm.asc().nullsLast().op("timestamptz_ops")),
-]);
-
-export const imagens = pgTable("imagens", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
-	verificacaoId: uuid("verificacao_id").notNull(),
-	sha256: text().notNull(),
-	mime: text().notNull(),
-	bytes: integer().notNull(),
-	largura: integer(),
-	altura: integer(),
-	c2PaPresente: boolean("c2pa_presente").default(false).notNull(),
-	c2PaValido: boolean("c2pa_valido"),
-	c2PaEmissor: text("c2pa_emissor"),
-	c2PaDeclaraIa: boolean("c2pa_declara_ia"),
-	c2PaBruto: jsonb("c2pa_bruto"),
-	iaProbabilidade: smallint("ia_probabilidade"),
-	iaGerador: text("ia_gerador"),
-	iaFornecedor: text("ia_fornecedor").default('hive').notNull(),
-	textoExtraido: text("texto_extraido"),
-	apagadaEm: timestamp("apagada_em", { withTimezone: true, mode: 'date' }),
-	criadaEm: timestamp("criada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
-	classe: classeImagem(),
-	classeConf: smallint("classe_conf"),
-	iaPeso: smallint("ia_peso").default(0),
-	pedidoDireto: boolean("pedido_direto").default(false).notNull(),
-	sinaisEdicao: jsonb("sinais_edicao"),
-}, (table) => [
-	index("idx_imagens_sha").using("btree", table.sha256.asc().nullsLast().op("text_ops")),
-	foreignKey({
-			columns: [table.verificacaoId],
-			foreignColumns: [verificacoes.id],
-			name: "imagens_verificacao_id_fkey"
-		}).onDelete("cascade"),
-	check("imagens_classe_conf_check", sql`(classe_conf >= 0) AND (classe_conf <= 100)`),
-	check("imagens_ia_probabilidade_check", sql`(ia_probabilidade >= 0) AND (ia_probabilidade <= 100)`),
 ]);
 
 export const monitoramentos = pgTable("monitoramentos", {
@@ -890,6 +860,41 @@ export const contestacaoMensagens = pgTable("contestacao_mensagens", {
 			foreignColumns: [contestacoes.id],
 			name: "contestacao_mensagens_contestacao_id_fkey"
 		}).onDelete("cascade"),
+]);
+
+export const imagens = pgTable("imagens", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	verificacaoId: uuid("verificacao_id").notNull(),
+	sha256: text().notNull(),
+	mime: text().notNull(),
+	bytes: integer().notNull(),
+	largura: integer(),
+	altura: integer(),
+	c2PaPresente: boolean("c2pa_presente").default(false).notNull(),
+	c2PaValido: boolean("c2pa_valido"),
+	c2PaEmissor: text("c2pa_emissor"),
+	c2PaDeclaraIa: boolean("c2pa_declara_ia"),
+	c2PaBruto: jsonb("c2pa_bruto"),
+	iaProbabilidade: smallint("ia_probabilidade"),
+	iaGerador: text("ia_gerador"),
+	iaFornecedor: text("ia_fornecedor").default('hive').notNull(),
+	textoExtraido: text("texto_extraido"),
+	apagadaEm: timestamp("apagada_em", { withTimezone: true, mode: 'date' }),
+	criadaEm: timestamp("criada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+	classe: classeImagem(),
+	classeConf: smallint("classe_conf"),
+	iaPeso: smallint("ia_peso").default(0),
+	pedidoDireto: boolean("pedido_direto").default(false).notNull(),
+	sinaisEdicao: jsonb("sinais_edicao"),
+}, (table) => [
+	index("idx_imagens_sha").using("btree", table.sha256.asc().nullsLast().op("text_ops")),
+	foreignKey({
+			columns: [table.verificacaoId],
+			foreignColumns: [verificacoes.id],
+			name: "imagens_verificacao_id_fkey"
+		}).onDelete("cascade"),
+	check("imagens_classe_conf_check", sql`(classe_conf >= 0) AND (classe_conf <= 100)`),
+	check("imagens_ia_probabilidade_check", sql`(ia_probabilidade >= 0) AND (ia_probabilidade <= 100)`),
 ]);
 
 export const orcamento = pgTable("orcamento", {

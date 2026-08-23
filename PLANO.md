@@ -7,7 +7,8 @@ etapa, ela vira ✅.
 **Regra das etapas:** cada uma termina com **alguma coisa funcionando que
 você consegue ver**. Nada de "etapa concluída" sem prova na tela.
 
-**Última atualização:** 22/08/2026
+**Última atualização:** 23/08/2026
+**Segurança:** o mapa das camadas está em [SEGURANCA.md](SEGURANCA.md)
 
 > O IP de verdade da VPS **não fica escrito aqui** — este arquivo está num
 > repositório público. Ele está no seu `~/.ssh/config`, sob o apelido
@@ -186,12 +187,15 @@ testa o fluxo inteiro de quebra.
 
 **Objetivo:** o painel para de ser porta de banheiro.
 
-- [ ] TOTP (Google Authenticator, Authy, 1Password) com QR Code
+- [ ] TOTP com QR Code — **Google Authenticator** (escolhido)
 - [ ] Códigos de reserva — para você não se trancar fora se perder o celular
 - [ ] Login de admin **recusado sem 2FA ativo**
 - [ ] Conferência da tabela `admins` a cada requisição, no servidor
 - [ ] Sessão de admin vence em 12 horas
-- [ ] Apagar a tranca provisória (`assets/tranca.js`)
+- [ ] Apagar a tranca provisória (`prototipo/assets/tranca.js`)
+- [ ] Endereço do painel **não previsível** — nada de `/admin`, que todo robô testa
+- [ ] Quem chegar sem ser admin recebe **404**, não tela de login: nada confirma
+      que o painel existe
 
 **Prova:** você entra no painel com senha + código do celular. Sem o código,
 não entra — nem sabendo a senha.

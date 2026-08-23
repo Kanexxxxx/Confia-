@@ -47,7 +47,7 @@ import {
 /* Formato do retorno para o `useActionState` das telas. */
 export type Estado = {
   erro?: string;
-  campo?: 'nome' | 'email' | 'senha' | 'geral';
+  campo?: 'nome' | 'email' | 'senha' | 'telefone' | 'geral';
   ok?: string;
 } | null;
 
@@ -66,11 +66,29 @@ export async function criarConta(_anterior: Estado, form: FormData): Promise<Est
   const senha = String(form.get('senha') ?? '');
   const aceite = form.get('aceite') === 'on';
 
+  /* Pessoa física ou empresa. Muda o caminho depois do cadastro:
+     empresa vai para o fluxo de CNPJ e prova de posse do domínio. */
+  const tipo = form.get('tipo') === 'juridica' ? 'juridica' : 'fisica';
+
+  /* Só os números. O banco também limpa (gatilho tg_limpa_telefone),
+     mas validar aqui dá mensagem melhor que erro de banco. */
+  const telefone = String(form.get('telefone') ?? '').replace(/\D/g, '') || null;
+
   if (nome.length < 2) return { erro: 'Diga como você quer ser chamado.', campo: 'nome' };
   if (!EMAIL_VALIDO.test(email)) return { erro: 'Confira o e-mail: parece estar incompleto.', campo: 'email' };
 
   const problema = criticaSenha(senha, email);
   if (problema) return { erro: RECADO_SENHA[problema], campo: 'senha' };
+
+  /* Telefone: opcional para pessoa física, obrigatório para empresa.
+     A regra também está no banco (CHECK em 008_pessoa.sql) — aqui é
+     só para a mensagem ser gentil. */
+  if (tipo === 'juridica' && (!telefone || telefone.length < 10)) {
+    return { erro: 'Para empresa o telefone é obrigatório — é o contato que aparece no seu cadastro.', campo: 'telefone' };
+  }
+  if (telefone && (telefone.length < 10 || telefone.length > 11)) {
+    return { erro: 'Confira o telefone: com DDD, são 10 ou 11 números.', campo: 'telefone' };
+  }
 
   if (!aceite) {
     return { erro: 'Para criar a conta você precisa aceitar os termos e a política.', campo: 'geral' };
@@ -109,6 +127,8 @@ export async function criarConta(_anterior: Estado, form: FormData): Promise<Est
       nome,
       email,
       senhaHash,
+      telefone,
+      tipoPessoa: tipo,
       aceitouTermosEm: new Date(),
       aceitouTermosVersao: '1.0',
     })
@@ -116,7 +136,10 @@ export async function criarConta(_anterior: Estado, form: FormData): Promise<Est
 
   await registra({
     ator: nova.id, acao: 'conta.criar', alvoTipo: 'conta', alvoId: nova.id,
-    depois: { nome, email }, ip: await ipDeQuemChama(),
+    /* Não gravamos o telefone na auditoria: ela é lida por gente e
+       fica anos guardada. Registra QUE mudou, não o dado. */
+    depois: { nome, email, tipo, temTelefone: Boolean(telefone) },
+    ip: await ipDeQuemChama(),
   });
 
   const { token } = await criaToken(nova.id, 'verificar_email');

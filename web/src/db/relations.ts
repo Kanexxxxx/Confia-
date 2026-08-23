@@ -2,19 +2,19 @@
    Descreve como as tabelas se ligam, para consulta com join. */
 
 import { relations } from "drizzle-orm/relations";
-import { contas, sessoes, tokens, assinaturas, planos, pagamentos, membros, verificacoes, verificacaoItens, imagens, monitoramentos, apiChaves, denuncias, golpesConhecidos, webhooks, tickets, ticketMensagens, emails, auditoria, logsExternos, pedidosLgpd, campanhasGolpe, telefones, empresas, alvos, alvoHistorico, empresaDocumentos, contestacoes, empresaEventos, contestacaoAnexos, telefoneRelatos, admins, empresaDominios, contestacaoMensagens, denunciaProvas, usoMensal } from "./schema";
+import { contas, tokens, assinaturas, planos, sessoes, pagamentos, membros, verificacoes, verificacaoItens, monitoramentos, apiChaves, denuncias, golpesConhecidos, webhooks, tickets, ticketMensagens, emails, auditoria, logsExternos, pedidosLgpd, campanhasGolpe, telefones, empresas, alvos, alvoHistorico, empresaDocumentos, contestacoes, empresaEventos, contestacaoAnexos, telefoneRelatos, admins, empresaDominios, contestacaoMensagens, imagens, denunciaProvas, usoMensal } from "./schema";
 
-export const sessoesRelations = relations(sessoes, ({one}) => ({
+export const tokensRelations = relations(tokens, ({one}) => ({
 	conta: one(contas, {
-		fields: [sessoes.contaId],
+		fields: [tokens.contaId],
 		references: [contas.id]
 	}),
 }));
 
 export const contasRelations = relations(contas, ({many}) => ({
-	sessoes: many(sessoes),
 	tokens: many(tokens),
 	assinaturas: many(assinaturas),
+	sessoes: many(sessoes),
 	membros_membroId: many(membros, {
 		relationName: "membros_membroId_contas_id"
 	}),
@@ -61,13 +61,6 @@ export const contasRelations = relations(contas, ({many}) => ({
 	usoMensals: many(usoMensal),
 }));
 
-export const tokensRelations = relations(tokens, ({one}) => ({
-	conta: one(contas, {
-		fields: [tokens.contaId],
-		references: [contas.id]
-	}),
-}));
-
 export const assinaturasRelations = relations(assinaturas, ({one, many}) => ({
 	conta: one(contas, {
 		fields: [assinaturas.contaId],
@@ -82,6 +75,13 @@ export const assinaturasRelations = relations(assinaturas, ({one, many}) => ({
 
 export const planosRelations = relations(planos, ({many}) => ({
 	assinaturas: many(assinaturas),
+}));
+
+export const sessoesRelations = relations(sessoes, ({one}) => ({
+	conta: one(contas, {
+		fields: [sessoes.contaId],
+		references: [contas.id]
+	}),
 }));
 
 export const pagamentosRelations = relations(pagamentos, ({one}) => ({
@@ -116,21 +116,14 @@ export const verificacoesRelations = relations(verificacoes, ({one, many}) => ({
 		relationName: "verificacoes_revisadoPor_contas_id"
 	}),
 	verificacaoItens: many(verificacaoItens),
-	imagens: many(imagens),
 	tickets: many(tickets),
 	logsExternos: many(logsExternos),
+	imagens: many(imagens),
 }));
 
 export const verificacaoItensRelations = relations(verificacaoItens, ({one}) => ({
 	verificacoe: one(verificacoes, {
 		fields: [verificacaoItens.verificacaoId],
-		references: [verificacoes.id]
-	}),
-}));
-
-export const imagensRelations = relations(imagens, ({one}) => ({
-	verificacoe: one(verificacoes, {
-		fields: [imagens.verificacaoId],
 		references: [verificacoes.id]
 	}),
 }));
@@ -355,6 +348,13 @@ export const contestacaoMensagensRelations = relations(contestacaoMensagens, ({o
 	contestacoe: one(contestacoes, {
 		fields: [contestacaoMensagens.contestacaoId],
 		references: [contestacoes.id]
+	}),
+}));
+
+export const imagensRelations = relations(imagens, ({one}) => ({
+	verificacoe: one(verificacoes, {
+		fields: [imagens.verificacaoId],
+		references: [verificacoes.id]
 	}),
 }));
 
