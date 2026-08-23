@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>confia? — Planos</title>
+<meta name="description" content="Planos do confia?: verifique links, sites, perfis, lojas, jogos e prints antes de clicar ou pagar.">
+<meta name="theme-color" content="#0b2443">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<style>
+:root{
+  --navy-950:#04101f; --navy-900:#07182c; --navy-800:#0b2443;
+  --navy-700:#11375f; --navy-600:#1a4d80;
+  --sky:#4d9fff; --sky-soft:#a9cdff; --sky-wash:#e6efff;
+  --safe:#2fd39b; --warn:#ffc65c; --risk:#ff7a6b;
+  --paper:#fff; --paper-2:#f5f8fd; --line:#e2e8f2;
+  --ink:#0b2443; --ink-2:#41597a; --ink-3:#7387a3;
+  --on-dark:#eaf1fd; --on-dark-2:rgba(234,241,253,.74); --on-dark-3:rgba(234,241,253,.5);
+  --r-md:14px; --r-lg:20px; --r-xl:26px;
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --shell:min(1220px, 100% - 64px);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.5;
+  color:var(--on-dark);background:var(--navy-900);-webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+.bg{position:fixed;inset:0;z-index:-3;pointer-events:none;
+  background:linear-gradient(158deg,#0a2140 0%,var(--navy-900) 46%,var(--navy-950) 100%)}
+.orbs{position:fixed;inset:0;z-index:-2;pointer-events:none;overflow:hidden;filter:blur(60px)}
+.orb{position:absolute;border-radius:50%;opacity:.5}
+.orb--1{width:620px;height:620px;top:-18%;left:-6%;
+  background:radial-gradient(circle at 34% 34%,rgba(77,159,255,.8),rgba(77,159,255,0) 66%)}
+.orb--2{width:680px;height:680px;bottom:-26%;right:-8%;
+  background:radial-gradient(circle at 46% 50%,rgba(26,77,128,.9),rgba(26,77,128,0) 68%)}
+::selection{background:rgba(77,159,255,.32)}
+:focus-visible{outline:2px solid var(--sky);outline-offset:3px;border-radius:8px}
+
+/* ---------- topo ---------- */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;gap:14px;
+  padding:16px max(24px,calc((100% - 1220px)/2));
+}
+.topbar::after{
+  content:"";position:absolute;left:0;right:0;top:0;height:170%;pointer-events:none;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  -webkit-mask-image:linear-gradient(#000 0%,#000 42%,transparent 88%);
+  mask-image:linear-gradient(#000 0%,#000 42%,transparent 88%);
+  background:linear-gradient(to bottom,rgba(7,24,44,.6),transparent);
+}
+.brand{position:relative;z-index:2;margin-right:auto;display:flex;padding:6px 0}
+.brand img{display:block;width:112px;filter:brightness(0) invert(1) drop-shadow(0 2px 6px rgba(2,10,24,.55))}
+.nav{position:relative;z-index:2;display:flex;align-items:center;gap:4px;padding:5px;border-radius:999px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%)}
+.nav a{padding:10px 18px;border-radius:999px;color:var(--on-dark-2);font-size:14.5px;font-weight:500;
+  text-decoration:none;white-space:nowrap;transition:color .2s var(--ease),background .2s var(--ease)}
+.nav a:hover{color:#fff;background:rgba(255,255,255,.08)}
+.nav a[aria-current="page"]{color:#fff;font-weight:600;background:rgba(255,255,255,.16)}
+.account{position:relative;z-index:2;display:inline-flex;align-items:center;gap:9px;height:46px;
+  padding:5px 17px 5px 5px;border:none;border-radius:999px;cursor:pointer;background:rgba(255,255,255,.92);
+  color:var(--navy-800);font-family:inherit;font-size:14px;font-weight:600;
+  box-shadow:0 10px 26px -14px rgba(2,10,24,.95)}
+.account:hover{background:#fff}
+.account .ring{width:36px;height:36px;display:grid;place-items:center;border-radius:50%;
+  background:var(--navy-800);color:#fff;font-size:16px}
+
+/* ---------- cabeçalho ---------- */
+.topo{width:var(--shell);margin:0 auto;padding:140px 0 0;text-align:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;margin:0 0 16px;padding:7px 15px;border-radius:999px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+  font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--sky-soft)}
+.topo h1{margin:0;font-family:Poppins,sans-serif;font-weight:600;
+  font-size:clamp(30px,4vw,46px);line-height:1.15;letter-spacing:-.03em;color:#fff}
+.topo p{margin:16px auto 0;max-width:600px;font-size:16.5px;line-height:1.65;color:var(--on-dark-3)}
+
+/* alternador */
+.ciclo{display:inline-flex;align-items:center;gap:4px;margin:30px 0 0;padding:5px;border-radius:999px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
+.ciclo button{padding:10px 20px;border:none;border-radius:999px;cursor:pointer;background:transparent;
+  color:var(--on-dark-2);font-family:inherit;font-size:14px;font-weight:600;
+  transition:background .25s var(--ease),color .25s var(--ease)}
+.ciclo button[aria-pressed="true"]{background:#fff;color:var(--navy-800)}
+.ciclo .selo{margin-left:6px;padding:3px 8px;border-radius:999px;background:rgba(47,211,155,.18);
+  color:#8fe8c8;font-size:11px;font-weight:700}
+
+/* ---------- cards ---------- */
+.grade{width:var(--shell);margin:44px auto 0;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;align-items:start}
+.plano{
+  position:relative;display:flex;flex-direction:column;padding:28px 24px 26px;border-radius:var(--r-xl);
+  background:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.028));
+  border:1px solid rgba(255,255,255,.1);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 24px 50px -34px rgba(2,10,24,.9);
+}
+.plano--destaque{
+  background:linear-gradient(180deg,rgba(77,159,255,.16),rgba(77,159,255,.05));
+  border-color:rgba(77,159,255,.42);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 30px 60px -30px rgba(77,159,255,.45);
+}
+.fita{position:absolute;top:-11px;left:24px;padding:5px 12px;border-radius:999px;
+  background:var(--sky);color:#04101f;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.plano h2{margin:0;font-family:Poppins,sans-serif;font-size:19px;font-weight:600;color:#fff}
+.plano .pra{margin:6px 0 0;font-size:13px;line-height:1.55;color:var(--on-dark-3);min-height:40px}
+.preco{display:flex;align-items:baseline;gap:4px;margin:18px 0 2px}
+.preco .moeda{font-size:15px;font-weight:600;color:var(--on-dark-2)}
+.preco .valor{font-family:Poppins,sans-serif;font-size:36px;font-weight:700;color:#fff;letter-spacing:-.02em}
+.preco .ciclo-txt{font-size:13px;color:var(--on-dark-3)}
+.preco-nota{min-height:18px;font-size:12px;color:var(--sky-soft)}
+.cta{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;height:46px;margin:18px 0 20px;
+  border-radius:12px;text-decoration:none;font-size:14px;font-weight:600;cursor:pointer;border:none;
+  font-family:inherit;transition:background .2s var(--ease),border-color .2s var(--ease),color .2s var(--ease);
+}
+.cta--forte{background:var(--sky);color:#04101f}
+.cta--forte:hover{background:#6fb0ff}
+.cta--calma{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.16)}
+.cta--calma:hover{background:rgba(255,255,255,.14)}
+.plano ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.plano li{display:flex;gap:9px;font-size:13px;line-height:1.5;color:var(--on-dark-2)}
+.plano li .bi{flex:none;font-size:14px;line-height:1.35;color:var(--safe)}
+.plano li.na{color:var(--on-dark-3)}
+.plano li.na .bi{color:rgba(234,241,253,.28)}
+.plano li b{color:#fff;font-weight:600}
+
+/* ---------- comparativo ---------- */
+.comparativo{width:var(--shell);margin:70px auto 0}
+.comparativo h2{margin:0 0 6px;font-family:Poppins,sans-serif;font-size:clamp(22px,2.4vw,28px);
+  font-weight:600;letter-spacing:-.02em;color:#fff}
+.comparativo > p{margin:0 0 26px;font-size:15px;color:var(--on-dark-3)}
+.rolagem{overflow-x:auto;border-radius:var(--r-xl);border:1px solid rgba(255,255,255,.1);
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02))}
+table{width:100%;border-collapse:collapse;min-width:820px}
+th,td{padding:14px 18px;text-align:left;font-size:13.5px;border-bottom:1px solid rgba(255,255,255,.07)}
+thead th{position:sticky;top:0;background:rgba(7,24,44,.94);backdrop-filter:blur(10px);
+  font-size:13px;font-weight:600;color:#fff;white-space:nowrap;z-index:1}
+thead th:first-child{text-align:left}
+th:not(:first-child),td:not(:first-child){text-align:center;width:150px}
+tbody th{font-weight:500;color:var(--on-dark-2)}
+td{color:var(--on-dark-2)}
+td b{color:#fff;font-weight:600}
+.grupo th{background:rgba(255,255,255,.05);font-family:Poppins,sans-serif;font-size:11.5px;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--sky-soft)}
+.sim{color:var(--safe);font-size:15px}
+.nao{color:rgba(234,241,253,.25);font-size:15px}
+tbody tr:hover td,tbody tr:hover th{background:rgba(255,255,255,.03)}
+
+/* ---------- dúvidas ---------- */
+.duvidas{width:var(--shell);margin:70px auto 0;display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.duvidas h2{grid-column:1/-1;margin:0 0 8px;font-family:Poppins,sans-serif;
+  font-size:clamp(22px,2.4vw,28px);font-weight:600;letter-spacing:-.02em;color:#fff}
+.duvida{padding:22px 24px;border-radius:var(--r-lg);
+  background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.025));
+  border:1px solid rgba(255,255,255,.1)}
+.duvida b{display:block;margin-bottom:7px;font-size:15px;color:#fff}
+.duvida p{margin:0;font-size:13.5px;line-height:1.65;color:var(--on-dark-3)}
+
+footer{margin-top:80px;border-top:1px solid rgba(255,255,255,.08)}
+.foot{width:var(--shell);margin:0 auto;padding:26px 0 34px;display:flex;flex-wrap:wrap;
+  align-items:center;justify-content:space-between;gap:14px;font-size:12.5px;color:var(--on-dark-3)}
+.foot img{width:92px;opacity:.5;filter:brightness(0) invert(1)}
+.foot .links{display:flex;flex-wrap:wrap;gap:20px}
+.foot a{color:var(--on-dark-3);text-decoration:none}
+.foot a:hover{color:var(--on-dark)}
+
+@media (max-width:1080px){
+  :root{--shell:min(760px,100% - 40px)}
+  .grade{grid-template-columns:1fr 1fr}
+  .duvidas{grid-template-columns:1fr}
+}
+@media (max-width:640px){
+  :root{--shell:min(560px,100% - 32px)}
+  .topbar{padding:12px 16px;flex-wrap:wrap;gap:10px}
+  .nav{order:3;width:100%;overflow-x:auto;scrollbar-width:none}
+  .nav::-webkit-scrollbar{display:none}
+  .account{height:42px;width:42px;padding:4px;justify-content:center}
+  .account span:last-child{display:none}
+  .topo{padding-top:150px}
+  .grade{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms !important}}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="orbs" aria-hidden="true"><div class="orb orb--1"></div><div class="orb orb--2"></div></div>
+
+<header class="topbar">
+  <a class="brand" href="index.html" aria-label="confia? — início">
+    <img src="assets/logo-confia.svg" alt="confia?">
+  </a>
+  <nav class="nav" aria-label="Principal">
+    <a href="index.html">Confia?</a>
+    <a href="index.html#como">Como funciona</a>
+    <a href="planos.html" aria-current="page">Planos</a>
+    <a href="index.html#politicas">Ajuda</a>
+  </nav>
+  <button class="account" type="button">
+    <span class="ring"><i class="bi bi-person-fill" aria-hidden="true"></i></span>
+    <span>Entrar</span>
+  </button>
+</header>
+
+<section class="topo">
+  <p class="eyebrow"><i class="bi bi-tags" aria-hidden="true"></i> Planos</p>
+  <h1>Custa menos que cair<br>em um golpe só</h1>
+  <p>Comece de graça, sem cartão. Se precisar de mais, o plano acompanha —
+  inclusive para proteger quem você ama e não entende de internet.</p>
+
+  <div class="ciclo" role="group" aria-label="Ciclo de cobrança">
+    <button type="button" data-ciclo="mes" aria-pressed="true">Mensal</button>
+    <button type="button" data-ciclo="ano" aria-pressed="false">Anual <span class="selo">2 meses grátis</span></button>
+  </div>
+</section>
+
+<div class="grade">
+
+  <article class="plano">
+    <h2>Grátis</h2>
+    <p class="pra">Pra tirar a dúvida daquele link que acabou de chegar.</p>
+    <div class="preco"><span class="moeda">R$</span><span class="valor">0</span></div>
+    <p class="preco-nota">Sem cartão, sem pegadinha</p>
+    <a class="cta cta--calma" href="index.html#verificador">Verificar agora</a>
+    <ul>
+      <li><i class="bi bi-check-lg"></i><span><b>2 verificações</b> sem criar conta</span></li>
+      <li><i class="bi bi-check-lg"></i><span><b>5 por mês</b> criando conta grátis</span></li>
+      <li><i class="bi bi-check-lg"></i><span>Link, site e perfil de rede social</span></li>
+      <li><i class="bi bi-check-lg"></i><span>Veredito com o motivo explicado</span></li>
+      <li><i class="bi bi-check-lg"></i><span>Histórico dos últimos 7 dias</span></li>
+      <li><i class="bi bi-check-lg"></i><span>Denunciar golpe que você recebeu</span></li>
+      <li class="na"><i class="bi bi-dash-lg"></i><span>Análise de print e foto</span></li>
+    </ul>
+  </article>
+
+  <article class="plano">
+    <h2>Básico</h2>
+    <p class="pra">Pra quem compra online e recebe link o dia todo.</p>
+    <div class="preco">
+      <span class="moeda">R$</span><span class="valor" data-mes="12,90" data-ano="8,25">12,90</span>
+      <span class="ciclo-txt">/mês</span>
+    </div>
+    <p class="preco-nota" data-nota-mes="" data-nota-ano="R$ 99 por ano, à vista"></p>
+    <a class="cta cta--calma" href="#">Assinar Básico</a>
+    <ul>
+      <li><i class="bi bi-check-lg"></i><span><b>30 verificações</b> por mês</span></li>
+      <li><i class="bi bi-check-lg"></i><span><b>5 imagens</b> por mês — print, anúncio, foto de perfil</span></li>
+      <li><i class="bi bi-check-lg"></i><span>Detecta se a foto foi <b>feita por IA</b></span></li>
+      <li><i class="bi bi-check-lg"></i><span>Histórico completo, com busca</span></li>
+      <li><i class="bi bi-check-lg"></i><span>Extensão de navegador</span></li>
+      <li><i class="bi bi-check-lg"></i><span>Aviso ao abrir site já reprovado</span></li>
+      <li><i class="bi bi-check-lg"></i><span>Suporte por e-mail em até 24h</span></li>
+    </ul>
+  </article>
+
+  <article class="plano plano--destaque">
+    <span class="fita">Mais escolhido</span>
+    <h2>Premium</h2>
+    <p class="pra">Pra cuidar de você e de quem não entende de internet.</p>
+    <div class="preco">
+      <span class="moeda">R$</span><span class="valor" data-mes="24,90" data-ano="16,58">24,90</span>
+      <span class="ciclo-txt">/mês</span>
+    </div>
+    <p class="preco-nota" data-nota-mes="" data-nota-ano="R$ 199 por ano, à vista"></p>
+    <a class="cta cta--forte" href="#">Assinar Premium</a>
+    <ul>
+      <li><i class="bi bi-check-lg"></i><span><b>150 verificações</b> por mês</span></li>
+      <li><i class="bi bi-check-lg"></i><span><b>40 imagens</b> por mês</span></li>
+      <li><i class="bi bi-check-lg"></i><span><b>Até 5 pessoas</b> na mesma conta</span></li>
+      <li><i class="bi bi-check-lg"></i><span>Modo simples pra quem tem dificuldade</span></li>
+      <li><i class="bi bi-check-lg"></i><span><b>Monitoramento:</b> avisamos se um site aprovado mudar</span></li>
+      <li><i class="bi bi-check-lg"></i><span><b>Gente de verdade</b> revisa quando a IA fica na dúvida</span></li>
+      <li><i class="bi bi-check-lg"></i><span>Alerta se seu e-mail ou telefone vazar</span></li>
+      <li><i class="bi bi-check-lg"></i><span>Resumo mensal do que chegou pra família</span></li>
+      <li><i class="bi bi-check-lg"></i><span>Suporte prioritário</span></li>
+    </ul>
+  </article>
+
+  <article class="plano">
+    <h2>Enterprise</h2>
+    <p class="pra">Pra empresa que precisa proteger clientes ou equipe.</p>
+    <div class="preco"><span class="valor" style="font-size:26px">Sob medida</span></div>
+    <p class="preco-nota">Conforme volume e integração</p>
+    <a class="cta cta--calma" href="#">Falar com a gente</a>
+    <ul>
+      <li><i class="bi bi-check-lg"></i><span>Volume combinado, sem teto fixo</span></li>
+      <li><i class="bi bi-check-lg"></i><span><b>API e webhooks</b> com documentação</span></li>
+      <li><i class="bi bi-check-lg"></i><span>Painel de equipe com permissões</span></li>
+      <li><i class="bi bi-check-lg"></i><span>Integração com WhatsApp Business e Slack</span></li>
+      <li><i class="bi bi-check-lg"></i><span>Relatório de tudo que passou pela empresa</span></li>
+      <li><i class="bi bi-check-lg"></i><span>SLA em contrato</span></li>
+      <li><i class="bi bi-check-lg"></i><span><b>Atendimento ao vivo</b></span></li>
+      <li><i class="bi bi-check-lg"></i><span>Nota fiscal e faturamento</span></li>
+    </ul>
+  </article>
+</div>
+
+<section class="comparativo">
+  <h2>Comparando item por item</h2>
+  <p>Sem letra miúda. O que cada plano faz, do jeito que funciona de verdade.</p>
+
+  <div class="rolagem">
+    <table>
+      <thead>
+        <tr><th>Recurso</th><th>Grátis</th><th>Básico</th><th>Premium</th><th>Enterprise</th></tr>
+      </thead>
+      <tbody>
+        <tr class="grupo"><th colspan="5">Volume</th></tr>
+        <tr><th>Verificações por mês</th><td>5</td><td><b>30</b></td><td><b>150</b></td><td>combinado</td></tr>
+        <tr><th>Sem estar logado</th><td>2</td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><th>Imagens por mês</th><td><i class="bi bi-x-lg nao"></i></td><td>5</td><td><b>40</b></td><td>combinado</td></tr>
+        <tr><th>Verificar várias de uma vez</th><td><i class="bi bi-x-lg nao"></i></td><td>2 por vez</td><td><b>10 por vez</b></td><td>em lote</td></tr>
+
+        <tr class="grupo"><th colspan="5">O que dá pra verificar</th></tr>
+        <tr><th>Link e endereço de site</th><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+        <tr><th>Perfil de rede social</th><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+        <tr><th>Loja e marketplace</th><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+        <tr><th>Print de conversa</th><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+        <tr><th>Foto de anúncio e produto</th><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+        <tr><th>Site de jogo, skin e case</th><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+
+        <tr class="grupo"><th colspan="5">Análise de imagem</th></tr>
+        <tr><th>Lê o texto do print</th><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+        <tr><th>Detecta imagem feita por IA</th><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+        <tr><th>Procura a foto em outros sites</th><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+        <tr><th>Confere selo de origem da imagem</th><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+
+        <tr class="grupo"><th colspan="5">Conta e histórico</th></tr>
+        <tr><th>Histórico de consultas</th><td>7 dias</td><td>completo</td><td>completo</td><td>completo</td></tr>
+        <tr><th>Busca no histórico</th><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+        <tr><th>Pessoas na mesma conta</th><td>1</td><td>1</td><td><b>5</b></td><td>equipe</td></tr>
+        <tr><th>Exportar em PDF</th><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+
+        <tr class="grupo"><th colspan="5">Onde funciona</th></tr>
+        <tr><th>Site</th><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+        <tr><th>Extensão de navegador</th><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+        <tr><th>Aplicativo no celular</th><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+        <tr><th>Compartilhar direto do WhatsApp</th><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+
+        <tr class="grupo"><th colspan="5">Proteção contínua</th></tr>
+        <tr><th>Aviso se um site aprovado mudar</th><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+        <tr><th>Alerta de vazamento de dados</th><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+        <tr><th>Resumo mensal</th><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+
+        <tr class="grupo"><th colspan="5">Suporte</th></tr>
+        <tr><th>Central de ajuda</th><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+        <tr><th>Resposta por e-mail</th><td><i class="bi bi-x-lg nao"></i></td><td>24h</td><td><b>8h</b></td><td>SLA</td></tr>
+        <tr><th>Revisão humana da análise</th><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-x-lg nao"></i></td><td><b>até 2h</b></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+        <tr><th>Atendimento ao vivo</th><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+
+        <tr class="grupo"><th colspan="5">Para empresas</th></tr>
+        <tr><th>API e webhooks</th><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+        <tr><th>Integrações</th><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+        <tr><th>Nota fiscal e contrato</th><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-x-lg nao"></i></td><td><i class="bi bi-check-lg sim"></i></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="duvidas">
+  <h2>Antes de assinar</h2>
+
+  <div class="duvida">
+    <b>Posso cancelar quando quiser?</b>
+    <p>Pode, direto na sua conta, sem ligar pra ninguém. O plano segue valendo até o fim do período já pago.</p>
+  </div>
+  <div class="duvida">
+    <b>E se eu me arrepender?</b>
+    <p>Você tem 7 dias para desistir e receber tudo de volta, como manda o Código de Defesa do Consumidor.</p>
+  </div>
+  <div class="duvida">
+    <b>O que acontece se eu bater o limite?</b>
+    <p>A gente avisa antes de acabar. Chegando no fim, você escolhe: espera virar o mês ou muda de plano na hora.</p>
+  </div>
+  <div class="duvida">
+    <b>Vocês guardam meus prints?</b>
+    <p>A imagem é apagada assim que a análise termina. Fica só o resultado no seu histórico — nunca a foto.</p>
+  </div>
+  <div class="duvida">
+    <b>O confia? garante que não vou cair em golpe?</b>
+    <p>Não. Nenhuma ferramenta honesta garante isso. A gente investiga o que dá pra investigar, mostra o motivo
+    de cada conclusão e te dá a informação pra decidir. A decisão continua sendo sua.</p>
+  </div>
+  <div class="duvida">
+    <b>Preciso de cartão pra usar de graça?</b>
+    <p>Não. O plano grátis é grátis mesmo, sem cartão cadastrado e sem virar cobrança depois.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="foot">
+    <img src="assets/logo-confia.svg" alt="confia?">
+    <div class="links">
+      <a href="index.html#politicas">Privacidade</a>
+      <a href="index.html#politicas">Termos</a>
+      <a href="index.html#politicas">Reembolso</a>
+      <a href="index.html#politicas">Contato</a>
+    </div>
+    <span>© 2026 confia? — confiia.com.br</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var botoes = [].slice.call(document.querySelectorAll('.ciclo button'));
+  var valores = [].slice.call(document.querySelectorAll('.valor[data-mes]'));
+  var notas = [].slice.call(document.querySelectorAll('.preco-nota[data-nota-mes]'));
+
+  function aplicar(ciclo) {
+    valores.forEach(function (v) { v.textContent = v.dataset[ciclo]; });
+    notas.forEach(function (n) {
+      n.textContent = ciclo === 'ano' ? n.dataset.notaAno : n.dataset.notaMes;
+    });
+    document.querySelectorAll('.ciclo-txt').forEach(function (c) {
+      c.textContent = ciclo === 'ano' ? '/mês, no anual' : '/mês';
+    });
+    botoes.forEach(function (b) {
+      b.setAttribute('aria-pressed', b.dataset.ciclo === ciclo ? 'true' : 'false');
+    });
+  }
+
+  botoes.forEach(function (b) {
+    b.addEventListener('click', function () { aplicar(b.dataset.ciclo); });
+  });
+  aplicar('mes');
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>confia? — Denunciar golpe</title>
+<meta name="description" content="Caiu ou quase caiu em um golpe? Conte o caso. Sua denúncia protege a próxima pessoa que receber o mesmo link.">
+<meta name="theme-color" content="#0b2443">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link href="assets/base.css" rel="stylesheet">
+<style>
+  .corpo{width:var(--shell);margin:34px auto 0;display:grid;grid-template-columns:1fr 330px;gap:24px;align-items:start}
+  .lateral{display:grid;gap:14px;position:sticky;top:100px}
+  .bloco{padding:22px 22px 20px}
+  .bloco h2{margin:0 0 10px;font-size:15px;font-weight:600;color:#fff;display:flex;align-items:center;gap:9px}
+  .bloco h2 .bi{color:var(--sky-soft);font-size:17px}
+  .bloco p{margin:0;font-size:13px;line-height:1.65;color:var(--on-dark-3)}
+  .bloco ol{margin:10px 0 0;padding-left:18px;display:grid;gap:8px}
+  .bloco li{font-size:13px;line-height:1.55;color:var(--on-dark-2)}
+  .bloco li b{color:#fff}
+  .passos{display:flex;align-items:center;gap:10px;margin-bottom:24px;font-size:12.5px;color:var(--ink-3)}
+  .passos i{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;
+    background:var(--navy-800);color:#fff;font-style:normal;font-size:12px;font-weight:700}
+  .divisor{height:1px;background:var(--line);margin:26px 0}
+  .rodape-form{display:flex;gap:12px;margin-top:26px}
+  .rodape-form .btn--forte{flex:1}
+
+  /* golpe inédito */
+  .novo{display:flex;gap:13px;padding:18px 20px;margin-bottom:18px;border-radius:14px;cursor:pointer;
+    border:1.5px solid #f0d68a;background:#fff8e6;
+    transition:border-color .2s var(--ease),background .2s var(--ease)}
+  .novo:hover{border-color:#d9a520;background:#fff3d6}
+  .novo input{position:absolute;opacity:0;pointer-events:none}
+  .marca-novo{width:22px;height:22px;flex:none;margin-top:1px;display:grid;place-items:center;
+    border:1.5px solid #d9a520;border-radius:7px;background:#fff;color:transparent;font-size:13px;
+    transition:background .2s var(--ease),color .2s var(--ease)}
+  .novo input:checked + .marca-novo{background:#d9a520;border-color:#d9a520;color:#fff}
+  .novo input:focus-visible + .marca-novo{outline:2px solid var(--sky);outline-offset:2px}
+  .txt-novo b{display:flex;align-items:center;gap:8px;font-size:14.5px;color:#6b5a10;margin-bottom:5px}
+  .txt-novo b .bi{color:#d9a520}
+  .txt-novo small{display:block;font-size:12.5px;line-height:1.6;color:#8a7420}
+  @media (max-width:900px){
+    .corpo{grid-template-columns:1fr}
+    .lateral{position:static;order:-1}
+  }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="orbs" aria-hidden="true"><div class="orb orb--1"></div><div class="orb orb--2"></div></div>
+
+<header class="topbar">
+  <a class="brand" href="index.html" aria-label="confia? — início"><img src="assets/logo-confia.svg" alt="confia?"></a>
+  <nav class="nav" aria-label="Principal">
+    <a href="index.html">Confia?</a>
+    <a href="planos.html">Planos</a>
+    <a href="registrar-loja.html">Registrar loja</a>
+    <a href="denunciar.html" aria-current="page">Denunciar</a>
+  </nav>
+  <button class="account" type="button">
+    <span class="ring"><i class="bi bi-person-fill" aria-hidden="true"></i></span>
+    <span class="rotulo">Entrar</span>
+  </button>
+</header>
+
+<section class="capa">
+  <p class="eyebrow"><i class="bi bi-megaphone" aria-hidden="true"></i> Denunciar golpe</p>
+  <h1>Conte o que aconteceu.<br>A próxima pessoa não cai.</h1>
+  <p class="lead">Cada denúncia entra na nossa base e derruba a nota do site, do perfil ou do número
+  denunciado. Quando alguém verificar aquilo depois, já vai aparecer o aviso.</p>
+</section>
+
+<div class="corpo">
+
+  <main class="folha">
+    <div class="passos">
+      <i>1</i> <span>Leva uns 3 minutos. Só o essencial é obrigatório.</span>
+    </div>
+
+    <form id="form" novalidate>
+
+      <!-- ---------- o que era ---------- -->
+      <div class="campo">
+        <label>Que tipo de golpe foi?</label>
+        <div class="opcoes">
+          <label class="opcao"><input type="radio" name="categoria" value="loja" required>
+            <span><i class="bi bi-bag-check" aria-hidden="true"></i> Compra que não chegou</span></label>
+          <label class="opcao"><input type="radio" name="categoria" value="jogo">
+            <span><i class="bi bi-controller" aria-hidden="true"></i> Jogo, skin ou case</span></label>
+          <label class="opcao"><input type="radio" name="categoria" value="emprestimo">
+            <span><i class="bi bi-cash-stack" aria-hidden="true"></i> Empréstimo</span></label>
+          <label class="opcao"><input type="radio" name="categoria" value="emprego">
+            <span><i class="bi bi-briefcase" aria-hidden="true"></i> Vaga ou renda extra</span></label>
+          <label class="opcao"><input type="radio" name="categoria" value="premio">
+            <span><i class="bi bi-gift" aria-hidden="true"></i> Prêmio ou sorteio</span></label>
+          <label class="opcao"><input type="radio" name="categoria" value="investimento">
+            <span><i class="bi bi-graph-up-arrow" aria-hidden="true"></i> Investimento</span></label>
+          <label class="opcao"><input type="radio" name="categoria" value="perfil">
+            <span><i class="bi bi-person-bounding-box" aria-hidden="true"></i> Perfil falso</span></label>
+          <label class="opcao"><input type="radio" name="categoria" value="ligacao">
+            <span><i class="bi bi-telephone" aria-hidden="true"></i> Ligação ou SMS</span></label>
+          <label class="opcao"><input type="radio" name="categoria" value="outro">
+            <span><i class="bi bi-three-dots" aria-hidden="true"></i> Outro</span></label>
+        </div>
+        <span class="aviso-erro">Escolha uma opção para continuar.</span>
+      </div>
+
+      <!-- golpe inédito: entra na frente da fila, porque ninguém está protegido dele ainda -->
+      <label class="novo" id="caixa-novo">
+        <input type="checkbox" name="golpe_novo" id="golpe_novo">
+        <span class="marca-novo"><i class="bi bi-check-lg" aria-hidden="true"></i></span>
+        <span class="txt-novo">
+          <b><i class="bi bi-lightning-charge-fill" aria-hidden="true"></i> É um golpe novo, nunca vi isso antes</b>
+          <small>Marque se o golpe não se parece com nenhum dos tipos acima, ou se o jeito de aplicar
+          é diferente do que você já conhecia. Golpe novo passa na frente da nossa fila — ninguém
+          está protegido dele ainda.</small>
+        </span>
+      </label>
+
+      <div class="campo" id="campo-novo" hidden>
+        <label for="descricao_novo">O que teve de diferente?</label>
+        <input id="descricao_novo" name="descricao_novo" type="text"
+               placeholder="Ex.: pediram para instalar um aplicativo de banco pelo link">
+        <span class="dica">Em poucas palavras, o que fez esse golpe ser diferente dos que você já conhecia.</span>
+      </div>
+
+      <div class="divisor"></div>
+
+      <!-- ---------- onde ---------- -->
+      <div class="campo" id="campo-alvo">
+        <label for="alvo">Onde aconteceu?</label>
+        <input id="alvo" name="alvo" type="text" required
+               placeholder="Cole o link, o @ do perfil ou o número de telefone">
+        <span class="dica">É o dado mais importante da denúncia — é ele que vai ficar marcado na nossa base.</span>
+        <span class="aviso-erro">Precisamos do link, perfil ou telefone.</span>
+      </div>
+
+      <div class="dupla">
+        <div class="campo">
+          <label for="quando">Quando foi?</label>
+          <input id="quando" name="quando" type="date">
+        </div>
+        <div class="campo">
+          <label for="prejuizo">Quanto você perdeu? <span style="font-weight:400;color:var(--ink-3)">(opcional)</span></label>
+          <input id="prejuizo" name="prejuizo" type="text" inputmode="decimal" placeholder="R$ 0,00">
+          <span class="dica">Se não perdeu dinheiro, deixe em branco.</span>
+        </div>
+      </div>
+
+      <div class="campo">
+        <label for="se_passou">O golpista se passou por alguém? <span style="font-weight:400;color:var(--ink-3)">(opcional)</span></label>
+        <input id="se_passou" name="se_passou" type="text" placeholder="Ex.: Correios, Nubank, uma loja conhecida, um parente">
+        <span class="dica">Quando vários avisos citam a mesma empresa, a gente identifica que há uma campanha em andamento.</span>
+      </div>
+
+      <div class="campo">
+        <label for="relato">Como foi? Conte com suas palavras</label>
+        <textarea id="relato" name="relato" required minlength="30"
+          placeholder="O que te chamou pra conversa, o que prometeram, como pediram o pagamento, o que aconteceu depois..."></textarea>
+        <span class="dica">Quanto mais detalhe do roteiro, melhor a gente reconhece o mesmo golpe quando ele voltar com outro nome.</span>
+        <span class="aviso-erro">Escreva pelo menos algumas linhas sobre o que aconteceu.</span>
+      </div>
+
+      <div class="divisor"></div>
+
+      <!-- ---------- provas ---------- -->
+      <div class="campo">
+        <label>Provas</label>
+        <label class="solta" id="solta" for="arquivos">
+          <i class="bi bi-cloud-arrow-up" aria-hidden="true"></i>
+          <b>Arraste os prints aqui ou clique para escolher</b>
+          <small>Conversa, comprovante, anúncio, página. Até 8 arquivos.</small>
+        </label>
+        <input type="file" id="arquivos" multiple accept="image/*,video/*,application/pdf" hidden>
+        <div class="anexos" id="anexos"></div>
+        <span class="dica">Antes de enviar, <b>tampe seus dados pessoais</b> nos prints — número de cartão,
+        senha, endereço. A gente não precisa deles pra confirmar o golpe.</span>
+      </div>
+
+      <div class="divisor"></div>
+
+      <!-- ---------- contato ---------- -->
+      <div class="dupla">
+        <div class="campo">
+          <label for="email">Seu e-mail <span style="font-weight:400;color:var(--ink-3)">(opcional)</span></label>
+          <input id="email" name="email" type="email" placeholder="voce@email.com">
+          <span class="dica">Só para te avisar do resultado. Não aparece na denúncia.</span>
+        </div>
+        <div class="campo">
+          <label for="visibilidade">Como sua denúncia aparece</label>
+          <select id="visibilidade" name="visibilidade">
+            <option value="anonima" selected>Anônima — ninguém vê quem denunciou</option>
+            <option value="apelido">Com apelido</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="recado recado--info">
+        <i class="bi bi-shield-lock" aria-hidden="true"></i>
+        <p><b>Sua denúncia é anônima por padrão.</b> Publicamos o que foi denunciado —
+        o site, o perfil, o número — nunca quem denunciou.</p>
+      </div>
+
+      <div class="rodape-form">
+        <a class="btn btn--calmo" href="index.html">Cancelar</a>
+        <button class="btn btn--forte" type="submit" id="enviar">
+          <i class="bi bi-send" aria-hidden="true"></i> Enviar denúncia
+        </button>
+      </div>
+
+      <div id="resposta" style="margin-top:18px"></div>
+    </form>
+  </main>
+
+  <!-- ---------- lateral ---------- -->
+  <aside class="lateral">
+
+    <div class="bloco pane">
+      <h2><i class="bi bi-life-preserver" aria-hidden="true"></i> Perdeu dinheiro agora?</h2>
+      <p>Antes de qualquer coisa, faça isto — nesta ordem:</p>
+      <ol>
+        <li><b>Ligue para o seu banco</b> e peça o Mecanismo Especial de Devolução. Se for Pix, há chance de reaver.</li>
+        <li><b>Registre boletim de ocorrência</b> — pode ser online, na delegacia eletrônica do seu estado.</li>
+        <li><b>Troque as senhas</b> que você digitou em qualquer página suspeita.</li>
+        <li><b>Avise seus contatos</b> se a conta que te chamou era de alguém conhecido.</li>
+      </ol>
+    </div>
+
+    <div class="bloco pane">
+      <h2><i class="bi bi-clock-history" aria-hidden="true"></i> O que acontece depois</h2>
+      <p>A gente confere a denúncia, cruza com outras do mesmo alvo e, confirmando,
+      o site ou número passa a aparecer marcado para todo mundo que verificar.
+      Se você deixou e-mail, te contamos o desfecho.</p>
+    </div>
+
+    <div class="bloco pane">
+      <h2><i class="bi bi-people" aria-hidden="true"></i> Por que isso importa</h2>
+      <p>Golpista troca de site e de número toda semana. Cada denúncia encurta
+      o tempo que ele fica no ar — e quem verificar depois de você já recebe o aviso.</p>
+    </div>
+
+  </aside>
+</div>
+
+<footer>
+  <div class="foot">
+    <img src="assets/logo-confia.svg" alt="confia?">
+    <div class="links">
+      <a href="index.html#politicas">Privacidade</a>
+      <a href="index.html#politicas">Termos</a>
+      <a href="registrar-loja.html">Registrar loja</a>
+      <a href="index.html#politicas">Contato</a>
+    </div>
+    <span>© 2026 confia? — confiia.com.br</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var form = document.getElementById('form');
+  var solta = document.getElementById('solta');
+  var entrada = document.getElementById('arquivos');
+  var lista = document.getElementById('anexos');
+  var enviar = document.getElementById('enviar');
+  var resposta = document.getElementById('resposta');
+  var arquivos = [];
+  var LIMITE = 8;
+
+  /* ---------- anexos ---------- */
+  function icone(f) {
+    if (/^video\//.test(f.type)) return 'bi-camera-video-fill';
+    if (/^image\//.test(f.type)) return 'bi-image-fill';
+    return 'bi-file-earmark-fill';
+  }
+  function desenhar() {
+    lista.textContent = '';
+    arquivos.forEach(function (f, i) {
+      var item = document.createElement('span');
+      item.className = 'anexo';
+      var ic = document.createElement('i');
+      ic.className = 'bi ' + icone(f);
+      ic.setAttribute('aria-hidden', 'true');
+      var nome = document.createElement('span');
+      nome.textContent = f.name;
+      var x = document.createElement('button');
+      x.type = 'button';
+      x.setAttribute('aria-label', 'Remover ' + f.name);
+      x.innerHTML = '<i class="bi bi-x-lg" aria-hidden="true"></i>';
+      x.addEventListener('click', function () { arquivos.splice(i, 1); desenhar(); });
+      item.appendChild(ic); item.appendChild(nome); item.appendChild(x);
+      lista.appendChild(item);
+    });
+  }
+  function receber(fs) {
+    arquivos = arquivos.concat(Array.prototype.slice.call(fs)).slice(0, LIMITE);
+    desenhar();
+  }
+  entrada.addEventListener('change', function () { receber(entrada.files); entrada.value = ''; });
+  ['dragenter', 'dragover'].forEach(function (ev) {
+    solta.addEventListener(ev, function (e) { e.preventDefault(); solta.classList.add('sobre'); });
+  });
+  ['dragleave', 'drop'].forEach(function (ev) {
+    solta.addEventListener(ev, function (e) { e.preventDefault(); solta.classList.remove('sobre'); });
+  });
+  solta.addEventListener('drop', function (e) { if (e.dataTransfer) receber(e.dataTransfer.files); });
+
+  /* ---------- validação ---------- */
+  function marca(campo, ruim) { campo.classList.toggle('erro', ruim); return !ruim; }
+
+  form.addEventListener('input', function (e) {
+    var campo = e.target.closest('.campo');
+    if (campo) campo.classList.remove('erro');
+  });
+
+  /* golpe novo: revela o campo de descrição */
+  var caixaNovo = document.getElementById('golpe_novo');
+  var campoNovo = document.getElementById('campo-novo');
+  caixaNovo.addEventListener('change', function () {
+    campoNovo.hidden = !caixaNovo.checked;
+    if (caixaNovo.checked) document.getElementById('descricao_novo').focus();
+  });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    resposta.textContent = '';
+
+    var ok = true;
+    var categoria = form.querySelector('input[name=categoria]:checked');
+    ok = marca(form.querySelector('.opcoes').closest('.campo'), !categoria) && ok;
+
+    var alvo = document.getElementById('alvo');
+    ok = marca(alvo.closest('.campo'), !alvo.value.trim()) && ok;
+
+    var relato = document.getElementById('relato');
+    ok = marca(relato.closest('.campo'), relato.value.trim().length < 30) && ok;
+
+    if (!ok) {
+      var primeiro = form.querySelector('.campo.erro');
+      if (primeiro) primeiro.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    enviar.setAttribute('data-carregando', '');
+    setTimeout(function () {
+      enviar.removeAttribute('data-carregando');
+      resposta.innerHTML =
+        '<div class="recado recado--info">' +
+        '<i class="bi bi-info-circle-fill" aria-hidden="true"></i>' +
+        '<p><b>Formulário validado.</b> Falta ligar no servidor para gravar a denúncia ' +
+        '(tabela <code>denuncias</code>) e subir as provas. O que você digitou está pronto para envio.</p>' +
+        '</div>';
+      resposta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 900);
+  });
+})();
+</script>
+</body>
+</html>

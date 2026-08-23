@@ -1,0 +1,750 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>confia? — Verifique antes de clicar</title>
+<meta name="description" content="Cole um link, print ou perfil e descubra em segundos se é golpe ou seguro.">
+<meta name="theme-color" content="#0c2441">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     confia? — Versão 1 "Meia-noite"
+     Paleta derivada do navy oficial da logo (#0c2441)
+     ============================================================ */
+  :root{
+    --navy-950:#061527;
+    --navy-900:#081c33;
+    --navy-800:#0c2441;   /* cor exata da logo */
+    --navy-700:#123255;
+    --navy-600:#1b4675;
+
+    --azure:#4c8dff;
+    --azure-dim:#2f6fe0;
+    --azure-wash:#dfe9ff;
+
+    --safe:#3ad29f;
+    --warn:#f6bb52;
+    --risk:#f77468;
+
+    --paper:#ffffff;
+    --paper-2:#f4f7fc;
+    --ink:#0c2441;
+    --ink-2:#3d5573;
+    --ink-3:#6d819c;
+    --on-dark:#e9f0fc;
+    --on-dark-2:rgba(233,240,252,.70);
+    --on-dark-3:rgba(233,240,252,.46);
+    --hair:rgba(255,255,255,.13);
+
+    --r-sm:10px; --r-md:14px; --r-lg:22px; --r-xl:30px;
+    --shadow-card:0 30px 70px -20px rgba(3,10,24,.65);
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  html,body{margin:0;padding:0}
+
+  body{
+    min-height:100vh;
+    font-family:Inter,"Segoe UI",system-ui,sans-serif;
+    font-size:16px;
+    color:var(--on-dark);
+    background:var(--navy-900);
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* profundidade do fundo: halos + textura fina */
+  .bg{position:fixed;inset:0;z-index:-2;pointer-events:none;
+    background:
+      radial-gradient(1100px 520px at 50% -12%, rgba(76,141,255,.26), transparent 62%),
+      radial-gradient(700px 500px at 4% 30%, rgba(27,70,117,.42), transparent 66%),
+      radial-gradient(760px 520px at 98% 24%, rgba(27,70,117,.38), transparent 66%),
+      linear-gradient(180deg, var(--navy-900) 0%, var(--navy-950) 100%);
+  }
+  .grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  ::selection{background:rgba(76,141,255,.35)}
+  :focus-visible{outline:2px solid var(--azure);outline-offset:3px;border-radius:6px}
+
+  .skip{position:absolute;left:-9999px;top:0;background:#fff;color:var(--ink);
+    padding:10px 16px;border-radius:0 0 var(--r-sm) 0;z-index:60;font-weight:600}
+  .skip:focus{left:0}
+
+  /* ============================================================
+     TOPO — vidro fosco iOS com blur progressivo
+     ============================================================ */
+  .topbar{
+    position:fixed; top:0; left:0; right:0; z-index:40;
+    display:flex; align-items:center; gap:16px;
+    padding:18px 30px;
+    transition:padding .35s var(--ease);
+  }
+
+  /* camadas de blur com máscara = desfoque progressivo, sem "corte" seco */
+  .topbar::before,
+  .topbar::after,
+  .topbar .veil{
+    content:"";
+    position:absolute; left:0; right:0; top:0;
+    pointer-events:none;
+    opacity:0;
+    transition:opacity .4s var(--ease);
+  }
+  .topbar::before{
+    height:150%;
+    backdrop-filter:blur(3px);
+    -webkit-backdrop-filter:blur(3px);
+    -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 30%,transparent 78%);
+    mask-image:linear-gradient(to bottom,#000 0%,#000 30%,transparent 78%);
+  }
+  .topbar::after{
+    height:120%;
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 42%,transparent 88%);
+    mask-image:linear-gradient(to bottom,#000 0%,#000 42%,transparent 88%);
+  }
+  .topbar .veil{
+    height:135%;
+    background:linear-gradient(to bottom, rgba(8,28,51,.82) 0%, rgba(8,28,51,.42) 55%, transparent 100%);
+  }
+  .is-scrolled .topbar::before,
+  .is-scrolled .topbar::after,
+  .is-scrolled .topbar .veil{opacity:1}
+  .is-scrolled .topbar{padding-top:12px;padding-bottom:12px}
+
+  /* marca reduzida: entra quando a logo do hero sai de cena */
+  .mini{
+    display:flex; align-items:baseline; gap:1px;
+    position:relative; z-index:1;
+    margin-right:auto;
+    font-family:Poppins,sans-serif; font-weight:700; font-size:22px;
+    letter-spacing:-.03em; color:#fff; text-decoration:none;
+    opacity:0; transform:translateY(6px);
+    transition:opacity .4s var(--ease), transform .4s var(--ease);
+    pointer-events:none;
+  }
+  .is-scrolled .mini{opacity:1;transform:none;pointer-events:auto}
+  .mini .lens{width:.62em;height:.55em}
+  .mini .lens svg{color:#fff}
+
+  .glass{
+    position:relative; z-index:1;
+    display:flex; align-items:center; gap:4px;
+    padding:5px;
+    border-radius:999px;
+    background:rgba(255,255,255,.07);
+    backdrop-filter:blur(26px) saturate(180%);
+    -webkit-backdrop-filter:blur(26px) saturate(180%);
+    border:1px solid var(--hair);
+    box-shadow:
+      0 14px 40px -12px rgba(3,10,24,.7),
+      inset 0 1px 0 rgba(255,255,255,.22),
+      inset 0 -1px 0 rgba(255,255,255,.05);
+    transition:background .35s var(--ease), box-shadow .35s var(--ease);
+  }
+  .is-scrolled .glass{
+    background:rgba(255,255,255,.11);
+    box-shadow:
+      0 18px 46px -14px rgba(3,10,24,.85),
+      inset 0 1px 0 rgba(255,255,255,.3),
+      inset 0 -1px 0 rgba(255,255,255,.06);
+  }
+
+  .nav-link{
+    display:inline-block;
+    padding:10px 20px;
+    border-radius:999px;
+    color:var(--on-dark-2);
+    font-size:14.5px; font-weight:500;
+    text-decoration:none; white-space:nowrap;
+    text-shadow:0 1px 2px rgba(4,12,28,.45);
+    transition:color .22s var(--ease), background .22s var(--ease);
+  }
+  .nav-link:hover{color:#fff;background:rgba(255,255,255,.09)}
+  .nav-link[aria-current="page"]{
+    color:#fff; font-weight:600;
+    background:linear-gradient(180deg, rgba(255,255,255,.20), rgba(255,255,255,.10));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.4), 0 2px 10px rgba(3,10,24,.3);
+  }
+
+  .avatar{
+    position:relative; z-index:1;
+    width:46px;height:46px;flex:none;
+    display:grid;place-items:center;
+    border:1px solid var(--hair);border-radius:50%;
+    background:rgba(255,255,255,.08);
+    backdrop-filter:blur(26px) saturate(180%);
+    -webkit-backdrop-filter:blur(26px) saturate(180%);
+    color:#fff;cursor:pointer;
+    box-shadow:0 14px 40px -14px rgba(3,10,24,.7), inset 0 1px 0 rgba(255,255,255,.22);
+    transition:background .22s var(--ease), transform .22s var(--ease);
+  }
+  .avatar:hover{background:rgba(255,255,255,.16);transform:translateY(-1px)}
+  .avatar svg{width:21px;height:21px}
+
+  /* ============================================================
+     PALCO
+     ============================================================ */
+  .stage{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,780px) minmax(0,1fr);
+    align-items:center;
+    gap:34px;
+    min-height:100vh;
+    padding:126px 26px 64px;
+  }
+
+  /* trilhos laterais: o que o confia? realmente checa */
+  .rail{display:flex;flex-direction:column;gap:12px}
+  .rail--left{align-items:flex-start}
+  .rail--right{align-items:flex-end}
+
+  .chk{
+    display:flex;align-items:center;gap:11px;
+    width:246px;padding:13px 16px;
+    border-radius:var(--r-md);
+    background:rgba(255,255,255,.055);
+    border:1px solid rgba(255,255,255,.09);
+    backdrop-filter:blur(10px);
+    -webkit-backdrop-filter:blur(10px);
+    box-shadow:0 12px 30px -18px rgba(3,10,24,.9);
+    transition:transform .3s var(--ease), background .3s var(--ease), border-color .3s var(--ease);
+  }
+  .rail--right .chk{width:214px}
+  .rail--left .chk:nth-child(even){width:204px}
+  .rail--right .chk:nth-child(even){width:250px}
+  .chk:hover{transform:translateY(-2px);background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.16)}
+  .chk .dot{width:7px;height:7px;border-radius:50%;flex:none;box-shadow:0 0 0 4px rgba(255,255,255,.05)}
+  .dot--safe{background:var(--safe)} .dot--warn{background:var(--warn)} .dot--risk{background:var(--risk)}
+  .chk b{display:block;font-size:13.5px;font-weight:600;color:var(--on-dark)}
+  .chk span{display:block;font-size:11.5px;color:var(--on-dark-3);margin-top:1px}
+
+  /* ============================================================
+     CARTÃO CENTRAL
+     ============================================================ */
+  .frame{
+    width:100%;max-width:780px;
+    padding:16px;
+    border-radius:var(--r-xl);
+    border:1px solid rgba(255,255,255,.18);
+    background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.01));
+    box-shadow:0 40px 90px -40px rgba(2,8,20,.9);
+  }
+
+  .card{
+    background:var(--paper);
+    border-radius:calc(var(--r-xl) - 12px);
+    padding:54px 56px 32px;
+    text-align:center;
+    box-shadow:var(--shadow-card);
+  }
+
+  /* logo */
+  .logo{
+    margin:0;
+    font-family:Poppins,sans-serif;
+    font-size:clamp(52px,7.2vw,100px);
+    font-weight:700; line-height:1; letter-spacing:-.025em;
+    color:var(--navy-800);
+  }
+  .lens{display:inline-block;position:relative;width:.62em;height:.55em;vertical-align:baseline}
+  .lens svg{position:absolute;left:-.01em;bottom:-.33em;width:.75em;height:.92em;color:currentColor}
+
+  .tagline{
+    margin:22px auto 0;max-width:470px;
+    font-size:16.5px;line-height:1.6;color:var(--ink-2);
+  }
+  .tagline strong{color:var(--ink);font-weight:600}
+
+  /* campo */
+  .field{position:relative;text-align:left}
+  form{margin-top:34px}
+  .field input{
+    width:100%;height:62px;
+    padding:0 100px 0 20px;
+    border:1.5px solid #d5dce8;border-radius:var(--r-md);
+    background:var(--paper-2);
+    font-family:inherit;font-size:15.5px;color:var(--ink);
+    outline:none;
+    transition:border-color .2s var(--ease), background .2s var(--ease), box-shadow .2s var(--ease);
+  }
+  .field input::placeholder{color:#93a1b8}
+  .field input:hover{border-color:#bcc7d9}
+  .field input:focus{
+    background:#fff;border-color:var(--azure);
+    box-shadow:0 0 0 4px rgba(76,141,255,.16);
+  }
+  .field.has-error input{border-color:var(--risk);box-shadow:0 0 0 4px rgba(247,116,104,.14)}
+
+  .field-tools{
+    position:absolute;right:8px;top:50%;transform:translateY(-50%);
+    display:flex;align-items:center;gap:2px;
+  }
+  .icon-btn{
+    width:42px;height:42px;display:grid;place-items:center;
+    border:none;border-radius:10px;background:transparent;
+    color:var(--ink-3);cursor:pointer;
+    transition:background .2s var(--ease), color .2s var(--ease);
+  }
+  .icon-btn:hover{background:#e9eefa;color:var(--navy-800)}
+  .icon-btn svg{width:19px;height:19px}
+
+  .hint{
+    display:flex;align-items:center;gap:7px;
+    margin:9px 2px 0;min-height:18px;
+    font-size:12.5px;color:var(--ink-3);
+  }
+  .hint svg{width:14px;height:14px;flex:none}
+  .has-error + .hint{color:var(--risk)}
+
+  /* anexos */
+  .files{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+  .files:empty{display:none}
+  .chip{
+    display:inline-flex;align-items:center;gap:7px;
+    padding:6px 8px 6px 11px;border-radius:999px;
+    background:#eaf0fb;color:var(--navy-700);
+    font-size:12.5px;font-weight:500;max-width:100%;
+  }
+  .chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:170px}
+  .chip button{
+    width:18px;height:18px;display:grid;place-items:center;flex:none;
+    border:none;border-radius:50%;background:rgba(12,36,65,.12);
+    color:var(--navy-700);cursor:pointer;font-size:13px;line-height:1;padding:0;
+  }
+  .chip button:hover{background:rgba(12,36,65,.24)}
+
+  /* ações */
+  .actions{display:flex;gap:12px;margin-top:18px}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    height:56px;padding:0 26px;
+    border:none;border-radius:var(--r-md);
+    font-family:inherit;font-size:15px;font-weight:600;
+    cursor:pointer;
+    transition:transform .18s var(--ease), background .18s var(--ease),
+               box-shadow .18s var(--ease), color .18s var(--ease), border-color .18s var(--ease);
+  }
+  .btn svg{width:19px;height:19px;flex:none}
+  .btn:active{transform:translateY(1px)}
+
+  .btn--primary{
+    flex:1;
+    background:linear-gradient(180deg, var(--navy-700), var(--navy-800));
+    color:#fff;
+    box-shadow:0 12px 26px -10px rgba(12,36,65,.75), inset 0 1px 0 rgba(255,255,255,.14);
+  }
+  .btn--primary:hover{
+    background:linear-gradient(180deg, var(--navy-600), var(--navy-700));
+    box-shadow:0 18px 34px -12px rgba(12,36,65,.85), inset 0 1px 0 rgba(255,255,255,.2);
+  }
+  .btn--primary[data-loading]{pointer-events:none;color:transparent;position:relative}
+  .btn--primary[data-loading] svg{visibility:hidden}
+  .btn--primary[data-loading]::after{
+    content:"";position:absolute;width:19px;height:19px;border-radius:50%;
+    border:2px solid rgba(255,255,255,.3);border-top-color:#fff;
+    animation:spin .7s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .btn--ghost{
+    background:#fff;color:var(--navy-700);
+    border:1.5px solid #d5dce8;
+  }
+  .btn--ghost:hover{background:var(--paper-2);border-color:#bcc7d9;color:var(--navy-800)}
+
+  /* resultado / rodapé do cartão */
+  .status{
+    display:none;align-items:flex-start;gap:12px;
+    margin-top:16px;padding:15px 17px;
+    border-radius:var(--r-md);text-align:left;
+    background:#eef3fd;border:1px solid #d8e3fa;
+  }
+  .status[data-show]{display:flex}
+  .status svg{width:19px;height:19px;flex:none;margin-top:1px;color:var(--azure-dim)}
+  .status p{margin:0;font-size:13.5px;line-height:1.55;color:var(--ink-2)}
+  .status b{color:var(--ink)}
+
+  .assure{
+    display:flex;align-items:center;gap:13px;
+    margin-top:24px;padding-top:20px;
+    border-top:1px solid #e8edf6;text-align:left;
+  }
+  .assure .shield{
+    width:36px;height:36px;flex:none;display:grid;place-items:center;
+    border-radius:11px;background:var(--azure-wash);color:var(--azure-dim);
+  }
+  .assure svg{width:19px;height:19px}
+  .assure b{display:block;font-size:13.5px;font-weight:600;color:var(--ink)}
+  .assure span{display:block;font-size:12.5px;color:var(--ink-3);margin-top:1px}
+
+  /* ============================================================
+     COMO FUNCIONA + RODAPÉ
+     ============================================================ */
+  .how{max-width:1080px;margin:0 auto;padding:0 26px 90px}
+  .how h2{
+    font-family:Poppins,sans-serif;font-size:12.5px;font-weight:600;
+    letter-spacing:.18em;text-transform:uppercase;color:var(--on-dark-3);
+    text-align:center;margin:0 0 30px;
+  }
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .step{
+    padding:26px 24px;border-radius:var(--r-lg);
+    background:rgba(255,255,255,.045);
+    border:1px solid rgba(255,255,255,.09);
+  }
+  .step i{
+    display:grid;place-items:center;width:34px;height:34px;
+    border-radius:10px;background:rgba(76,141,255,.16);color:#9dc0ff;
+    font-family:Poppins,sans-serif;font-style:normal;font-weight:600;font-size:14px;
+    margin-bottom:14px;
+  }
+  .step h3{margin:0 0 6px;font-size:15.5px;font-weight:600;color:var(--on-dark)}
+  .step p{margin:0;font-size:13.5px;line-height:1.6;color:var(--on-dark-3)}
+
+  footer{border-top:1px solid rgba(255,255,255,.08);padding:22px 26px 30px}
+  .foot{
+    max-width:1080px;margin:0 auto;
+    display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;
+    font-size:12.5px;color:var(--on-dark-3);
+  }
+  .foot nav{display:flex;flex-wrap:wrap;gap:18px}
+  .foot a{color:var(--on-dark-3);text-decoration:none}
+  .foot a:hover{color:var(--on-dark)}
+
+  /* ============================================================
+     RESPONSIVO
+     ============================================================ */
+  @media (max-width:1240px){
+    .rail{display:none}
+    .stage{grid-template-columns:minmax(0,1fr);justify-items:center}
+  }
+  @media (max-width:820px){
+    .topbar{padding:14px 16px;gap:10px}
+    .glass{overflow-x:auto;scrollbar-width:none;max-width:100%}
+    .glass::-webkit-scrollbar{display:none}
+    .mini{display:none}
+    .nav-link{padding:9px 14px;font-size:13.5px}
+    .avatar{width:40px;height:40px}
+    .stage{padding:100px 16px 48px;min-height:auto}
+    .frame{padding:9px;border-radius:24px}
+    .card{padding:36px 22px 26px;border-radius:18px}
+    .field input{height:56px;padding-right:92px;font-size:15px}
+    .icon-btn{width:40px;height:40px}
+    .actions{flex-direction:column-reverse}
+    .btn{width:100%;flex:none}
+    .steps{grid-template-columns:1fr}
+    .how{padding-bottom:60px}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+<div class="bg"></div><div class="grain"></div>
+
+<a class="skip" href="#verificador">Ir para o verificador</a>
+
+<!-- lupa oficial da marca (vetor extraido da logo) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="lupa" viewBox="170 325 112 138">
+    <path fill="currentColor" d="M 175.320312 356.019531 C 182.875 336.53125 202.878906 324.828125 223.867188 327.222656 C 244.363281 329.558594 261.269531 346.660156 264.078125 366.167969 C 265.710938 377.53125 263.222656 388.039062 257.339844 397.8125 C 255.519531 400.839844 253.363281 403.617188 250.851562 406.101562 C 250.191406 406.753906 250.214844 407.1875 250.710938 407.925781 C 259.054688 420.316406 267.371094 432.726562 275.691406 445.132812 C 276.628906 446.527344 277.582031 447.910156 278.492188 449.316406 C 279.984375 451.628906 279.550781 453.957031 277.308594 455.539062 C 275.269531 456.976562 273.207031 458.386719 271.121094 459.757812 C 268.425781 461.527344 266.027344 461.0625 264.273438 458.363281 C 259.390625 450.847656 254.554688 443.300781 249.699219 435.761719 C 245.574219 429.359375 241.4375 422.96875 237.355469 416.542969 C 236.832031 415.722656 236.441406 415.601562 235.535156 415.972656 C 215.714844 424.109375 191.363281 417.839844 178.996094 398.695312 C 172.011719 387.878906 170.191406 376.050781 172.941406 363.5 C 173.246094 362.101562 173.636719 360.71875 174.066406 359.355469 C 174.425781 358.222656 174.898438 357.128906 175.320312 356.019531 Z M 232.996094 334.191406 C 211.121094 325.984375 187.515625 336.628906 179.265625 358.207031 C 170.460938 381.238281 182.003906 404.046875 201.988281 411.855469 C 221.5625 419.5 247.777344 411.5625 256.882812 387.113281 C 264.816406 365.800781 254.285156 342.488281 232.996094 334.191406 Z M 273.675781 451.820312 C 273.683594 451.425781 273.449219 451.183594 273.265625 450.914062 C 264.539062 437.902344 255.8125 424.886719 247.082031 411.878906 C 246.558594 411.101562 246.132812 409.917969 245.425781 409.707031 C 244.683594 409.484375 243.824219 410.496094 243.035156 410.992188 C 240.757812 412.417969 240.769531 412.425781 242.238281 414.699219 C 248.078125 423.738281 253.910156 432.78125 259.746094 441.816406 C 262.476562 446.042969 265.230469 450.257812 267.9375 454.496094 C 268.367188 455.167969 268.699219 455.25 269.347656 454.777344 C 270.570312 453.886719 271.855469 453.082031 273.113281 452.242188 C 273.3125 452.105469 273.5 451.953125 273.675781 451.820312 Z"/>
+    <path fill="currentColor" d="M 252.53125 386.933594 C 244.96875 406.4375 222.757812 415.996094 202.878906 408.265625 C 182.980469 400.527344 173.839844 379.480469 181.4375 359.421875 C 188.824219 339.921875 210.773438 330.582031 230.609375 338.261719 C 249.929688 345.742188 259.910156 367.902344 252.53125 386.933594 Z M 248.625 385.175781 C 255.039062 368.074219 246.019531 348.773438 228.542969 342.199219 C 210.917969 335.566406 191.808594 344.050781 185.257812 361.417969 C 178.695312 378.8125 187.296875 397.886719 204.632812 404.390625 C 222.382812 411.046875 242.15625 402.410156 248.625 385.175781 Z"/>
+    <path fill="currentColor" d="M 187.800781 362.992188 C 189.402344 358.734375 191.386719 355.511719 193.980469 352.675781 C 194.953125 351.609375 196.089844 351.503906 197.042969 352.269531 C 197.910156 352.964844 198 354.289062 197.234375 355.375 C 197.023438 355.671875 196.761719 355.941406 196.53125 356.226562 C 192.492188 361.1875 190.328125 366.855469 190.246094 373.269531 C 190.183594 378.433594 191.460938 383.222656 194.429688 387.507812 C 195.371094 388.867188 195.273438 390.054688 194.179688 390.851562 C 193.078125 391.65625 191.78125 391.371094 190.851562 389.957031 C 187.09375 384.253906 185.621094 377.945312 186.085938 371.167969 C 186.292969 368.132812 186.929688 365.179688 187.800781 362.992188 Z"/>
+    <path fill="currentColor" d="M 226.746094 347.015625 C 231.34375 348.832031 235.351562 351.503906 238.605469 355.257812 C 238.847656 355.535156 239.089844 355.816406 239.277344 356.128906 C 239.945312 357.238281 239.769531 358.414062 238.851562 359.089844 C 237.925781 359.777344 236.722656 359.660156 235.902344 358.648438 C 234.261719 356.628906 232.339844 354.945312 230.1875 353.503906 C 227.46875 351.675781 224.5 350.464844 221.308594 349.761719 C 219.882812 349.445312 219.109375 348.472656 219.332031 347.292969 C 219.566406 346.050781 220.730469 345.328125 222.160156 345.65625 C 223.714844 346.007812 225.265625 346.394531 226.746094 347.015625 Z"/>
+    <path fill="currentColor" d="M 210.980469 349.382812 C 210.53125 350.59375 209.355469 351.183594 208.25 350.757812 C 207.171875 350.34375 206.617188 349.027344 207.046875 347.910156 C 207.464844 346.824219 208.671875 346.230469 209.726562 346.597656 C 210.851562 346.984375 211.410156 348.226562 210.980469 349.382812 Z"/>
+    <path fill="currentColor" d="M 242.464844 366.191406 C 243.523438 366.5625 244.140625 367.804688 243.796875 368.871094 C 243.425781 370.023438 242.207031 370.660156 241.0625 370.300781 C 239.976562 369.957031 239.308594 368.613281 239.691406 367.53125 C 240.089844 366.390625 241.332031 365.792969 242.464844 366.191406 Z"/>
+  </symbol>
+</svg>
+
+<header class="topbar" id="topbar">
+  <div class="veil"></div>
+
+  <a class="mini" href="#topo">c<span class="lens"><svg><use href="#lupa"/></svg></span>nfia?</a>
+
+  <nav class="glass" aria-label="Principal">
+    <a class="nav-link" href="#topo" aria-current="page">Confia?</a>
+    <a class="nav-link" href="#">Histórico</a>
+    <a class="nav-link" href="#como">Como funciona</a>
+    <a class="nav-link" href="#">Premium</a>
+    <a class="nav-link" href="#">Docs</a>
+  </nav>
+
+  <button class="avatar" type="button" aria-label="Entrar na conta">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <circle cx="12" cy="8" r="3.6"/>
+      <path d="M12 13.4c-4 0-7.2 2.5-7.2 5.7 0 .5.4.9.9.9h12.6c.5 0 .9-.4.9-.9 0-3.2-3.2-5.7-7.2-5.7z"/>
+    </svg>
+  </button>
+</header>
+
+<div class="stage" id="topo">
+
+  <aside class="rail rail--left" aria-label="O que analisamos">
+    <div class="chk"><i class="dot dot--risk"></i><div><b>Domínio recém-criado</b><span>Idade e registro do site</span></div></div>
+    <div class="chk"><i class="dot dot--warn"></i><div><b>Link encurtado</b><span>Destino real do redirect</span></div></div>
+    <div class="chk"><i class="dot dot--safe"></i><div><b>Certificado SSL</b><span>Validade e emissor</span></div></div>
+    <div class="chk"><i class="dot dot--risk"></i><div><b>Chave Pix suspeita</b><span>Titular x loja anunciada</span></div></div>
+    <div class="chk"><i class="dot dot--warn"></i><div><b>Perfil clonado</b><span>Criação e réplicas</span></div></div>
+    <div class="chk"><i class="dot dot--safe"></i><div><b>CNPJ da loja</b><span>Situação na Receita</span></div></div>
+  </aside>
+
+  <main class="frame" id="verificador">
+    <div class="card">
+
+      <h1 class="logo">c<span class="lens"><svg><use href="#lupa"/></svg></span>nfia?</h1>
+
+      <p class="tagline">
+        Antes de clicar ou pagar… <strong>confia?</strong><br>
+        Verifique links, sites e perfis e descubra em segundos se é golpe ou seguro.
+      </p>
+
+      <form id="form" novalidate>
+        <div class="field" id="field">
+          <label class="skip" for="alvo">Link, print ou perfil para verificar</label>
+          <input id="alvo" name="alvo" type="text" autocomplete="off" spellcheck="false"
+                 placeholder="Cole o link, o @ do perfil ou anexe um print"
+                 aria-describedby="dica">
+
+          <div class="field-tools">
+            <button class="icon-btn" type="button" id="btn-colar" aria-label="Colar da área de transferência" title="Colar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="8" y="3" width="8" height="4" rx="1.5"/>
+                <path d="M16 5h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"/>
+              </svg>
+            </button>
+            <button class="icon-btn" type="button" id="btn-anexar" aria-label="Anexar prints ou vídeos" title="Anexar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.4 11.05 12.3 20.2a5.5 5.5 0 0 1-7.8-7.8l9.2-9.2a3.7 3.7 0 0 1 5.2 5.2l-9.1 9.2a1.8 1.8 0 0 1-2.6-2.6l8.5-8.5"/>
+              </svg>
+            </button>
+          </div>
+          <input type="file" id="arquivos" multiple accept="image/*,video/*" hidden>
+        </div>
+
+        <p class="hint" id="dica">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.4"/>
+          </svg>
+          <span id="dica-txt">Funciona com WhatsApp, Instagram, boletos, lojas e links encurtados.</span>
+        </p>
+
+        <div class="files" id="anexos"></div>
+
+        <div class="actions">
+          <button class="btn btn--ghost" type="button" id="btn-uploads">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 13v8"/><path d="m8 17 4-4 4 4"/>
+              <path d="M20.9 18.1A5 5 0 0 0 18 9h-1.3A8 8 0 1 0 3 16.3"/>
+            </svg>
+            Uploads
+          </button>
+          <button class="btn btn--primary" type="submit" id="btn-verificar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+              <circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/>
+            </svg>
+            Verificar
+          </button>
+        </div>
+
+        <div class="status" id="status" role="status" aria-live="polite">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.4"/>
+          </svg>
+          <p id="status-txt"></p>
+        </div>
+      </form>
+
+      <div class="assure">
+        <div class="shield">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 1.7 4.6 4.4a1 1 0 0 0-.66.94V12c0 4.9 3.5 8.4 7.7 10.1.23.1.49.1.72 0C16.56 20.4 20.06 16.9 20.06 12V5.34a1 1 0 0 0-.66-.94L12 1.7z"/>
+          </svg>
+        </div>
+        <p style="margin:0">
+          <b>Sua segurança começa aqui.</b>
+          <span>Verifique antes de clicar — nenhum link é aberto no seu aparelho.</span>
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <aside class="rail rail--right" aria-label="Sinais de golpe">
+    <div class="chk"><i class="dot dot--warn"></i><div><b>Boleto adulterado</b><span>Linha digitável x beneficiário</span></div></div>
+    <div class="chk"><i class="dot dot--risk"></i><div><b>Página de login falsa</b><span>Cópia de banco ou rede social</span></div></div>
+    <div class="chk"><i class="dot dot--safe"></i><div><b>Reputação do site</b><span>Denúncias e listas públicas</span></div></div>
+    <div class="chk"><i class="dot dot--warn"></i><div><b>Preço fora da curva</b><span>Oferta boa demais</span></div></div>
+    <div class="chk"><i class="dot dot--risk"></i><div><b>Urgência no texto</b><span>“Sua conta será bloqueada”</span></div></div>
+    <div class="chk"><i class="dot dot--safe"></i><div><b>Contato verificado</b><span>Canais oficiais da empresa</span></div></div>
+  </aside>
+</div>
+
+<section class="how" id="como">
+  <h2>Como funciona</h2>
+  <div class="steps">
+    <article class="step">
+      <i>1</i>
+      <h3>Cole ou anexe</h3>
+      <p>Link, @ do perfil, print da conversa ou foto do boleto. Nada é aberto no seu aparelho.</p>
+    </article>
+    <article class="step">
+      <i>2</i>
+      <h3>Analisamos em segundos</h3>
+      <p>Domínio, certificado, redirecionamentos, reputação, dados da loja e o texto da mensagem.</p>
+    </article>
+    <article class="step">
+      <i>3</i>
+      <h3>Veredito claro</h3>
+      <p>Seguro, suspeito ou golpe — com o motivo em português e o que fazer em seguida.</p>
+    </article>
+  </div>
+</section>
+
+<footer>
+  <div class="foot">
+    <span>© 2026 confia? — verifique antes de clicar.</span>
+    <nav aria-label="Rodapé">
+      <a href="#">Privacidade</a>
+      <a href="#">Termos</a>
+      <a href="#">Denunciar golpe</a>
+      <a href="#">Contato</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+  // topo: estado de rolagem (blur progressivo + marca reduzida)
+  (function () {
+    var tick = false;
+    function onScroll() {
+      if (tick) return;
+      tick = true;
+      requestAnimationFrame(function () {
+        document.body.classList.toggle('is-scrolled', window.scrollY > 24);
+        tick = false;
+      });
+    }
+    addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+
+  // verificador
+  (function () {
+    var form = document.getElementById('form');
+    var field = document.getElementById('field');
+    var input = document.getElementById('alvo');
+    var dica = document.getElementById('dica-txt');
+    var status = document.getElementById('status');
+    var statusTxt = document.getElementById('status-txt');
+    var lista = document.getElementById('anexos');
+    var fileInput = document.getElementById('arquivos');
+    var btnVerificar = document.getElementById('btn-verificar');
+    var dicaPadrao = dica.textContent;
+    var arquivos = [];
+
+    function limparErro() {
+      field.classList.remove('has-error');
+      dica.textContent = dicaPadrao;
+    }
+    function erro(msg) {
+      field.classList.add('has-error');
+      dica.textContent = msg;
+      input.focus();
+    }
+    function desenharAnexos() {
+      lista.textContent = '';
+      arquivos.forEach(function (f, i) {
+        var chip = document.createElement('span');
+        chip.className = 'chip';
+        var nome = document.createElement('span');
+        nome.textContent = f.name;
+        var x = document.createElement('button');
+        x.type = 'button';
+        x.textContent = '×';
+        x.setAttribute('aria-label', 'Remover ' + f.name);
+        x.addEventListener('click', function () {
+          arquivos.splice(i, 1);
+          desenharAnexos();
+        });
+        chip.appendChild(nome);
+        chip.appendChild(x);
+        lista.appendChild(chip);
+      });
+    }
+
+    input.addEventListener('input', limparErro);
+
+    document.getElementById('btn-colar').addEventListener('click', function () {
+      if (!navigator.clipboard || !navigator.clipboard.readText) {
+        erro('Seu navegador não permite colar automaticamente. Use Ctrl+V.');
+        return;
+      }
+      navigator.clipboard.readText().then(function (txt) {
+        input.value = txt.trim();
+        limparErro();
+        input.focus();
+      }).catch(function () {
+        erro('Permissão de área de transferência negada. Use Ctrl+V.');
+      });
+    });
+
+    function abrirArquivos() { fileInput.click(); }
+    document.getElementById('btn-anexar').addEventListener('click', abrirArquivos);
+    document.getElementById('btn-uploads').addEventListener('click', abrirArquivos);
+
+    fileInput.addEventListener('change', function () {
+      arquivos = arquivos.concat(Array.prototype.slice.call(fileInput.files));
+      fileInput.value = '';
+      desenharAnexos();
+      limparErro();
+    });
+
+    // arrastar e soltar sobre o cartão
+    var card = document.querySelector('.card');
+    ['dragover', 'drop'].forEach(function (ev) {
+      card.addEventListener(ev, function (e) {
+        e.preventDefault();
+        if (ev === 'drop') {
+          arquivos = arquivos.concat(Array.prototype.slice.call(e.dataTransfer.files));
+          desenharAnexos();
+        }
+      });
+    });
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var valor = input.value.trim();
+      if (!valor && !arquivos.length) {
+        erro('Cole um link ou anexe um print para verificar.');
+        return;
+      }
+      status.removeAttribute('data-show');
+      btnVerificar.setAttribute('data-loading', '');
+      setTimeout(function () {
+        btnVerificar.removeAttribute('data-loading');
+        var alvo = valor ? '“' + valor.slice(0, 60) + '”' : arquivos.length + ' arquivo(s)';
+        statusTxt.textContent = '';
+        var b = document.createElement('b');
+        b.textContent = 'Interface pronta. ';
+        statusTxt.appendChild(b);
+        statusTxt.appendChild(document.createTextNode(
+          'A análise ainda não está conectada — ligue o endpoint de verificação para exibir o veredito de ' + alvo + '.'
+        ));
+        status.setAttribute('data-show', '');
+      }, 1100);
+    });
+  })();
+</script>
+</body>
+</html>

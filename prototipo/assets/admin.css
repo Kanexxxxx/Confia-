@@ -1,0 +1,617 @@
+/* =============================================================
+   confiia.com.br — PAINEL ADMINISTRATIVO
+   Usado por: admin.html (junto com assets/admin.js)
+
+   POR QUE NÃO USA base.css:
+   O admin é outra coisa. O site público precisa ser leve, arejado
+   e convidativo; o painel precisa ser denso, rápido de ler e
+   impossível de confundir com o site. Se as duas telas usassem o
+   mesmo CSS, uma hora você ia clicar em "excluir conta" achando
+   que estava no site. Por isso: mesma marca, superfície diferente.
+
+   Diferenças propositais em relação ao site:
+     - fundo mais escuro (#050f1e contra #07182c)
+     - sem orbs, sem vidro flutuante, cantos menores
+     - números em fonte tabular (coluna alinha com coluna)
+     - cor só onde significa estado (atrasado / urgente / travado)
+
+   CUIDADO AO MEXER:
+     - As cores de urgência (.chip--atrasado etc.) espelham a coluna
+       `urgencia` da view v_fila_admin. Mudou lá, mude aqui.
+     - Os prazos desenhados na .prazo saem de contestacoes.prazo_em
+       e do prazo de 7 dias dos Termos. Mudou o prazo nos Termos,
+       muda em servidor/db/005_moderacao.sql E aqui.
+   ============================================================= */
+
+:root{
+  /* superfície */
+  --fundo:#050f1e;
+  --rail:#08182b;
+  --painel:rgba(255,255,255,.04);
+  --painel-2:rgba(255,255,255,.028);
+  --borda:rgba(255,255,255,.08);
+  --borda-forte:rgba(255,255,255,.14);
+
+  /* texto */
+  --texto:#e9f1fc;
+  --texto-2:rgba(233,241,252,.66);
+  --texto-3:rgba(233,241,252,.42);
+
+  /* marca */
+  --azul:#4d9fff;
+  --azul-claro:#a9cdff;
+  --navy:#0b2443;
+
+  /* estado — a cor aqui é informação, não enfeite */
+  --ok:#2fd39b;
+  --alerta:#ffc65c;
+  --risco:#ff7a6b;
+  --grave:#e0523f;
+
+  --r:12px;
+  --r-g:16px;
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --rail-w:238px;
+  --gaveta-w:520px;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;background:var(--fundo);color:var(--texto);
+  font-family:Inter,system-ui,sans-serif;font-size:14px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+body.travado-scroll{overflow:hidden}
+
+/* números de tabela sempre alinhados */
+.num,.tabela td,.stat b,.medidor b{font-variant-numeric:tabular-nums}
+.mono{font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:.92em;letter-spacing:-.02em}
+
+::selection{background:rgba(77,159,255,.3)}
+:focus-visible{outline:2px solid var(--azul);outline-offset:2px;border-radius:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+a{color:var(--azul-claro)}
+
+/* =============================================================
+   1. ESTRUTURA — trilho fixo à esquerda + conteúdo
+   ============================================================= */
+
+.rail{
+  position:fixed;top:0;left:0;bottom:0;width:var(--rail-w);z-index:40;
+  display:flex;flex-direction:column;
+  background:var(--rail);border-right:1px solid var(--borda);
+}
+.rail-topo{padding:20px 18px 16px;border-bottom:1px solid var(--borda)}
+.rail-topo img{display:block;width:96px;filter:brightness(0) invert(1);opacity:.94}
+.etiqueta-beta{
+  display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:4px 9px;border-radius:6px;
+  background:rgba(255,198,92,.12);border:1px solid rgba(255,198,92,.3);
+  color:var(--alerta);font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+}
+
+.rail nav{flex:1;overflow-y:auto;padding:12px 10px}
+.rail-grupo{margin:14px 8px 7px;font-size:10.5px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--texto-3)}
+.rail-grupo:first-child{margin-top:2px}
+.rail a{
+  display:flex;align-items:center;gap:11px;padding:9px 11px;margin-bottom:2px;border-radius:9px;
+  color:var(--texto-2);text-decoration:none;font-size:13.5px;font-weight:500;
+  transition:background .16s var(--ease),color .16s var(--ease);
+}
+.rail a .bi{font-size:16px;width:18px;text-align:center;color:var(--texto-3);transition:color .16s var(--ease)}
+.rail a:hover{background:rgba(255,255,255,.05);color:var(--texto)}
+.rail a:hover .bi{color:var(--texto-2)}
+.rail a.ativo{background:rgba(77,159,255,.14);color:#fff;font-weight:600}
+.rail a.ativo .bi{color:var(--azul)}
+.rail a .conta-badge{
+  margin-left:auto;min-width:20px;height:19px;padding:0 6px;border-radius:999px;
+  display:grid;place-items:center;font-size:11px;font-weight:700;
+  background:rgba(255,255,255,.1);color:var(--texto-2);
+}
+.rail a .conta-badge.quente{background:rgba(255,122,107,.2);color:var(--risco)}
+
+.rail-pe{padding:14px 16px;border-top:1px solid var(--borda);display:flex;align-items:center;gap:10px}
+.rail-pe .av{width:32px;height:32px;flex:none;border-radius:50%;display:grid;place-items:center;
+  background:var(--navy);border:1px solid var(--borda-forte);font-size:12px;font-weight:700;color:#fff}
+.rail-pe .quem{flex:1;min-width:0}
+.rail-pe .quem b{display:block;font-size:12.5px;font-weight:600;color:var(--texto);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rail-pe .quem span{display:block;font-size:11px;color:var(--texto-3)}
+.rail-pe button{width:28px;height:28px;flex:none;display:grid;place-items:center;border:none;border-radius:7px;
+  background:transparent;color:var(--texto-3);cursor:pointer;font-size:15px}
+.rail-pe button:hover{background:rgba(255,255,255,.06);color:var(--texto)}
+
+.conteudo{margin-left:var(--rail-w);min-height:100vh}
+
+/* barra superior fixa: título da tela + busca */
+.topo{
+  position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:16px;
+  padding:0 28px;height:62px;
+  background:rgba(5,15,30,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--borda);
+}
+.topo h1{margin:0;font-family:Poppins,sans-serif;font-size:17px;font-weight:600;letter-spacing:-.02em;color:#fff}
+.topo .sub{font-size:12.5px;color:var(--texto-3)}
+.topo .direita{margin-left:auto;display:flex;align-items:center;gap:10px}
+
+.busca{position:relative;display:flex;align-items:center}
+.busca .bi{position:absolute;left:11px;font-size:14px;color:var(--texto-3);pointer-events:none}
+.busca input{
+  width:250px;height:36px;padding:0 12px 0 32px;border-radius:9px;
+  border:1px solid var(--borda);background:rgba(255,255,255,.04);
+  color:var(--texto);font-family:inherit;font-size:13px;outline:none;
+  transition:border-color .18s var(--ease),background .18s var(--ease),width .2s var(--ease);
+}
+.busca input::placeholder{color:var(--texto-3)}
+.busca input:focus{border-color:var(--azul);background:rgba(255,255,255,.07);width:300px}
+
+.tela{display:none;padding:26px 28px 60px;max-width:1320px}
+.tela.ativa{display:block;animation:entra .22s var(--ease)}
+@keyframes entra{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* =============================================================
+   2. PAINÉIS E CARTÕES
+   ============================================================= */
+
+.painel{
+  border:1px solid var(--borda);border-radius:var(--r-g);background:var(--painel);
+  overflow:hidden;
+}
+.painel-cab{
+  display:flex;align-items:center;gap:12px;padding:15px 18px;border-bottom:1px solid var(--borda);
+}
+.painel-cab h2{margin:0;font-size:14px;font-weight:600;letter-spacing:-.01em;color:#fff}
+.painel-cab .apoio{font-size:12px;color:var(--texto-3)}
+.painel-cab .direita{margin-left:auto;display:flex;align-items:center;gap:8px}
+.painel-corpo{padding:18px}
+.painel-pe{padding:12px 18px;border-top:1px solid var(--borda);font-size:12.5px;color:var(--texto-3)}
+
+.grade{display:grid;gap:16px}
+.grade--4{grid-template-columns:repeat(4,1fr)}
+.grade--3{grid-template-columns:repeat(3,1fr)}
+.grade--2{grid-template-columns:repeat(2,1fr)}
+.grade--fila{grid-template-columns:1.55fr 1fr}
+.espaco{height:16px}
+
+/* --- números-resumo --- */
+.stat{padding:16px 18px;border:1px solid var(--borda);border-radius:var(--r);background:var(--painel-2)}
+.stat .rot{display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:600;
+  letter-spacing:.05em;text-transform:uppercase;color:var(--texto-3)}
+.stat b{display:block;margin:9px 0 2px;font-family:Poppins,sans-serif;font-size:27px;
+  font-weight:600;letter-spacing:-.03em;color:#fff;line-height:1}
+.stat span{font-size:12px;color:var(--texto-3)}
+.stat .delta{font-weight:600}
+.delta--sobe{color:var(--ok)}
+.delta--desce{color:var(--risco)}
+
+/* =============================================================
+   3. A FILA — o coração do painel
+
+   Cada linha é uma pessoa esperando resposta. A barra de prazo
+   mostra quanto do tempo prometido já foi gasto: enquanto está
+   azul, tudo bem; amarelo é aviso; vermelho significa que o
+   prazo dos Termos foi furado.
+   ============================================================= */
+
+.destaque-fila{
+  display:grid;grid-template-columns:repeat(3,auto) 1fr;align-items:center;gap:0;
+  padding:20px 22px;
+}
+.destaque-fila .bloco{padding-right:34px;margin-right:34px;border-right:1px solid var(--borda)}
+.destaque-fila .bloco:nth-child(3){border-right:none}
+.destaque-fila .bloco b{display:block;font-family:Poppins,sans-serif;font-size:34px;font-weight:600;
+  line-height:1;letter-spacing:-.03em}
+.destaque-fila .bloco span{display:block;margin-top:6px;font-size:12px;color:var(--texto-3)}
+.destaque-fila .b-atrasado b{color:var(--risco)}
+.destaque-fila .b-urgente b{color:var(--alerta)}
+.destaque-fila .b-ok b{color:var(--texto)}
+.destaque-fila .mais-velho{
+  padding:12px 15px;border-radius:var(--r);background:rgba(255,122,107,.08);
+  border:1px solid rgba(255,122,107,.2);font-size:12.5px;line-height:1.6;color:var(--texto-2)
+}
+.destaque-fila .mais-velho b{color:var(--texto)}
+
+.filtros{display:flex;flex-wrap:wrap;gap:7px}
+.filtro{
+  height:31px;padding:0 13px;border-radius:8px;cursor:pointer;
+  border:1px solid var(--borda);background:transparent;color:var(--texto-2);
+  font-family:inherit;font-size:12.5px;font-weight:500;
+  display:inline-flex;align-items:center;gap:7px;
+  transition:background .16s var(--ease),border-color .16s var(--ease),color .16s var(--ease);
+}
+.filtro:hover{background:rgba(255,255,255,.05);color:var(--texto)}
+.filtro[aria-pressed="true"]{background:rgba(77,159,255,.16);border-color:rgba(77,159,255,.4);
+  color:#fff;font-weight:600}
+.filtro .n{font-size:11px;opacity:.7}
+
+/* =============================================================
+   4. TABELAS
+   ============================================================= */
+
+.rolagem{overflow-x:auto}
+.tabela{width:100%;border-collapse:collapse;font-size:13px}
+.tabela th{
+  padding:9px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--texto-3);border-bottom:1px solid var(--borda);
+  white-space:nowrap;background:rgba(255,255,255,.015);
+}
+.tabela td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.045);
+  color:var(--texto-2);vertical-align:middle}
+.tabela tbody tr:last-child td{border-bottom:none}
+.tabela tbody tr[data-abre]{cursor:pointer;transition:background .14s var(--ease)}
+.tabela tbody tr[data-abre]:hover{background:rgba(255,255,255,.038)}
+.tabela tbody tr[data-abre]:focus-visible{background:rgba(77,159,255,.1);outline:none;
+  box-shadow:inset 2px 0 0 var(--azul)}
+.tabela .forte{color:var(--texto);font-weight:600}
+.tabela .dir{text-align:right}
+.tabela .apertado{width:1%;white-space:nowrap}
+
+.dois-andares > b{display:block;color:var(--texto);font-weight:600;font-size:13px}
+.dois-andares > span{display:block;font-size:11.5px;color:var(--texto-3);margin-top:2px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:290px}
+
+/* =============================================================
+   5. SELOS DE ESTADO
+   ============================================================= */
+
+.chip{
+  display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 9px;border-radius:6px;
+  font-size:11.5px;font-weight:600;white-space:nowrap;
+}
+.chip .bi{font-size:11px}
+.chip--atrasado{background:rgba(224,82,63,.18);color:#ff9d8f;box-shadow:inset 0 0 0 1px rgba(224,82,63,.32)}
+.chip--urgente{background:rgba(255,198,92,.15);color:var(--alerta);box-shadow:inset 0 0 0 1px rgba(255,198,92,.28)}
+.chip--prazo{background:rgba(255,255,255,.07);color:var(--texto-2)}
+.chip--prioridade{background:rgba(255,122,107,.2);color:#ffb3a8;box-shadow:inset 0 0 0 1px rgba(255,122,107,.45)}
+.chip--ok{background:rgba(47,211,155,.14);color:var(--ok);box-shadow:inset 0 0 0 1px rgba(47,211,155,.26)}
+.chip--neutro{background:rgba(255,255,255,.07);color:var(--texto-3)}
+.chip--azul{background:rgba(77,159,255,.16);color:var(--azul-claro);box-shadow:inset 0 0 0 1px rgba(77,159,255,.3)}
+
+/* tipo de item na fila — forma discreta, só para diferenciar de relance */
+.tipo{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--texto-2)}
+.tipo i{width:6px;height:6px;border-radius:2px;flex:none}
+.tipo--golpe i{background:var(--risco)}
+.tipo--contestacao i{background:var(--azul)}
+.tipo--denuncia i{background:var(--alerta)}
+.tipo--empresa i{background:var(--ok)}
+
+/* níveis de empresa (espelha o ENUM nivel_empresa da 004) */
+.selo{display:inline-flex;align-items:center;gap:5px;height:23px;padding:0 10px;border-radius:6px;
+  font-size:11.5px;font-weight:600;white-space:nowrap}
+.selo .bi{font-size:12px}
+.selo--registrada{background:rgba(255,255,255,.07);color:var(--texto-2)}
+.selo--verificada{background:rgba(77,159,255,.16);color:var(--azul-claro)}
+.selo--estabelecida{background:rgba(47,211,155,.14);color:var(--ok)}
+.selo--curadoria{background:rgba(255,198,92,.15);color:var(--alerta)}
+
+/* =============================================================
+   6. BARRAS: prazo e uso
+   ============================================================= */
+
+.prazo{display:block;width:96px;height:4px;border-radius:3px;background:rgba(255,255,255,.09);overflow:hidden}
+.prazo i{display:block;height:100%;border-radius:3px;background:var(--azul);transition:width .3s var(--ease)}
+.prazo--urgente i{background:var(--alerta)}
+.prazo--atrasado i{background:var(--grave)}
+.prazo--prioridade i{background:var(--risco)}
+.legenda-prazo{display:block;margin-top:5px;font-size:11px;color:var(--texto-3)}
+
+.uso{display:flex;align-items:center;gap:9px;min-width:132px}
+.uso .trilho{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.09);overflow:hidden}
+.uso .trilho i{display:block;height:100%;border-radius:3px;background:var(--azul)}
+.uso.cheio .trilho i{background:var(--alerta)}
+.uso.estourou .trilho i{background:var(--risco)}
+.uso .txt{font-size:11.5px;color:var(--texto-3);white-space:nowrap;font-variant-numeric:tabular-nums}
+/* Plano sem limite (Enterprise): trilho listrado, sem preenchimento —
+   barra cheia dava a impressão errada de cota estourada. */
+.uso.sem-limite .trilho{background:repeating-linear-gradient(90deg,
+  rgba(255,255,255,.13) 0 4px, transparent 4px 8px)}
+.uso.sem-limite .trilho i{display:none}
+
+/* =============================================================
+   7. MEDIDOR DE ORÇAMENTO
+   Espelha a tabela `orcamento` (005_moderacao.sql). Quando
+   travado=true o sistema para de chamar IA paga — por isso o
+   estado travado precisa ser impossível de não ver.
+   ============================================================= */
+
+.medidor{padding:20px 22px}
+.medidor .cabeca{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.medidor .cabeca b{font-family:Poppins,sans-serif;font-size:31px;font-weight:600;
+  letter-spacing:-.03em;line-height:1;color:#fff}
+.medidor .de{font-size:13px;color:var(--texto-3)}
+.medidor .trilho{margin:16px 0 10px;height:9px;border-radius:5px;background:rgba(255,255,255,.08);
+  overflow:hidden;position:relative}
+.medidor .trilho i{display:block;height:100%;border-radius:5px;
+  background:linear-gradient(90deg,var(--azul),#6fb4ff)}
+.medidor.aviso .trilho i{background:linear-gradient(90deg,#e0a63c,var(--alerta))}
+.medidor.travou .trilho i{background:linear-gradient(90deg,var(--grave),var(--risco))}
+/* marca do alerta em 70% — vem de orcamento.alerta_em_pct */
+.medidor .marca{position:absolute;top:-3px;bottom:-3px;width:1px;background:rgba(255,255,255,.5)}
+.medidor .rodape{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--texto-3)}
+
+/* =============================================================
+   8. GRÁFICO DE BARRAS (14 dias) — SVG seria exagero aqui
+   ============================================================= */
+
+.grafico{display:flex;align-items:flex-end;gap:6px;height:118px;padding-top:6px}
+.grafico .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:5px;
+  height:100%;position:relative}
+.grafico .col i{display:block;width:100%;border-radius:4px 4px 2px 2px;
+  background:linear-gradient(180deg,rgba(77,159,255,.85),rgba(77,159,255,.32));
+  transition:background .16s var(--ease)}
+.grafico .col:hover i{background:linear-gradient(180deg,#8bc0ff,rgba(77,159,255,.5))}
+.grafico .col span{font-size:10px;color:var(--texto-3);text-align:center}
+.grafico .col.hoje i{background:linear-gradient(180deg,var(--ok),rgba(47,211,155,.35))}
+.grafico .col.hoje span{color:var(--ok);font-weight:600}
+
+/* =============================================================
+   9. GAVETA LATERAL — onde a decisão acontece
+   ============================================================= */
+
+.fundo-gaveta{
+  position:fixed;inset:0;z-index:60;background:rgba(2,8,18,.62);
+  opacity:0;pointer-events:none;transition:opacity .24s var(--ease);
+  backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);
+}
+.fundo-gaveta.aberta{opacity:1;pointer-events:auto}
+
+.gaveta{
+  position:fixed;top:0;right:0;bottom:0;width:min(var(--gaveta-w),100%);z-index:61;
+  display:flex;flex-direction:column;background:#071528;border-left:1px solid var(--borda-forte);
+  transform:translateX(100%);transition:transform .28s var(--ease);
+  box-shadow:-30px 0 70px -30px rgba(0,0,0,.8);
+}
+.gaveta.aberta{transform:none}
+.gaveta-cab{display:flex;align-items:flex-start;gap:12px;padding:18px 20px;border-bottom:1px solid var(--borda)}
+.gaveta-cab .titulo{flex:1;min-width:0}
+.gaveta-cab h2{margin:0 0 5px;font-family:Poppins,sans-serif;font-size:16px;font-weight:600;
+  letter-spacing:-.02em;color:#fff}
+.gaveta-cab .refs{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:12px;color:var(--texto-3)}
+.gaveta-cab .fechar{width:32px;height:32px;flex:none;display:grid;place-items:center;border:none;
+  border-radius:8px;background:rgba(255,255,255,.06);color:var(--texto-2);cursor:pointer;font-size:15px}
+.gaveta-cab .fechar:hover{background:rgba(255,255,255,.12);color:#fff}
+.gaveta-corpo{flex:1;overflow-y:auto;padding:20px}
+.gaveta-pe{padding:16px 20px;border-top:1px solid var(--borda);background:rgba(255,255,255,.022)}
+
+.bloco-gaveta{margin-bottom:22px}
+.bloco-gaveta:last-child{margin-bottom:0}
+.bloco-gaveta > h3{
+  margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--texto-3);
+}
+.bloco-gaveta p{margin:0 0 10px;font-size:13.5px;line-height:1.65;color:var(--texto-2)}
+.bloco-gaveta p:last-child{margin-bottom:0}
+
+/* pares rótulo/valor */
+.pares{display:grid;grid-template-columns:118px 1fr;gap:9px 14px;font-size:13px}
+.pares dt{color:var(--texto-3)}
+.pares dd{margin:0;color:var(--texto);word-break:break-word}
+
+/* citação do relato da vítima / alegação da empresa */
+.citacao{
+  padding:13px 15px;border-radius:var(--r);background:rgba(255,255,255,.035);
+  border-left:2px solid var(--borda-forte);font-size:13.5px;line-height:1.7;color:var(--texto-2);
+}
+.citacao em{color:var(--texto-3);font-style:normal;font-size:12px;display:block;margin-top:8px}
+
+/* provas anexadas */
+.provas{display:grid;gap:8px}
+.prova{display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:10px;
+  background:rgba(255,255,255,.035);border:1px solid var(--borda)}
+.prova .bi{font-size:17px;color:var(--texto-3);flex:none}
+.prova .nome{flex:1;min-width:0}
+.prova .nome b{display:block;font-size:12.5px;font-weight:600;color:var(--texto);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prova .nome span{font-size:11px;color:var(--texto-3)}
+.prova.bo{background:rgba(47,211,155,.08);border-color:rgba(47,211,155,.24)}
+.prova.bo .bi{color:var(--ok)}
+
+/* =============================================================
+   10. A REGRA (assinatura do painel)
+
+   Este é o bloco que faz o painel valer alguma coisa. Antes de
+   decidir, ele mostra a linha de `politica_moderacao` que se
+   aplica ao caso. Serve para você decidir sempre igual — e para
+   provar depois que a decisão seguiu um critério escrito, e não
+   o humor do dia. É a diferença entre resposta e defesa.
+
+   CUIDADO AO MEXER: os textos aqui vêm da tabela
+   politica_moderacao. Não escreva regra nova só nesta tela.
+   ============================================================= */
+
+.regra{
+  position:relative;padding:16px 18px 16px 20px;border-radius:var(--r);
+  background:linear-gradient(180deg,rgba(77,159,255,.09),rgba(77,159,255,.03));
+  border:1px solid rgba(77,159,255,.24);
+}
+.regra::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;
+  border-radius:0 3px 3px 0;background:var(--azul)}
+.regra .marcador{display:flex;align-items:center;gap:7px;margin-bottom:11px;
+  font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--azul-claro)}
+.regra .situacao{font-size:13.5px;font-weight:600;color:#fff;margin-bottom:12px;line-height:1.5}
+.regra dl{display:grid;gap:10px;margin:0}
+.regra dt{font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--texto-3);margin-bottom:3px}
+.regra dd{margin:0;font-size:13px;line-height:1.65;color:var(--texto-2)}
+.regra .rodape-regra{margin-top:13px;padding-top:12px;border-top:1px solid rgba(77,159,255,.2);
+  font-size:12px;line-height:1.6;color:var(--texto-3)}
+.regra .rodape-regra b{color:var(--azul-claro)}
+
+/* trava: bloqueio com motivo. Só aparece quando algo impede a ação. */
+.trava{
+  display:flex;gap:11px;padding:13px 15px;border-radius:var(--r);
+  background:rgba(224,82,63,.1);border:1px solid rgba(224,82,63,.28);
+}
+.trava .bi{font-size:16px;color:var(--risco);flex:none;line-height:1.5}
+.trava p{margin:0;font-size:12.5px;line-height:1.65;color:var(--texto-2)}
+.trava b{color:#ffb3a8}
+.trava--ok{background:rgba(47,211,155,.09);border-color:rgba(47,211,155,.26)}
+.trava--ok .bi{color:var(--ok)}
+.trava--ok b{color:var(--ok)}
+.trava--aviso{background:rgba(255,198,92,.09);border-color:rgba(255,198,92,.26)}
+.trava--aviso .bi{color:var(--alerta)}
+.trava--aviso b{color:var(--alerta)}
+
+/* pré-visualização do que vai para a auditoria */
+.auditoria-previa{
+  margin-top:12px;padding:10px 13px;border-radius:9px;background:rgba(0,0,0,.28);
+  border:1px solid var(--borda);font-size:11.5px;line-height:1.7;color:var(--texto-3);
+}
+.auditoria-previa .rot{display:block;margin-bottom:5px;font-size:10px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--texto-3)}
+.auditoria-previa code{color:var(--azul-claro)}
+
+/* =============================================================
+   11. BOTÕES
+   ============================================================= */
+
+.bt{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;height:38px;padding:0 16px;
+  border:1px solid transparent;border-radius:9px;cursor:pointer;text-decoration:none;
+  font-family:inherit;font-size:13px;font-weight:600;white-space:nowrap;
+  transition:background .16s var(--ease),border-color .16s var(--ease),color .16s var(--ease),opacity .16s;
+}
+.bt .bi{font-size:15px}
+.bt--principal{background:var(--azul);color:#04101f}
+.bt--principal:hover{background:#6fb4ff}
+.bt--calmo{background:rgba(255,255,255,.06);border-color:var(--borda);color:var(--texto)}
+.bt--calmo:hover{background:rgba(255,255,255,.11)}
+.bt--ok{background:rgba(47,211,155,.16);border-color:rgba(47,211,155,.34);color:var(--ok)}
+.bt--ok:hover{background:rgba(47,211,155,.24)}
+.bt--risco{background:rgba(224,82,63,.14);border-color:rgba(224,82,63,.32);color:#ff9d8f}
+.bt--risco:hover{background:rgba(224,82,63,.22)}
+.bt--fantasma{background:transparent;color:var(--texto-2)}
+.bt--fantasma:hover{background:rgba(255,255,255,.06);color:var(--texto)}
+.bt--pequeno{height:31px;padding:0 11px;font-size:12px;border-radius:8px}
+.bt[disabled],.bt[aria-disabled="true"]{opacity:.38;pointer-events:none}
+.linha-bt{display:flex;flex-wrap:wrap;gap:9px}
+
+/* =============================================================
+   12. AVISOS E VAZIOS
+   ============================================================= */
+
+.aviso-linha{
+  display:flex;gap:11px;padding:13px 16px;border-radius:var(--r);margin-bottom:16px;
+  background:rgba(255,198,92,.08);border:1px solid rgba(255,198,92,.24);
+}
+.aviso-linha .bi{font-size:16px;color:var(--alerta);flex:none;line-height:1.5}
+.aviso-linha p{margin:0;font-size:12.5px;line-height:1.65;color:var(--texto-2)}
+.aviso-linha b{color:var(--texto)}
+
+.vazio{padding:46px 20px;text-align:center}
+.vazio .bi{font-size:30px;color:var(--texto-3);opacity:.6}
+.vazio b{display:block;margin:12px 0 5px;font-size:14px;color:var(--texto)}
+.vazio span{font-size:12.5px;color:var(--texto-3)}
+
+/* linha do tempo da auditoria */
+.trilha{display:grid;gap:0}
+.trilha li{display:grid;grid-template-columns:15px 1fr auto;gap:12px;align-items:start;
+  padding:11px 0;border-bottom:1px solid rgba(255,255,255,.045);list-style:none}
+.trilha li:last-child{border-bottom:none}
+.trilha .pt{width:7px;height:7px;margin-top:6px;border-radius:50%;background:var(--texto-3)}
+.trilha .pt.ok{background:var(--ok)}
+.trilha .pt.risco{background:var(--risco)}
+.trilha .pt.azul{background:var(--azul)}
+.trilha .oq{font-size:13px;color:var(--texto-2);line-height:1.55}
+.trilha .oq b{color:var(--texto);font-weight:600}
+.trilha .quando{font-size:11.5px;color:var(--texto-3);white-space:nowrap;padding-top:1px}
+.trilha ul{margin:0;padding:0}
+
+/* dado pessoal escondido até alguém pedir para ver (minimização) */
+.oculto{display:inline-flex;align-items:center;gap:7px}
+.oculto .valor{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12.5px}
+.oculto button{border:none;background:rgba(255,255,255,.07);color:var(--texto-3);cursor:pointer;
+  width:24px;height:24px;border-radius:6px;display:grid;place-items:center;font-size:12px}
+.oculto button:hover{background:rgba(255,255,255,.14);color:var(--texto)}
+
+/* =============================================================
+   13. TELAS ESTREITAS
+   O painel é feito para monitor. No celular ele continua
+   utilizável (dá para responder uma contestação do ônibus),
+   mas sem a mesma densidade.
+   ============================================================= */
+
+@media (max-width:1180px){
+  .grade--4{grid-template-columns:repeat(2,1fr)}
+  .grade--fila{grid-template-columns:1fr}
+  .destaque-fila{grid-template-columns:repeat(3,1fr);gap:14px}
+  .destaque-fila .mais-velho{grid-column:1/-1}
+  .destaque-fila .bloco{padding-right:0;margin-right:0;border-right:none}
+}
+@media (max-width:860px){
+  :root{--rail-w:0px}
+  .rail{transform:translateX(-100%);transition:transform .26s var(--ease);width:238px}
+  .rail.aberta{transform:none}
+  .conteudo{margin-left:0}
+  .topo{padding:0 16px}
+  .abre-rail{display:grid !important}
+  .busca input{width:150px}
+  .busca input:focus{width:190px}
+  .tela{padding:18px 16px 50px}
+  .grade--4,.grade--3,.grade--2{grid-template-columns:1fr}
+  .destaque-fila{grid-template-columns:1fr}
+  .pares{grid-template-columns:1fr;gap:3px 0}
+  .pares dt{margin-top:9px}
+}
+.abre-rail{display:none;width:34px;height:34px;place-items:center;border:1px solid var(--borda);
+  border-radius:8px;background:transparent;color:var(--texto);cursor:pointer;font-size:16px}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+}
+
+
+/* =============================================================
+   14. TRANCA DO PROTÓTIPO
+   Sai junto com assets/tranca.js quando o painel real subir.
+   ============================================================= */
+
+body.trancado{overflow:hidden}
+body.trancado .rail,body.trancado .conteudo{filter:blur(9px);pointer-events:none;user-select:none}
+
+.tranca{
+  position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:24px;
+  background:radial-gradient(circle at 50% 30%,#0b2038,var(--fundo) 72%);
+}
+.tranca-caixa{
+  width:min(420px,100%);padding:34px 32px 26px;border-radius:20px;text-align:center;
+  background:rgba(255,255,255,.045);border:1px solid var(--borda-forte);
+  box-shadow:0 40px 80px -40px rgba(0,0,0,.9);
+}
+.tranca-caixa img{width:120px;filter:brightness(0) invert(1);opacity:.95;margin-bottom:18px}
+.tranca-selo{
+  display:inline-flex;align-items:center;gap:6px;margin-bottom:20px;padding:5px 11px;border-radius:7px;
+  background:rgba(255,198,92,.12);border:1px solid rgba(255,198,92,.32);
+  color:var(--alerta);font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+}
+.tranca-caixa h1{margin:0 0 8px;font-family:Poppins,sans-serif;font-size:19px;font-weight:600;
+  letter-spacing:-.02em;color:#fff}
+.tranca-caixa > p{margin:0 0 22px;font-size:13px;line-height:1.6;color:var(--texto-2)}
+
+.tranca-campo{display:block;text-align:left;margin-bottom:12px}
+.tranca-campo span{display:block;margin-bottom:6px;font-size:12px;font-weight:600;color:var(--texto-2)}
+.tranca-campo input{
+  width:100%;height:44px;padding:0 14px;border-radius:10px;
+  border:1px solid var(--borda);background:rgba(0,0,0,.28);
+  color:var(--texto);font-family:inherit;font-size:15px;outline:none;
+  transition:border-color .18s var(--ease),background .18s var(--ease);
+}
+.tranca-campo input:focus{border-color:var(--azul);background:rgba(0,0,0,.4)}
+
+.tranca-recado{margin:0 0 12px;padding:10px 13px;border-radius:9px;font-size:12.5px;text-align:left}
+.tranca-recado.ruim{background:rgba(224,82,63,.13);border:1px solid rgba(224,82,63,.3);color:#ff9d8f}
+
+.tranca-caixa .bt{width:100%;height:44px;margin-top:6px}
+.tranca-esqueci{
+  display:block;width:100%;margin-top:12px;padding:6px;border:none;background:none;cursor:pointer;
+  font-family:inherit;font-size:12px;color:var(--texto-3);text-decoration:underline;
+}
+.tranca-esqueci:hover{color:var(--texto-2)}
+.tranca-nota{
+  margin:22px 0 0;padding-top:16px;border-top:1px solid var(--borda);
+  font-size:11.5px;line-height:1.65;color:var(--texto-3);text-align:left;
+}
+.tranca-nota b{color:var(--texto-2)}
+.tranca-nota code{font-family:"JetBrains Mono",ui-monospace,monospace;color:var(--azul-claro)}

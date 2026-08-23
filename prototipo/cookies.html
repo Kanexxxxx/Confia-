@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>confia? — Cookies</title>
+<meta name="description" content="Quais cookies o confia? usa e como você escolhe.">
+<meta name="theme-color" content="#0b2443">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link href="assets/base.css" rel="stylesheet">
+<style>
+  .escolha{display:flex;align-items:flex-start;gap:14px;padding:20px 22px;border-radius:14px;
+    border:1.5px solid var(--line);background:var(--paper-2);margin-bottom:12px}
+  .escolha .txt{flex:1}
+  .escolha b{display:block;font-size:15px;color:var(--ink);margin-bottom:4px}
+  .escolha p{margin:0;font-size:13.5px;line-height:1.6;color:var(--ink-2)}
+  .chave{position:relative;width:46px;height:26px;flex:none;margin-top:2px}
+  .chave input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+  .chave i{position:absolute;inset:0;border-radius:999px;background:#cbd5e5;
+    transition:background .25s var(--ease)}
+  .chave i::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;
+    border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(11,36,67,.3);
+    transition:transform .25s var(--ease)}
+  .chave input:checked + i{background:var(--sky)}
+  .chave input:checked + i::after{transform:translateX(20px)}
+  .chave input:disabled + i{background:#12a97b;opacity:.6;cursor:not-allowed}
+  .chave input:focus-visible + i{outline:2px solid var(--sky);outline-offset:3px}
+  .fixo{font-size:12px;font-weight:600;color:#12a97b;white-space:nowrap;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="orbs" aria-hidden="true"><div class="orb orb--1"></div><div class="orb orb--2"></div></div>
+
+<header class="topbar">
+  <a class="brand" href="index.html" aria-label="confia? — início"><img src="assets/logo-confia.svg" alt="confia?"></a>
+  <nav class="nav" aria-label="Principal">
+    <a href="index.html">Confia?</a>
+    <a href="privacidade.html">Privacidade</a>
+    <a href="termos.html">Termos</a>
+    <a href="cookies.html" aria-current="page">Cookies</a>
+  </nav>
+  <button class="account" type="button">
+    <span class="ring"><i class="bi bi-person-fill" aria-hidden="true"></i></span>
+    <span class="rotulo">Entrar</span>
+  </button>
+</header>
+
+<div class="doc">
+  <div class="doc-capa">
+    <h1>Cookies</h1>
+    <div class="doc-meta">
+      <span>Versão <b>1.0</b></span>
+      <span>Em vigor desde <b>1º de setembro de 2026</b></span>
+    </div>
+  </div>
+
+  <main class="doc-corpo folha">
+
+    <div class="nota-doc nota-doc--info">
+      <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+      <p><b>Resumo:</b> usamos o mínimo possível. Nenhum cookie de propaganda, nenhum rastreador
+      de rede social, nada vendido para ninguém.</p>
+    </div>
+
+    <h2 id="oque">1. O que é um cookie</h2>
+    <p>É um arquivinho de texto que o site guarda no seu navegador. Serve para lembrar de coisas
+    entre uma página e outra — por exemplo, que você já entrou na sua conta e não precisa
+    digitar a senha de novo a cada clique.</p>
+
+    <hr>
+
+    <h2 id="usamos">2. Os que usamos</h2>
+
+    <h3>Necessários</h3>
+    <p>Sem eles o site não funciona. Por isso não dependem de autorização.</p>
+    <table>
+      <tr><th>Nome</th><th>Para quê</th><th>Duração</th></tr>
+      <tr><td><code>confia_sessao</code></td><td>Manter você conectado à sua conta</td><td>30 dias</td></tr>
+      <tr><td><code>confia_csrf</code></td><td>Impedir que outro site faça ações na sua conta</td><td>Sessão</td></tr>
+      <tr><td><code>confia_cookies</code></td><td>Guardar a escolha que você fez nesta página</td><td>12 meses</td></tr>
+      <tr><td><code>confia_limite</code></td><td>Controlar as 2 verificações de quem não tem conta</td><td>24 horas</td></tr>
+    </table>
+
+    <h3>De medição</h3>
+    <p>Ajudam a entender quais páginas as pessoas usam e onde travam, sempre de forma agregada —
+    nunca individual. <b>Só com a sua autorização.</b></p>
+    <table>
+      <tr><th>Nome</th><th>Para quê</th><th>Duração</th></tr>
+      <tr><td><code>confia_uso</code></td><td>Contar visitas e caminhos dentro do site</td><td>12 meses</td></tr>
+    </table>
+
+    <h3>O que não usamos</h3>
+    <ul>
+      <li>Cookies de propaganda ou remarketing;</li>
+      <li>Pixel de rede social (Meta, TikTok, Google Ads);</li>
+      <li>Venda ou troca de dados com corretoras de audiência.</li>
+    </ul>
+
+    <hr>
+
+    <h2 id="escolher">3. Sua escolha</h2>
+    <p>Você decide agora e pode voltar aqui quando quiser para mudar.</p>
+
+    <div class="escolha">
+      <div class="txt">
+        <b>Necessários</b>
+        <p>Login, segurança e a sua própria escolha de cookies. Não dá para desligar
+        porque o site deixaria de funcionar.</p>
+        <span class="fixo">Sempre ativos</span>
+      </div>
+      <label class="chave">
+        <input type="checkbox" checked disabled aria-label="Cookies necessários, sempre ativos">
+        <i></i>
+      </label>
+    </div>
+
+    <div class="escolha">
+      <div class="txt">
+        <b>De medição</b>
+        <p>Nos ajuda a entender o que melhorar. Desligando, o site continua igual para você.</p>
+      </div>
+      <label class="chave">
+        <input type="checkbox" id="medicao" aria-label="Cookies de medição">
+        <i></i>
+      </label>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap">
+      <button class="btn btn--forte" id="salvar" type="button">
+        <i class="bi bi-check-lg" aria-hidden="true"></i> Salvar escolha
+      </button>
+      <button class="btn btn--calmo" id="recusar" type="button">Só os necessários</button>
+    </div>
+    <div id="resposta" style="margin-top:16px"></div>
+
+    <hr>
+
+    <h2 id="navegador">4. Apagar pelo navegador</h2>
+    <p>Você também pode apagar ou bloquear cookies direto nas configurações do seu navegador.
+    Bloqueando os necessários, o login deixa de funcionar — não é problema do site,
+    é como cookies funcionam.</p>
+
+    <hr>
+
+    <h2 id="mais">5. Saber mais</h2>
+    <p>O que fazemos com dados pessoais está na
+    <a href="privacidade.html">Política de Privacidade</a>. Dúvida sobre cookies pode ser
+    enviada para <span class="preencher">privacidade@confiia.com.br</span>.</p>
+
+  </main>
+</div>
+
+<footer>
+  <div class="foot">
+    <img src="assets/logo-confia.svg" alt="confia?">
+    <div class="links">
+      <a href="privacidade.html">Privacidade</a>
+      <a href="termos.html">Termos</a>
+      <a href="reembolso.html">Reembolso</a>
+      <a href="cookies.html">Cookies</a>
+    </div>
+    <span>© 2026 confia? — confiia.com.br</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var CHAVE = 'confia_cookies';
+  var medicao = document.getElementById('medicao');
+  var resposta = document.getElementById('resposta');
+
+  /* lê a escolha já feita */
+  try {
+    var salvo = JSON.parse(localStorage.getItem(CHAVE) || '{}');
+    medicao.checked = salvo.medicao === true;
+  } catch (e) { /* navegador sem storage: segue com o padrão */ }
+
+  function guardar(valor, texto) {
+    try {
+      localStorage.setItem(CHAVE, JSON.stringify({
+        medicao: valor, versao: 1, em: new Date().toISOString()
+      }));
+    } catch (e) { /* modo privado pode bloquear */ }
+
+    resposta.innerHTML =
+      '<div class="nota-doc nota-doc--info" style="margin:0">' +
+      '<i class="bi bi-check-circle-fill" aria-hidden="true"></i><p>' + texto + '</p></div>';
+  }
+
+  document.getElementById('salvar').addEventListener('click', function () {
+    guardar(medicao.checked,
+      medicao.checked
+        ? '<b>Escolha salva.</b> Cookies de medição ativados. Pode mudar aqui quando quiser.'
+        : '<b>Escolha salva.</b> Só os necessários. Nada de medição.');
+  });
+
+  document.getElementById('recusar').addEventListener('click', function () {
+    medicao.checked = false;
+    guardar(false, '<b>Pronto.</b> Vamos usar apenas os cookies necessários.');
+  });
+})();
+</script>
+</body>
+</html>

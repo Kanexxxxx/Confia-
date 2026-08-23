@@ -1,0 +1,1016 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>confia? — Verifique antes de clicar</title>
+<meta name="description" content="Cole o link, o site ou o perfil e descubra em segundos se dá pra confiar ou é golpe.">
+<meta name="theme-color" content="#0b2443">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<script>document.documentElement.className+=" js";</script>
+<style>
+/* ==============================================================
+   confia? — site
+   Marca: #0b2443. A logo aparece sempre na cor dela, sobre claro.
+   ============================================================== */
+:root{
+  --navy-950:#04101f;
+  --navy-900:#07182c;
+  --navy-800:#0b2443;   /* cor da marca */
+  --navy-700:#11375f;
+  --navy-600:#1a4d80;
+
+  --sky:#4d9fff;
+  --sky-soft:#a9cdff;
+  --sky-wash:#e6efff;
+
+  --safe:#2fd39b;
+  --warn:#ffc65c;
+  --risk:#ff7a6b;
+
+  --paper:#ffffff;
+  --paper-2:#f5f8fd;
+  --line:#e2e8f2;
+  --ink:#0b2443;
+  --ink-2:#41597a;
+  --ink-3:#7387a3;
+
+  --on-dark:#eaf1fd;
+  --on-dark-2:rgba(234,241,253,.74);
+  --on-dark-3:rgba(234,241,253,.50);
+
+  --r-md:14px; --r-lg:20px; --r-xl:26px; --r-2xl:36px;
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --shell:min(1220px, 100% - 64px);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{margin:0;padding:0}
+body{
+  min-height:100vh;
+  font-family:Inter,"Segoe UI",system-ui,sans-serif;
+  font-size:16px;line-height:1.5;
+  color:var(--on-dark);
+  background:var(--navy-900);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* ---------- fundo com esferas: é o que o vidro refrata ---------- */
+.bg{position:fixed;inset:0;z-index:-3;pointer-events:none;
+  background:linear-gradient(158deg, #0a2140 0%, var(--navy-900) 46%, var(--navy-950) 100%)}
+.orbs{position:fixed;inset:0;z-index:-2;pointer-events:none;overflow:hidden;filter:blur(60px)}
+.orb{position:absolute;border-radius:50%;opacity:.55;will-change:transform}
+.orb--1{width:640px;height:640px;top:-14%;left:-6%;
+  background:radial-gradient(circle at 34% 34%, rgba(77,159,255,.85), rgba(77,159,255,0) 66%);
+  animation:drift1 26s ease-in-out infinite}
+.orb--2{width:520px;height:520px;top:26%;right:-8%;
+  background:radial-gradient(circle at 60% 40%, rgba(49,215,245,.42), rgba(49,215,245,0) 66%);
+  animation:drift2 34s ease-in-out infinite}
+.orb--3{width:700px;height:700px;bottom:-22%;left:34%;
+  background:radial-gradient(circle at 46% 50%, rgba(26,77,128,.9), rgba(26,77,128,0) 68%);
+  animation:drift3 40s ease-in-out infinite}
+@keyframes drift1{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(70px,50px,0) scale(1.08)}}
+@keyframes drift2{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(-60px,70px,0) scale(1.1)}}
+@keyframes drift3{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(50px,-60px,0) scale(1.06)}}
+
+.grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.045;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* entrada: linhas do titulo sobem, o resto aparece em cascata */
+.ln{display:block;padding-bottom:.08em}
+.js .ln{overflow:hidden}
+.js .ln > .w{display:block;transform:translateY(115%);
+  transition:transform 1.05s var(--ease);transition-delay:var(--d,0s)}
+.is-ready .ln > .w{transform:none}
+
+.js .rv{opacity:0;transform:translateY(22px);
+  transition:opacity .85s var(--ease), transform .85s var(--ease);
+  transition-delay:var(--d,0s)}
+.rv.is-in{opacity:1;transform:none}
+
+.mark{--d:0s}
+.js .tablet{opacity:0;transform:translateY(26px);
+  transition:opacity 1s var(--ease), transform 1s var(--ease);transition-delay:.25s}
+.is-ready .tablet{opacity:1;transform:none}
+
+::selection{background:rgba(77,159,255,.32)}
+:focus-visible{outline:2px solid var(--sky);outline-offset:3px;border-radius:8px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.skip{position:absolute;left:-9999px;top:0;z-index:80;background:#fff;color:var(--ink);
+  padding:12px 18px;border-radius:0 0 12px 0;font-weight:600}
+.skip:focus{left:0}
+
+/* ==============================================================
+   VIDRO LÍQUIDO — 3 camadas: refração · tinta · brilho especular
+   ============================================================== */
+.lg{position:relative;isolation:isolate}
+.lg > .lg-refract,
+.lg > .lg-tint,
+.lg > .lg-shine{position:absolute;inset:0;border-radius:inherit;pointer-events:none}
+
+/* 1. refração: a borda entorta o que está atrás, como uma lente */
+.lg > .lg-refract{
+  z-index:0;
+  backdrop-filter:blur(.6px) saturate(150%) brightness(1.02);
+  -webkit-backdrop-filter:blur(.6px) saturate(150%) brightness(1.02);
+}
+@supports (backdrop-filter:url(#warp-pill)){
+  .glass > .lg-refract{
+    backdrop-filter:url(#warp-pill) blur(.3px) saturate(155%) brightness(1.03);
+    -webkit-backdrop-filter:url(#warp-pill) blur(.3px) saturate(155%) brightness(1.03);
+  }
+  .tablet > .lg-refract{
+    backdrop-filter:url(#warp-card) blur(.4px) saturate(150%) brightness(1.02);
+    -webkit-backdrop-filter:url(#warp-card) blur(.4px) saturate(150%) brightness(1.02);
+  }
+}
+/* 2. tinta: quase nada. Ao rolar, o menu ganha um fumê escuro —
+   invisível sobre o fundo navy, mas segura o texto quando passa conteúdo claro. */
+.lg > .lg-tint{z-index:1;background:transparent;
+  transition:background .45s var(--ease)}
+.is-scrolled .glass > .lg-tint{background:rgba(5,18,36,.34)}
+.is-scrolled .glass > .lg-refract{
+  backdrop-filter:url(#warp-pill) blur(2.4px) saturate(150%);
+  -webkit-backdrop-filter:url(#warp-pill) blur(2.4px) saturate(150%);
+}
+/* 3. brilho: a borda é o que faz o olho ler "vidro" */
+.lg > .lg-shine{
+  z-index:2;overflow:hidden;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.42),
+    inset 0 -1px 0 rgba(255,255,255,.08),
+    inset 1px 0 0 rgba(255,255,255,.07),
+    inset -1px 0 0 rgba(255,255,255,.07),
+    inset 0 -12px 18px -16px rgba(255,255,255,.28);
+}
+.lg > .lg-shine::after{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(190px circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,.14), transparent 72%);
+  opacity:0;transition:opacity .4s var(--ease);
+}
+.lg:hover > .lg-shine::after{opacity:1}
+.lg > *:not(.lg-refract):not(.lg-tint):not(.lg-shine):not(.pin){position:relative;z-index:3}
+.lg > .pin{z-index:2}
+
+/* ==============================================================
+   TOPO
+   ============================================================== */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  display:flex;align-items:center;gap:14px;
+  padding:16px max(24px, calc((100% - 1220px) / 2));
+  transition:padding .4s var(--ease);
+}
+.is-scrolled .topbar{padding-top:10px;padding-bottom:10px}
+
+/* desfoque progressivo por trás de tudo */
+.haze{position:absolute;left:0;right:0;top:0;height:190%;pointer-events:none;
+  opacity:0;transition:opacity .45s var(--ease)}
+.is-scrolled .haze{opacity:1}
+.haze span{position:absolute;inset:0;display:block}
+.haze span:nth-child(1){backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  -webkit-mask-image:linear-gradient(#000 0%,#000 15%,transparent 32%);mask-image:linear-gradient(#000 0%,#000 15%,transparent 32%)}
+.haze span:nth-child(2){backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  -webkit-mask-image:linear-gradient(transparent 2%,#000 18%,#000 34%,transparent 50%);mask-image:linear-gradient(transparent 2%,#000 18%,#000 34%,transparent 50%)}
+.haze span:nth-child(3){backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
+  -webkit-mask-image:linear-gradient(transparent 18%,#000 34%,#000 50%,transparent 66%);mask-image:linear-gradient(transparent 18%,#000 34%,#000 50%,transparent 66%)}
+.haze span:nth-child(4){backdrop-filter:blur(2.5px);-webkit-backdrop-filter:blur(2.5px);
+  -webkit-mask-image:linear-gradient(transparent 34%,#000 50%,#000 66%,transparent 82%);mask-image:linear-gradient(transparent 34%,#000 50%,#000 66%,transparent 82%)}
+.haze span:nth-child(5){backdrop-filter:blur(1px);-webkit-backdrop-filter:blur(1px);
+  -webkit-mask-image:linear-gradient(transparent 50%,#000 68%,#000 84%,transparent 98%);mask-image:linear-gradient(transparent 50%,#000 68%,#000 84%,transparent 98%)}
+.haze span:nth-child(6){background:linear-gradient(to bottom, rgba(7,24,44,.58), rgba(7,24,44,.22) 54%, transparent)}
+
+/* marca: pastilha clara para a logo aparecer na cor dela */
+.brand{position:relative;z-index:2;margin-right:auto;display:flex;text-decoration:none;
+  border-radius:12px;padding:6px 0;transition:transform .25s var(--ease)}
+.brand:hover{transform:translateY(-1px)}
+.brand svg{display:block;width:112px;aspect-ratio:3.516;height:auto;color:#fff;
+  filter:drop-shadow(0 2px 6px rgba(2,10,24,.55))}
+
+/* pílula de navegação */
+.glass{display:flex;align-items:center;padding:5px;border-radius:999px;
+  box-shadow:0 10px 28px -18px rgba(2,10,24,.55)}
+.pin{position:absolute;top:5px;left:0;height:calc(100% - 10px);border-radius:999px;z-index:2;
+  background:linear-gradient(180deg, rgba(255,255,255,.17), rgba(255,255,255,.06));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.42), 0 2px 8px rgba(2,10,24,.22);
+  transition:transform .45s var(--ease), width .45s var(--ease);pointer-events:none}
+.nav-link{
+  display:inline-block;padding:10px 19px;border-radius:999px;
+  color:var(--on-dark-2);font-size:14.5px;font-weight:500;
+  text-decoration:none;white-space:nowrap;
+  text-shadow:0 1px 2px rgba(3,12,28,.75), 0 0 12px rgba(3,12,28,.45);
+  transition:color .25s var(--ease);
+}
+.nav-link:hover{color:#fff}
+.nav-link[aria-current="page"]{color:#fff;font-weight:600}
+
+/* conta — claro, no mesmo material do resto */
+.account{
+  position:relative;z-index:2;display:inline-flex;align-items:center;gap:9px;
+  height:46px;padding:5px 17px 5px 5px;border:none;border-radius:999px;cursor:pointer;
+  font-family:inherit;font-size:14px;font-weight:600;color:var(--navy-800);
+  background:rgba(255,255,255,.92);
+  box-shadow:0 10px 26px -14px rgba(2,10,24,.95), inset 0 1px 0 #fff;
+  transition:transform .22s var(--ease), background .22s var(--ease), box-shadow .22s var(--ease);
+}
+.account:hover{transform:translateY(-1px);background:#fff;
+  box-shadow:0 14px 30px -14px rgba(2,10,24,1), inset 0 1px 0 #fff}
+.account .ring{
+  width:36px;height:36px;flex:none;display:grid;place-items:center;border-radius:50%;
+  background:var(--navy-800);color:#fff;font-size:16px;
+}
+
+/* ==============================================================
+   HERO
+   ============================================================== */
+.hero{
+  width:var(--shell);margin:0 auto;
+  display:grid;grid-template-columns:minmax(0,1fr) 600px;
+  align-items:center;gap:60px;
+  min-height:100vh;padding:126px 0 80px;
+}
+
+.kicker{
+  display:inline-flex;align-items:center;gap:9px;
+  margin:0 0 22px;padding:7px 15px 7px 11px;border-radius:999px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);
+  font-size:12.5px;font-weight:500;color:var(--on-dark-2);
+}
+.kicker .bi{font-size:13px;color:var(--safe)}
+
+.pitch h1{
+  margin:0;font-family:Poppins,sans-serif;font-weight:600;
+  font-size:clamp(34px,4.4vw,54px);line-height:1.1;letter-spacing:-.03em;color:#fff;
+}
+.pitch h1 em{font-style:normal;color:var(--sky-soft)}
+.sub{margin:20px 0 0;max-width:440px;font-size:16px;line-height:1.68;color:var(--on-dark-3)}
+
+.marks{display:flex;flex-wrap:wrap;gap:8px;margin-top:30px;max-width:500px}
+.mark{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:9px 15px;border-radius:999px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.11);
+  font-size:13.5px;color:var(--on-dark-2);
+  transition:background .3s var(--ease), border-color .3s var(--ease), transform .3s var(--ease);
+}
+.mark:hover{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.22);transform:translateY(-1px)}
+.mark .bi{font-size:15px;color:var(--sky-soft)}
+
+/* ==============================================================
+   O TABLET — protagonista
+   ============================================================== */
+.tablet{
+  width:100%;min-height:700px;display:flex;
+  border-radius:var(--r-2xl);padding:22px;
+  box-shadow:
+    0 2px 0 rgba(255,255,255,.06),
+    0 60px 110px -40px rgba(2,10,24,1),
+    0 30px 60px -40px rgba(77,159,255,.5);
+}
+/* uma linha só, branca e mais grossa: é o que dá o ar de dispositivo */
+.tablet::before{
+  content:"";position:absolute;inset:9px;border-radius:calc(var(--r-2xl) - 10px);
+  border:2.5px solid rgba(255,255,255,.88);pointer-events:none;z-index:4;
+}
+.tablet > .lg-shine{box-shadow:inset 0 1px 0 rgba(255,255,255,.28)}
+.screen{
+  position:relative;z-index:3;flex:1;
+  display:flex;flex-direction:column;justify-content:center;
+  background:var(--paper);border-radius:var(--r-xl);
+  padding:54px 44px;text-align:center;
+  box-shadow:0 20px 40px -28px rgba(2,10,24,.7);
+}
+.screen .mark-logo{display:block;width:min(90%,420px);aspect-ratio:3.516;height:auto;
+  margin:0 auto;color:var(--navy-800)}
+.screen .assinatura{margin:30px auto 0;max-width:360px;
+  font-size:16px;line-height:1.7;color:var(--ink-2)}
+.screen .assinatura b{color:var(--ink);font-weight:600}
+
+form{margin:44px 0 0;text-align:left}
+.field{position:relative}
+.field input{
+  width:100%;height:64px;padding:0 92px 0 18px;
+  border:1.5px solid var(--line);border-radius:var(--r-md);background:var(--paper-2);
+  font-family:inherit;font-size:15px;color:var(--ink);outline:none;
+  transition:border-color .2s var(--ease), background .2s var(--ease), box-shadow .2s var(--ease);
+}
+.field input::placeholder{color:#96a3b9}
+.field input:hover{border-color:#c9d4e4}
+.field input:focus{background:#fff;border-color:var(--sky);box-shadow:0 0 0 4px rgba(77,159,255,.16)}
+.field.has-error input{border-color:#e0523f;box-shadow:0 0 0 4px rgba(224,82,63,.12)}
+.field-tools{position:absolute;right:7px;top:50%;transform:translateY(-50%);display:flex;gap:2px}
+.icon-btn{
+  width:40px;height:40px;display:grid;place-items:center;border:none;border-radius:10px;
+  background:transparent;color:var(--ink-3);cursor:pointer;font-size:17px;
+  transition:background .2s var(--ease), color .2s var(--ease);
+}
+.icon-btn:hover{background:#e9eefa;color:var(--navy-800)}
+
+.hint{display:flex;align-items:center;gap:8px;margin:10px 2px 0;min-height:18px;
+  font-size:12.5px;color:var(--ink-3)}
+.hint .bi{font-size:14px}
+.has-error + .hint{color:#e0523f}
+
+.files{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
+.files:empty{display:none}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:6px 8px 6px 12px;border-radius:999px;
+  background:var(--sky-wash);color:var(--navy-700);font-size:12.5px;font-weight:500;max-width:100%}
+.chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px}
+.chip button{width:18px;height:18px;display:grid;place-items:center;flex:none;border:none;
+  border-radius:50%;background:rgba(11,36,67,.12);color:var(--navy-700);cursor:pointer;font-size:9px;padding:0}
+.chip button:hover{background:rgba(11,36,67,.26)}
+
+.actions{display:flex;gap:12px;margin-top:20px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  height:58px;padding:0 24px;border:none;border-radius:12px;
+  font-family:inherit;font-size:15px;font-weight:600;letter-spacing:.005em;cursor:pointer;
+  transition:transform .18s var(--ease), background .18s var(--ease),
+             box-shadow .18s var(--ease), border-color .18s var(--ease), color .18s var(--ease);
+}
+.btn .bi{font-size:18px}
+.btn:active{transform:translateY(1px)}
+.btn--primary{flex:1;color:#fff;background:var(--navy-800);
+  box-shadow:0 1px 2px rgba(11,36,67,.28)}
+.btn--primary:hover{background:var(--navy-700)}
+.btn--primary:focus-visible{outline-offset:2px}
+.btn--primary[data-loading]{pointer-events:none;color:transparent;position:relative}
+.btn--primary[data-loading] .bi{visibility:hidden}
+.btn--primary[data-loading]::after{content:"";position:absolute;width:19px;height:19px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.3);border-top-color:#fff;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn--ghost{flex:1;background:#fff;color:var(--ink-2);border:1.5px solid var(--line);
+  box-shadow:0 1px 2px rgba(11,36,67,.06)}
+.btn--ghost:hover{background:var(--paper-2);border-color:#bcc8db;color:var(--navy-800)}
+
+.status{display:none;align-items:flex-start;gap:11px;margin-top:14px;padding:14px 16px;
+  border-radius:var(--r-md);background:var(--sky-wash);border:1px solid rgba(77,159,255,.22)}
+.status[data-show]{display:flex}
+.status .bi{font-size:17px;color:#2f7ff0;line-height:1.3}
+.status p{margin:0;font-size:13.5px;line-height:1.55;color:var(--ink-2)}
+.status b{color:var(--ink)}
+
+/* rodapé da tela: conta */
+.conta{margin-top:30px;padding-top:24px;border-top:1px solid #eef1f7;text-align:center}
+.conta-nota{margin:0 0 14px;font-size:13px;line-height:1.55;color:var(--ink-3)}
+.conta-acoes{display:inline-flex;align-items:center;gap:16px}
+.conta-btn{
+  display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 18px;
+  border-radius:11px;background:var(--paper-2);border:1px solid var(--line);
+  color:var(--navy-800);font-size:13.5px;font-weight:600;text-decoration:none;
+  transition:background .2s var(--ease), border-color .2s var(--ease), transform .2s var(--ease);
+}
+.conta-btn:hover{background:#fff;border-color:#bcc8db;transform:translateY(-1px)}
+.conta-btn .bi{font-size:16px;color:var(--ink-3)}
+.conta-btn:hover .bi{color:var(--navy-800)}
+.conta-sep{width:1px;height:20px;background:var(--line)}
+.conta-link{
+  color:var(--ink-2);font-size:13.5px;font-weight:500;text-decoration:none;
+  border-bottom:1px solid transparent;padding-bottom:2px;
+  transition:color .2s var(--ease), border-color .2s var(--ease);
+}
+.conta-link:hover{color:var(--navy-800);border-color:currentColor}
+
+/* ==============================================================
+   SEÇÕES
+   ============================================================== */
+body > section{width:var(--shell);margin:0 auto}
+.sec-head{max-width:640px;margin-bottom:34px}
+.eyebrow{display:flex;align-items:center;gap:9px;margin:0 0 12px;
+  font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--sky-soft)}
+.eyebrow::before{content:"";width:26px;height:1px;background:currentColor;opacity:.5}
+.sec-head h2{margin:0;font-family:Poppins,sans-serif;font-weight:600;
+  font-size:clamp(24px,2.6vw,32px);line-height:1.25;letter-spacing:-.02em;color:#fff}
+.sec-head p{margin:12px 0 0;font-size:15.5px;line-height:1.65;color:var(--on-dark-3)}
+
+.pane{
+  position:relative;border-radius:var(--r-xl);
+  background:linear-gradient(180deg, rgba(255,255,255,.085), rgba(255,255,255,.028));
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22), 0 24px 50px -34px rgba(2,10,24,.9);
+  transition:transform .35s var(--ease), background .35s var(--ease), border-color .35s var(--ease);
+}
+.pane:hover{transform:translateY(-3px);
+  background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04));
+  border-color:rgba(255,255,255,.2)}
+
+#como{padding:20px 0 90px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.step{padding:28px 26px 30px}
+.step .num{display:flex;align-items:center;gap:10px;margin-bottom:16px;
+  font-family:Poppins,sans-serif;font-size:12px;font-weight:600;letter-spacing:.14em;color:var(--sky-soft)}
+.step .num i{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;
+  background:linear-gradient(160deg, rgba(77,159,255,.30), rgba(77,159,255,.10));
+  border:1px solid rgba(255,255,255,.12);color:#cfe2ff;font-size:18px}
+.step h3{margin:0 0 8px;font-size:17px;font-weight:600;color:#fff;letter-spacing:-.01em}
+.step p{margin:0;font-size:14px;line-height:1.68;color:var(--on-dark-3)}
+.step ul{margin:14px 0 0;padding:0;list-style:none;display:grid;gap:7px}
+.step li{display:flex;gap:8px;font-size:13px;color:var(--on-dark-2)}
+.step li .bi{color:var(--safe);font-size:14px;line-height:1.4}
+
+#checagens{padding:0 0 90px}
+.grid-check{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.check{display:flex;gap:14px;padding:20px 22px}
+.check i.ico{display:grid;place-items:center;width:40px;height:40px;flex:none;border-radius:12px;
+  font-size:18px;border:1px solid rgba(255,255,255,.10)}
+.ico--risk{background:rgba(255,122,107,.14);color:#ffab9f}
+.ico--warn{background:rgba(255,198,92,.14);color:#ffd58a}
+.ico--safe{background:rgba(47,211,155,.14);color:#8fe8c8}
+.check b{display:block;font-size:14.5px;font-weight:600;color:#fff;margin-bottom:3px}
+.check span{display:block;font-size:13px;line-height:1.55;color:var(--on-dark-3)}
+
+.aviso{display:flex;align-items:flex-start;gap:12px;margin-top:16px;padding:16px 20px;
+  border-radius:var(--r-lg);background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.16)}
+.aviso .bi{font-size:17px;color:var(--warn);line-height:1.4}
+.aviso p{margin:0;font-size:13.5px;line-height:1.6;color:var(--on-dark-3)}
+.aviso b{color:var(--on-dark-2);font-weight:600}
+
+#politicas{padding:0 0 90px}
+.grid-pol{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.pol{display:flex;flex-direction:column;padding:24px 22px 22px;text-decoration:none;color:inherit}
+.pol i.ico{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;margin-bottom:16px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:var(--sky-soft);font-size:19px}
+.pol b{font-size:15px;font-weight:600;color:#fff;margin-bottom:6px}
+.pol span{font-size:13px;line-height:1.6;color:var(--on-dark-3);flex:1}
+.pol em{display:flex;align-items:center;gap:6px;margin-top:16px;font-style:normal;
+  font-size:12.5px;font-weight:600;color:var(--sky-soft)}
+.pol em .bi{transition:transform .3s var(--ease)}
+.pol:hover em .bi{transform:translateX(3px)}
+
+footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
+.foot{width:var(--shell);margin:0 auto;padding:26px 0 34px;
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;
+  font-size:12.5px;color:var(--on-dark-3)}
+.foot-logo{display:block;width:92px;aspect-ratio:3.516;height:auto;color:var(--on-dark-3)}
+.foot .links{display:flex;flex-wrap:wrap;gap:20px}
+.foot a{color:var(--on-dark-3);text-decoration:none}
+.foot a:hover{color:var(--on-dark)}
+
+
+/* ---------- faixa de números ---------- */
+#numeros{padding:10px 0 90px}
+.numeros{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.numero{padding:26px 24px;border-radius:var(--r-xl);
+  background:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.028));
+  border:1px solid rgba(255,255,255,.1)}
+.numero b{display:block;font-family:Poppins,sans-serif;font-size:clamp(26px,3vw,34px);
+  font-weight:700;letter-spacing:-.02em;color:#fff;line-height:1.1}
+.numero span{display:block;margin-top:8px;font-size:13px;line-height:1.55;color:var(--on-dark-3)}
+.fonte{margin:16px 0 0;font-size:12px;color:rgba(234,241,253,.38)}
+.fonte a{color:rgba(234,241,253,.55)}
+
+/* ---------- ranking ---------- */
+.ranking{display:grid;gap:10px;margin-bottom:16px}
+.rank{display:flex;align-items:center;gap:16px;padding:16px 20px;border-radius:var(--r-lg);
+  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025));
+  border:1px solid rgba(255,255,255,.09)}
+.rank .pos{font-family:Poppins,sans-serif;font-size:13px;font-weight:700;color:var(--sky-soft);
+  width:22px;flex:none}
+.rank .nome{flex:1;min-width:0}
+.rank .nome b{display:block;font-size:15px;font-weight:600;color:#fff;margin-bottom:2px}
+.rank .nome span{display:block;font-size:12.5px;color:var(--on-dark-3)}
+.rank .barra{width:140px;flex:none;height:6px;border-radius:999px;background:rgba(255,255,255,.1);
+  overflow:hidden}
+.rank .barra i{display:block;height:100%;border-radius:999px;
+  background:linear-gradient(90deg,var(--risk),var(--warn))}
+.rank .pct{width:46px;flex:none;text-align:right;font-family:Poppins,sans-serif;
+  font-size:15px;font-weight:600;color:#fff}
+.rank .marca{width:118px;flex:none;text-align:right;font-size:11.5px;font-weight:600}
+.marca--sim{color:var(--safe)}
+.marca--nao{color:rgba(234,241,253,.34)}
+
+/* ---------- história ---------- */
+#historia{padding:0 0 90px}
+.historia{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center;
+  padding:44px 44px;border-radius:var(--r-xl);
+  background:linear-gradient(140deg,rgba(77,159,255,.12),rgba(255,255,255,.03));
+  border:1px solid rgba(255,255,255,.12)}
+.historia h2{margin:0 0 16px;font-family:Poppins,sans-serif;font-weight:600;
+  font-size:clamp(22px,2.6vw,30px);line-height:1.25;letter-spacing:-.02em;color:#fff}
+.historia p{margin:0 0 14px;font-size:15.5px;line-height:1.75;color:var(--on-dark-2)}
+.historia p:last-child{margin-bottom:0}
+.historia .assina{margin-top:22px;font-size:13.5px;color:var(--on-dark-3)}
+.crencas{display:grid;gap:12px}
+.crenca{display:flex;gap:13px;padding:16px 18px;border-radius:var(--r-lg);
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09)}
+.crenca .bi{font-size:19px;color:var(--sky-soft);line-height:1.35;flex:none}
+.crenca b{display:block;font-size:14.5px;color:#fff;margin-bottom:3px}
+.crenca span{display:block;font-size:13px;line-height:1.6;color:var(--on-dark-3)}
+
+/* ---------- dois convites ---------- */
+#convites{padding:0 0 90px}
+.convites{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.convite{display:flex;flex-direction:column;padding:34px 32px;border-radius:var(--r-xl);
+  text-decoration:none;color:inherit;
+  background:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.028));
+  border:1px solid rgba(255,255,255,.1);
+  transition:transform .35s var(--ease),border-color .35s var(--ease),background .35s var(--ease)}
+.convite:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.22);
+  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.04))}
+.convite i.ico{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;
+  margin-bottom:18px;font-size:21px;
+  background:rgba(77,159,255,.16);border:1px solid rgba(255,255,255,.12);color:#cfe2ff}
+.convite h3{margin:0 0 8px;font-family:Poppins,sans-serif;font-size:19px;font-weight:600;color:#fff}
+.convite p{margin:0;font-size:14px;line-height:1.7;color:var(--on-dark-3);flex:1}
+.convite em{display:flex;align-items:center;gap:7px;margin-top:20px;font-style:normal;
+  font-size:13.5px;font-weight:600;color:var(--sky-soft)}
+.convite em .bi{transition:transform .3s var(--ease)}
+.convite:hover em .bi{transform:translateX(4px)}
+
+@media (max-width:1080px){
+  .numeros{grid-template-columns:1fr 1fr}
+  .historia{grid-template-columns:1fr;gap:30px;padding:32px 28px}
+  .convites{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .numeros{grid-template-columns:1fr}
+  .rank{flex-wrap:wrap;gap:10px}
+  .rank .barra{width:100%;order:3}
+  .rank .marca{width:auto;text-align:left;order:4}
+  #numeros,#historia,#convites{padding-bottom:60px}
+}
+
+/* ==============================================================
+   RESPONSIVO
+   ============================================================== */
+@media (max-width:1080px){
+  :root{--shell:min(720px, 100% - 40px)}
+  .hero{grid-template-columns:1fr;gap:44px;min-height:auto;padding:116px 0 64px}
+  .pitch{text-align:center}
+  .sub{margin-inline:auto}
+  .marks{justify-content:center;margin-inline:auto}
+  .kicker{margin-inline:auto}
+  .steps,.grid-check,.grid-pol{grid-template-columns:1fr 1fr}
+}
+@media (max-width:760px){
+  :root{--shell:min(560px, 100% - 32px)}
+  .topbar{padding:12px 16px;gap:10px;flex-wrap:wrap}
+  .brand svg{width:92px}
+  .glass{order:3;width:100%;overflow-x:auto;scrollbar-width:none}
+  .glass::-webkit-scrollbar{display:none}
+  .pin{display:none}
+  .nav-link{padding:9px 14px;font-size:13.5px}
+  .account{height:42px;padding:4px;width:42px;justify-content:center}
+  .account .label{display:none}
+  .account .ring{width:34px;height:34px;font-size:15px}
+  .hero{padding:140px 0 52px}
+  .tablet{padding:12px;border-radius:26px}
+  .tablet::before{inset:6px;border-radius:20px}
+  .screen{padding:24px 18px 22px;border-radius:18px}
+  .actions{flex-direction:column-reverse}
+  .btn{width:100%;flex:none}
+  .steps,.grid-check,.grid-pol{grid-template-columns:1fr}
+  #como,#checagens,#politicas{padding-bottom:60px}
+  .foot{flex-direction:column;align-items:flex-start}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+  html{scroll-behavior:auto}
+  .orb{animation:none}
+}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="orbs" aria-hidden="true">
+  <div class="orb orb--1"></div><div class="orb orb--2"></div><div class="orb orb--3"></div>
+</div>
+<div class="grain"></div>
+
+<a class="skip" href="#verificador">Ir para o verificador</a>
+
+<!-- filtro de refração + logo oficial (letras + lupa, vetor integral) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <filter id="warp-pill" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
+    <feImage href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27420%27%20height%3D%2756%27%20viewBox%3D%270%200%20420%2056%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%270%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27rgb%280%2C128%2C128%29%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27rgb%28255%2C128%2C128%29%27%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%27420%27%20height%3D%2756%27%20fill%3D%27url%28%2523g%29%27%2F%3E%3Crect%20x%3D%277%27%20y%3D%277%27%20width%3D%27406%27%20height%3D%2742%27%20rx%3D%2726%27%20fill%3D%27rgb%28128%2C128%2C128%29%27%20style%3D%27filter%3Ablur%2811px%29%27%2F%3E%3C%2Fsvg%3E" preserveAspectRatio="none" x="0" y="0" width="100%" height="100%" result="mx"/>
+    <feImage href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27420%27%20height%3D%2756%27%20viewBox%3D%270%200%20420%2056%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27rgb%28128%2C0%2C128%29%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27rgb%28128%2C255%2C128%29%27%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%27420%27%20height%3D%2756%27%20fill%3D%27url%28%2523g%29%27%2F%3E%3Crect%20x%3D%277%27%20y%3D%277%27%20width%3D%27406%27%20height%3D%2742%27%20rx%3D%2726%27%20fill%3D%27rgb%28128%2C128%2C128%29%27%20style%3D%27filter%3Ablur%2811px%29%27%2F%3E%3C%2Fsvg%3E" preserveAspectRatio="none" x="0" y="0" width="100%" height="100%" result="my"/>
+    <feDisplacementMap in="SourceGraphic" in2="mx" scale="10" xChannelSelector="R" yChannelSelector="A" result="p1"/>
+    <feDisplacementMap in="p1" in2="my" scale="10" xChannelSelector="A" yChannelSelector="G"/>
+  </filter>
+
+  <filter id="warp-card" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
+    <feImage href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27600%27%20height%3D%27700%27%20viewBox%3D%270%200%20600%20700%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%271%27%20y2%3D%270%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27rgb%280%2C128%2C128%29%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27rgb%28255%2C128%2C128%29%27%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%27600%27%20height%3D%27700%27%20fill%3D%27url%28%2523g%29%27%2F%3E%3Crect%20x%3D%2722%27%20y%3D%2722%27%20width%3D%27556%27%20height%3D%27656%27%20rx%3D%2740%27%20fill%3D%27rgb%28128%2C128%2C128%29%27%20style%3D%27filter%3Ablur%2826px%29%27%2F%3E%3C%2Fsvg%3E" preserveAspectRatio="none" x="0" y="0" width="100%" height="100%" result="mx"/>
+    <feImage href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27600%27%20height%3D%27700%27%20viewBox%3D%270%200%20600%20700%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27rgb%28128%2C0%2C128%29%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27rgb%28128%2C255%2C128%29%27%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%27600%27%20height%3D%27700%27%20fill%3D%27url%28%2523g%29%27%2F%3E%3Crect%20x%3D%2722%27%20y%3D%2722%27%20width%3D%27556%27%20height%3D%27656%27%20rx%3D%2740%27%20fill%3D%27rgb%28128%2C128%2C128%29%27%20style%3D%27filter%3Ablur%2826px%29%27%2F%3E%3C%2Fsvg%3E" preserveAspectRatio="none" x="0" y="0" width="100%" height="100%" result="my"/>
+    <feDisplacementMap in="SourceGraphic" in2="mx" scale="30" xChannelSelector="R" yChannelSelector="A" result="p1"/>
+    <feDisplacementMap in="p1" in2="my" scale="30" xChannelSelector="A" yChannelSelector="G"/>
+  </filter>
+
+  <symbol id="logo-confia" viewBox="36.1 271.9 636.1 180.9">
+    <g fill="currentColor">
+      <g transform="translate(30.633726,403.350725)"><path d="M 5.421875 -57.765625 C 5.421875 -69.140625 7.878906 -79.285156 12.796875 -88.203125 C 17.722656 -97.117188 24.585938 -104.066406 33.390625 -109.046875 C 42.203125 -114.023438 52.1875 -116.515625 63.34375 -116.515625 C 77.019531 -116.515625 88.726562 -112.90625 98.46875 -105.6875 C 108.207031 -98.46875 114.71875 -88.617188 118 -76.140625 L 87.140625 -76.140625 C 84.847656 -80.960938 81.59375 -84.628906 77.375 -87.140625 C 73.164062 -89.660156 68.378906 -90.921875 63.015625 -90.921875 C 54.367188 -90.921875 47.363281 -87.910156 42 -81.890625 C 36.644531 -75.867188 33.96875 -67.828125 33.96875 -57.765625 C 33.96875 -47.703125 36.644531 -39.660156 42 -33.640625 C 47.363281 -27.617188 54.367188 -24.609375 63.015625 -24.609375 C 68.378906 -24.609375 73.164062 -25.867188 77.375 -28.390625 C 81.59375 -30.910156 84.847656 -34.578125 87.140625 -39.390625 L 118 -39.390625 C 114.71875 -26.910156 108.207031 -17.085938 98.46875 -9.921875 C 88.726562 -2.753906 77.019531 0.828125 63.34375 0.828125 C 52.1875 0.828125 42.203125 -1.660156 33.390625 -6.640625 C 24.585938 -11.617188 17.722656 -18.539062 12.796875 -27.40625 C 7.878906 -36.269531 5.421875 -46.390625 5.421875 -57.765625 Z M 5.421875 -57.765625 "/></g>
+      <g transform="translate(260.064506,403.350725)"><path d="M 65.96875 -92.5625 C 76.695312 -92.5625 85.257812 -89.085938 91.65625 -82.140625 C 98.050781 -75.191406 101.25 -65.644531 101.25 -53.5 L 101.25 0 L 73.359375 0 L 73.359375 -49.71875 C 73.359375 -55.851562 71.769531 -60.613281 68.59375 -64 C 65.425781 -67.394531 61.160156 -69.09375 55.796875 -69.09375 C 50.429688 -69.09375 46.160156 -67.394531 42.984375 -64 C 39.816406 -60.613281 38.234375 -55.851562 38.234375 -49.71875 L 38.234375 0 L 10.171875 0 L 10.171875 -91.578125 L 38.234375 -91.578125 L 38.234375 -79.421875 C 41.078125 -83.472656 44.90625 -86.675781 49.71875 -89.03125 C 54.539062 -91.382812 59.957031 -92.5625 65.96875 -92.5625 Z M 65.96875 -92.5625 "/></g>
+      <g transform="translate(370.666761,403.350725)"><path d="M 56.125 -68.265625 L 41.03125 -68.265625 L 41.03125 0 L 12.96875 0 L 12.96875 -68.265625 L 2.796875 -68.265625 L 2.796875 -91.578125 L 12.96875 -91.578125 L 12.96875 -94.203125 C 12.96875 -105.472656 16.191406 -114.03125 22.640625 -119.875 C 29.097656 -125.726562 38.5625 -128.65625 51.03125 -128.65625 C 53.113281 -128.65625 54.648438 -128.601562 55.640625 -128.5 L 55.640625 -104.703125 C 50.273438 -105.023438 46.5 -104.253906 44.3125 -102.390625 C 42.125 -100.535156 41.03125 -97.203125 41.03125 -92.390625 L 41.03125 -91.578125 L 56.125 -91.578125 Z M 56.125 -68.265625 "/></g>
+      <g transform="translate(429.742158,403.350725)"><path d="M 24.28125 -101.09375 C 19.363281 -101.09375 15.34375 -102.539062 12.21875 -105.4375 C 9.101562 -108.34375 7.546875 -111.925781 7.546875 -116.1875 C 7.546875 -120.5625 9.101562 -124.195312 12.21875 -127.09375 C 15.34375 -130 19.363281 -131.453125 24.28125 -131.453125 C 29.101562 -131.453125 33.070312 -130 36.1875 -127.09375 C 39.300781 -124.195312 40.859375 -120.5625 40.859375 -116.1875 C 40.859375 -111.925781 39.300781 -108.34375 36.1875 -105.4375 C 33.070312 -102.539062 29.101562 -101.09375 24.28125 -101.09375 Z M 38.234375 -91.578125 L 38.234375 0 L 10.171875 0 L 10.171875 -91.578125 Z M 38.234375 -91.578125 "/></g>
+      <g transform="translate(478.151144,403.350725)"><path d="M 4.59375 -45.953125 C 4.59375 -55.359375 6.367188 -63.613281 9.921875 -70.71875 C 13.484375 -77.832031 18.328125 -83.304688 24.453125 -87.140625 C 30.578125 -90.972656 37.414062 -92.890625 44.96875 -92.890625 C 51.425781 -92.890625 57.085938 -91.578125 61.953125 -88.953125 C 66.816406 -86.328125 70.5625 -82.878906 73.1875 -78.609375 L 73.1875 -91.578125 L 101.25 -91.578125 L 101.25 0 L 73.1875 0 L 73.1875 -12.96875 C 70.457031 -8.695312 66.65625 -5.25 61.78125 -2.625 C 56.914062 0 51.253906 1.3125 44.796875 1.3125 C 37.359375 1.3125 30.578125 -0.628906 24.453125 -4.515625 C 18.328125 -8.398438 13.484375 -13.925781 9.921875 -21.09375 C 6.367188 -28.257812 4.59375 -36.546875 4.59375 -45.953125 Z M 73.1875 -45.78125 C 73.1875 -52.789062 71.242188 -58.316406 67.359375 -62.359375 C 63.484375 -66.410156 58.753906 -68.4375 53.171875 -68.4375 C 47.585938 -68.4375 42.851562 -66.4375 38.96875 -62.4375 C 35.09375 -58.445312 33.15625 -52.953125 33.15625 -45.953125 C 33.15625 -38.953125 35.09375 -33.398438 38.96875 -29.296875 C 42.851562 -25.191406 47.585938 -23.140625 53.171875 -23.140625 C 58.753906 -23.140625 63.484375 -25.160156 67.359375 -29.203125 C 71.242188 -33.253906 73.1875 -38.78125 73.1875 -45.78125 Z M 73.1875 -45.78125 "/></g>
+      <g transform="translate(589.573903,403.350725)"><path d="M 43.8125 -121.609375 C 55.519531 -121.609375 64.898438 -118.539062 71.953125 -112.40625 C 79.015625 -106.28125 82.546875 -97.640625 82.546875 -86.484375 C 82.546875 -76.203125 79.179688 -68.1875 72.453125 -62.4375 C 65.722656 -56.695312 56.832031 -53.769531 45.78125 -53.65625 L 44.96875 -41.359375 L 20.34375 -41.359375 L 19.53125 -71.875 L 29.375 -71.875 C 37.800781 -71.875 44.226562 -72.910156 48.65625 -74.984375 C 53.09375 -77.066406 55.3125 -80.847656 55.3125 -86.328125 C 55.3125 -90.148438 54.269531 -93.15625 52.1875 -95.34375 C 50.101562 -97.53125 47.203125 -98.625 43.484375 -98.625 C 39.546875 -98.625 36.484375 -97.503906 34.296875 -95.265625 C 32.109375 -93.023438 31.015625 -89.988281 31.015625 -86.15625 L 4.59375 -86.15625 C 4.375 -92.832031 5.769531 -98.847656 8.78125 -104.203125 C 11.789062 -109.566406 16.273438 -113.804688 22.234375 -116.921875 C 28.203125 -120.046875 35.394531 -121.609375 43.8125 -121.609375 Z M 32.984375 1.3125 C 28.054688 1.3125 24.035156 -0.132812 20.921875 -3.03125 C 17.804688 -5.9375 16.25 -9.519531 16.25 -13.78125 C 16.25 -18.15625 17.804688 -21.820312 20.921875 -24.78125 C 24.035156 -27.738281 28.054688 -29.21875 32.984375 -29.21875 C 37.796875 -29.21875 41.757812 -27.738281 44.875 -24.78125 C 48 -21.820312 49.5625 -18.15625 49.5625 -13.78125 C 49.5625 -9.519531 48 -5.9375 44.875 -3.03125 C 41.757812 -0.132812 37.796875 1.3125 32.984375 1.3125 Z M 32.984375 1.3125 "/></g>
+      <path fill-rule="evenodd" d="M 159.496094 332.757812 C 168.148438 310.433594 191.0625 297.03125 215.105469 299.773438 C 238.578125 302.449219 257.941406 322.035156 261.15625 344.382812 C 263.03125 357.394531 260.175781 369.433594 253.441406 380.628906 C 251.355469 384.097656 248.886719 387.277344 246.007812 390.121094 C 245.25 390.867188 245.28125 391.367188 245.847656 392.210938 C 255.40625 406.402344 264.929688 420.617188 274.464844 434.828125 C 275.535156 436.425781 276.625 438.007812 277.667969 439.621094 C 279.375 442.269531 278.882812 444.9375 276.316406 446.746094 C 273.976562 448.394531 271.613281 450.007812 269.226562 451.578125 C 266.136719 453.605469 263.390625 453.074219 261.382812 449.984375 C 255.792969 441.371094 250.25 432.726562 244.6875 424.09375 C 239.964844 416.761719 235.226562 409.441406 230.550781 402.082031 C 229.953125 401.144531 229.503906 401.003906 228.46875 401.429688 C 205.765625 410.75 177.871094 403.566406 163.707031 381.640625 C 155.703125 369.25 153.621094 355.699219 156.769531 341.328125 C 157.121094 339.726562 157.566406 338.140625 158.0625 336.578125 C 158.46875 335.28125 159.011719 334.03125 159.496094 332.757812 Z M 225.558594 307.753906 C 200.5 298.355469 173.464844 310.550781 164.015625 335.265625 C 153.933594 361.640625 167.152344 387.769531 190.042969 396.710938 C 212.460938 405.46875 242.488281 396.378906 252.914062 368.371094 C 262.003906 343.960938 249.941406 317.261719 225.558594 307.753906 Z M 272.152344 442.488281 C 272.160156 442.039062 271.890625 441.761719 271.683594 441.453125 C 261.6875 426.546875 251.691406 411.640625 241.691406 396.738281 C 241.09375 395.847656 240.601562 394.492188 239.792969 394.25 C 238.941406 393.996094 237.960938 395.15625 237.054688 395.726562 C 234.445312 397.359375 234.460938 397.367188 236.144531 399.972656 C 242.832031 410.324219 249.511719 420.679688 256.199219 431.03125 C 259.324219 435.871094 262.476562 440.699219 265.582031 445.554688 C 266.070312 446.324219 266.449219 446.414062 267.195312 445.875 C 268.59375 444.851562 270.066406 443.933594 271.507812 442.96875 C 271.734375 442.816406 271.949219 442.640625 272.152344 442.488281 Z M 272.152344 442.488281 "/>
+      <path fill-rule="evenodd" d="M 247.933594 368.167969 C 239.273438 390.507812 213.832031 401.453125 191.0625 392.601562 C 168.269531 383.734375 157.800781 359.628906 166.503906 336.65625 C 174.964844 314.320312 200.105469 303.621094 222.824219 312.417969 C 244.953125 320.988281 256.382812 346.371094 247.933594 368.167969 Z M 243.457031 366.152344 C 250.804688 346.566406 240.476562 324.457031 220.457031 316.925781 C 200.269531 309.332031 178.382812 319.046875 170.878906 338.941406 C 163.363281 358.867188 173.210938 380.714844 193.070312 388.160156 C 213.398438 395.785156 236.050781 385.894531 243.457031 366.152344 Z M 243.457031 366.152344 "/>
+      <path fill-rule="evenodd" d="M 173.789062 340.746094 C 175.625 335.867188 177.898438 332.175781 180.871094 328.925781 C 181.984375 327.707031 183.285156 327.585938 184.378906 328.464844 C 185.371094 329.257812 185.472656 330.777344 184.59375 332.019531 C 184.351562 332.363281 184.054688 332.667969 183.789062 332.992188 C 179.164062 338.679688 176.683594 345.167969 176.59375 352.515625 C 176.519531 358.429688 177.984375 363.914062 181.382812 368.824219 C 182.460938 370.382812 182.347656 371.742188 181.097656 372.65625 C 179.835938 373.578125 178.351562 373.25 177.285156 371.632812 C 172.980469 365.097656 171.292969 357.871094 171.824219 350.109375 C 172.0625 346.632812 172.796875 343.25 173.789062 340.746094 Z M 173.789062 340.746094 "/>
+      <path fill-rule="evenodd" d="M 218.398438 322.445312 C 223.667969 324.523438 228.253906 327.585938 231.984375 331.886719 C 232.257812 332.203125 232.539062 332.523438 232.753906 332.882812 C 233.519531 334.15625 233.3125 335.5 232.265625 336.273438 C 231.203125 337.0625 229.824219 336.929688 228.886719 335.769531 C 227.007812 333.457031 224.808594 331.527344 222.34375 329.875 C 219.226562 327.785156 215.824219 326.394531 212.171875 325.589844 C 210.535156 325.230469 209.648438 324.113281 209.90625 322.761719 C 210.175781 321.339844 211.507812 320.511719 213.144531 320.886719 C 214.925781 321.292969 216.703125 321.734375 218.398438 322.445312 Z M 218.398438 322.445312 "/>
+      <path fill-rule="evenodd" d="M 200.339844 325.15625 C 199.828125 326.542969 198.480469 327.222656 197.214844 326.734375 C 195.980469 326.257812 195.339844 324.75 195.832031 323.472656 C 196.3125 322.222656 197.695312 321.546875 198.90625 321.964844 C 200.195312 322.410156 200.832031 323.832031 200.339844 325.15625 Z M 200.339844 325.15625 "/>
+      <path fill-rule="evenodd" d="M 236.402344 344.410156 C 237.617188 344.835938 238.324219 346.253906 237.929688 347.476562 C 237.503906 348.800781 236.109375 349.527344 234.796875 349.113281 C 233.550781 348.722656 232.789062 347.179688 233.226562 345.941406 C 233.683594 344.640625 235.105469 343.953125 236.402344 344.410156 Z M 236.402344 344.410156 "/>
+    </g>
+  </symbol>
+</svg>
+
+<header class="topbar" id="topbar">
+  <div class="haze" aria-hidden="true">
+    <span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+
+  <a class="brand" href="#topo" aria-label="confia? — início">
+    <svg role="img" aria-label="confia?"><use href="#logo-confia"/></svg>
+  </a>
+
+  <nav class="glass lg" id="nav" aria-label="Principal">
+    <span class="lg-refract"></span><span class="lg-tint"></span><span class="lg-shine"></span>
+    <span class="pin" id="pin" aria-hidden="true"></span>
+    <a class="nav-link" href="#topo" aria-current="page">Confia?</a>
+    <a class="nav-link" href="#numeros">Golpes</a>
+    <a class="nav-link" href="#como">Como funciona</a>
+    <a class="nav-link" href="planos.html">Planos</a>
+    <a class="nav-link" href="#politicas">Ajuda</a>
+  </nav>
+
+  <button class="account" type="button">
+    <span class="ring"><i class="bi bi-person-fill" aria-hidden="true"></i></span>
+    <span class="label">Entrar</span>
+  </button>
+</header>
+
+<div class="hero" id="topo">
+
+  <section class="pitch">
+    <p class="kicker rv" style="--d:.02s">
+      <i class="bi bi-shield-check" aria-hidden="true"></i>
+      2 verificações sem criar conta
+    </p>
+
+    <h1>
+      <span class="ln"><span class="w" style="--d:.06s">Aquele link</span></span>
+      <span class="ln"><span class="w" style="--d:.15s">é de verdade ou</span></span>
+      <span class="ln"><span class="w" style="--d:.24s">é <em>golpe</em>?</span></span>
+    </h1>
+
+    <p class="sub rv" style="--d:.36s">
+      Loja, jogo, empréstimo, vaga de emprego, prêmio, perfil. Cole o link, o @ ou o print:
+      a gente investiga no nosso servidor e responde em segundos, sem termo técnico.
+    </p>
+
+    <div class="marks" id="marks">
+      <span class="mark"><i class="bi bi-bag-check" aria-hidden="true"></i> Loja e marketplace</span>
+      <span class="mark"><i class="bi bi-controller" aria-hidden="true"></i> Jogos, skins e cases</span>
+      <span class="mark"><i class="bi bi-cash-stack" aria-hidden="true"></i> Empréstimo</span>
+      <span class="mark"><i class="bi bi-briefcase" aria-hidden="true"></i> Vaga de emprego</span>
+      <span class="mark"><i class="bi bi-gift" aria-hidden="true"></i> Prêmio e sorteio</span>
+      <span class="mark"><i class="bi bi-person-bounding-box" aria-hidden="true"></i> Perfil clonado</span>
+    </div>
+  </section>
+
+  <main class="tablet lg" id="verificador">
+    <span class="lg-refract"></span><span class="lg-tint"></span><span class="lg-shine"></span>
+
+    <div class="screen">
+      <svg class="mark-logo" role="img" aria-label="confia?"><use href="#logo-confia"/></svg>
+
+      <p class="assinatura">
+        Antes de clicar ou pagar… <b>confia?</b><br>
+        Verifique links, sites e perfis em segundos.
+      </p>
+
+      <form id="form" novalidate>
+        <div class="field" id="field">
+          <label class="sr" for="alvo">Link, site ou perfil para verificar</label>
+          <input id="alvo" name="alvo" type="text" autocomplete="off" spellcheck="false"
+                 placeholder="Cole o link ou o @ do perfil" aria-describedby="dica">
+          <div class="field-tools">
+            <button class="icon-btn" type="button" id="btn-colar" aria-label="Colar da área de transferência" title="Colar">
+              <i class="bi bi-clipboard" aria-hidden="true"></i>
+            </button>
+            <button class="icon-btn" type="button" id="btn-anexar" aria-label="Anexar print ou foto" title="Anexar">
+              <i class="bi bi-paperclip" aria-hidden="true"></i>
+            </button>
+          </div>
+          <input type="file" id="arquivos" multiple accept="image/*,video/*" hidden>
+        </div>
+
+        <p class="hint" id="dica">
+          <i class="bi bi-info-circle" aria-hidden="true"></i>
+          <span id="dica-txt">Pode arrastar o print ou a foto do anúncio para cá.</span>
+        </p>
+
+        <div class="files" id="anexos"></div>
+
+        <div class="actions">
+          <button class="btn btn--ghost" type="button" id="btn-uploads">
+            <i class="bi bi-cloud-arrow-up" aria-hidden="true"></i> Uploads
+          </button>
+          <button class="btn btn--primary" type="submit" id="btn-verificar">
+            <i class="bi bi-search" aria-hidden="true"></i> Verificar
+          </button>
+        </div>
+
+        <div class="status" id="status" role="status" aria-live="polite">
+          <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+          <p id="status-txt"></p>
+        </div>
+      </form>
+
+      <div class="conta">
+        <p class="conta-nota">Depois das 2 primeiras, a conta guarda o que você já verificou.</p>
+        <div class="conta-acoes">
+          <a class="conta-btn" href="#">
+            <i class="bi bi-person-plus" aria-hidden="true"></i> Criar conta
+          </a>
+          <span class="conta-sep" aria-hidden="true"></span>
+          <a class="conta-link" href="#">Já tenho conta</a>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<section id="como">
+  <div class="sec-head">
+    <p class="eyebrow">Como funciona</p>
+    <h2>Três passos, uns poucos segundos</h2>
+    <p>Você não precisa entender nada de internet. Se der pra copiar e colar, dá pra verificar.</p>
+  </div>
+
+  <div class="steps">
+    <article class="step pane">
+      <p class="num"><i class="bi bi-clipboard-plus" aria-hidden="true"></i> Passo 1</p>
+      <h3>Cole ou anexe</h3>
+      <p>Aquele link que chegou no WhatsApp, o site da loja, o perfil que te chamou no direct ou o print da conversa.</p>
+      <ul>
+        <li><i class="bi bi-check2" aria-hidden="true"></i> Link ou endereço de site</li>
+        <li><i class="bi bi-check2" aria-hidden="true"></i> @ de perfil em rede social</li>
+        <li><i class="bi bi-check2" aria-hidden="true"></i> Print, foto ou anúncio</li>
+      </ul>
+    </article>
+
+    <article class="step pane">
+      <p class="num"><i class="bi bi-binoculars" aria-hidden="true"></i> Passo 2</p>
+      <h3>A gente abre no lugar do seu celular</h3>
+      <p>O link é aberto num ambiente isolado, longe do seu aparelho. Ali dá pra ver pra onde ele leva de verdade e quem está por trás.</p>
+      <ul>
+        <li><i class="bi bi-check2" aria-hidden="true"></i> Seu aparelho não é exposto</li>
+        <li><i class="bi bi-check2" aria-hidden="true"></i> Seguimos todos os redirecionamentos</li>
+        <li><i class="bi bi-check2" aria-hidden="true"></i> Conferimos quem registrou o site</li>
+      </ul>
+    </article>
+
+    <article class="step pane">
+      <p class="num"><i class="bi bi-patch-check" aria-hidden="true"></i> Passo 3</p>
+      <h3>Resposta em português</h3>
+      <p>Nada de relatório técnico. Você recebe uma resposta direta, o motivo dela e o que fazer agora.</p>
+      <ul>
+        <li><i class="bi bi-check2" aria-hidden="true"></i> Pode confiar</li>
+        <li><i class="bi bi-check2" aria-hidden="true"></i> Melhor desconfiar</li>
+        <li><i class="bi bi-check2" aria-hidden="true"></i> É golpe — não clique</li>
+      </ul>
+    </article>
+  </div>
+</section>
+
+
+<section id="numeros">
+  <div class="sec-head">
+    <p class="eyebrow">O tamanho do problema</p>
+    <h2>Não é azar. É indústria.</h2>
+    <p>Golpe no Brasil deixou de ser caso isolado e virou operação organizada, com roteiro,
+    equipe e meta. Estes números são de instituições públicas e do setor bancário.</p>
+  </div>
+
+  <div class="numeros">
+    <div class="numero">
+      <b>1 a cada 2,3s</b>
+      <span>É a frequência das tentativas de fraude no Brasil</span>
+    </div>
+    <div class="numero">
+      <b>24 milhões</b>
+      <span>De brasileiros atingidos por golpes de Pix e boleto em 12 meses</span>
+    </div>
+    <div class="numero">
+      <b>R$ 29 bi</b>
+      <span>Perdidos nesse mesmo período</span>
+    </div>
+    <div class="numero">
+      <b>+43%</b>
+      <span>De aumento entre jovens de até 25 anos — hoje passam os idosos</span>
+    </div>
+  </div>
+
+  <p class="fonte">Fontes: Serasa Experian (1º semestre de 2025) e levantamento sobre golpes de
+  Pix e boleto entre julho de 2024 e junho de 2025.</p>
+</section>
+
+<section id="checagens">
+  <div class="sec-head">
+    <p class="eyebrow">Tipos de golpe</p>
+    <h2>Não é só link falso</h2>
+    <p>Golpe bom é o que parece normal. A gente estuda o roteiro de cada tipo — o que eles falam,
+    como cobram e onde escorregam — pra reconhecer o padrão antes de você pagar.</p>
+  </div>
+
+  <div class="ranking">
+    <div class="rank">
+      <span class="pos">1</span>
+      <span class="nome"><b>Clonagem ou troca de cartão</b><span>Cartão trocado na hora do pagamento ou dados copiados</span></span>
+      <span class="barra"><i style="width:100%"></i></span>
+      <span class="pct">45%</span>
+      <span class="marca marca--nao">ainda não cobrimos</span>
+    </div>
+    <div class="rank">
+      <span class="pos">2</span>
+      <span class="nome"><b>Golpe do WhatsApp</b><span>Número clonado ou perfil copiado pedindo dinheiro a conhecidos</span></span>
+      <span class="barra"><i style="width:76%"></i></span>
+      <span class="pct">34%</span>
+      <span class="marca marca--sim">verificamos</span>
+    </div>
+    <div class="rank">
+      <span class="pos">3</span>
+      <span class="nome"><b>Falsa central do banco</b><span>Ligação dizendo que sua conta foi invadida, pedindo transferência para uma "conta segura"</span></span>
+      <span class="barra"><i style="width:69%"></i></span>
+      <span class="pct">31%</span>
+      <span class="marca marca--sim">verificamos</span>
+    </div>
+    <div class="rank">
+      <span class="pos">4</span>
+      <span class="nome"><b>Golpe do Pix</b><span>Chave trocada, comprovante falso, cobrança que não existia</span></span>
+      <span class="barra"><i style="width:53%"></i></span>
+      <span class="pct">24%</span>
+      <span class="marca marca--nao">em construção</span>
+    </div>
+    <div class="rank">
+      <span class="pos">5</span>
+      <span class="nome"><b>CPF usado por SMS</b><span>Mensagem com link que rouba dados para abrir conta no seu nome</span></span>
+      <span class="barra"><i style="width:29%"></i></span>
+      <span class="pct">13%</span>
+      <span class="marca marca--sim">verificamos</span>
+    </div>
+    <div class="rank">
+      <span class="pos">6</span>
+      <span class="nome"><b>Leilão ou loja falsa</b><span>Site que não entrega, preço fora da realidade, loja criada semana passada</span></span>
+      <span class="barra"><i style="width:22%"></i></span>
+      <span class="pct">10%</span>
+      <span class="marca marca--sim">verificamos</span>
+    </div>
+  </div>
+
+  <p class="fonte">Ranking do Observatório Febraban, pesquisa IPESPE. O percentual indica quantos
+  entrevistados relataram ter sofrido cada tipo. Marcamos com honestidade o que já conseguimos
+  verificar hoje e o que ainda não.</p>
+
+  <div class="grid-check" style="margin-top:34px">
+    <div class="check pane">
+      <i class="ico ico--risk bi bi-controller" aria-hidden="true"></i>
+      <div><b>Skin, case e conta de jogo</b><span>Sorteio de skin, troca fora da plataforma oficial, intermediário que some com o item. Cresce junto com o público jovem.</span></div>
+    </div>
+    <div class="check pane">
+      <i class="ico ico--risk bi bi-bag-check" aria-hidden="true"></i>
+      <div><b>Compra que não chega</b><span>Loja criada semana passada, preço fora da realidade, pagamento só por transferência.</span></div>
+    </div>
+    <div class="check pane">
+      <i class="ico ico--risk bi bi-shield-lock" aria-hidden="true"></i>
+      <div><b>Página de login falsa</b><span>Cópia da tela do banco ou da rede social pra roubar sua senha. Muda uma letra no endereço.</span></div>
+    </div>
+    <div class="check pane">
+      <i class="ico ico--warn bi bi-person-bounding-box" aria-hidden="true"></i>
+      <div><b>Perfil clonado</b><span>Conta nova copiando o nome e as fotos de alguém que você conhece ou de uma marca.</span></div>
+    </div>
+    <div class="check pane">
+      <i class="ico ico--warn bi bi-cash-stack" aria-hidden="true"></i>
+      <div><b>Empréstimo com taxa adiantada</b><span>Crédito aprovado sem consulta, desde que você pague antes um seguro ou taxa de liberação.</span></div>
+    </div>
+    <div class="check pane">
+      <i class="ico ico--warn bi bi-briefcase" aria-hidden="true"></i>
+      <div><b>Vaga e renda extra</b><span>Trabalho fácil por aplicativo, tarefa paga que pede depósito para liberar o saque.</span></div>
+    </div>
+  </div>
+
+  <div class="aviso">
+    <i class="bi bi-cone-striped" aria-hidden="true"></i>
+    <p><b>O que ainda não conseguimos verificar:</b> chave Pix, boleto e dados bancários.
+    Depende de fontes às quais ainda não temos acesso — e responder errado sobre dinheiro é pior
+    do que não responder. Está no nosso plano.</p>
+  </div>
+
+</section>
+
+
+<section id="historia">
+  <div class="historia">
+    <div>
+      <h2>Por que o confia? existe</h2>
+      <p>Todo mundo conhece alguém que caiu. A mãe que pagou um boleto que não era da loja.
+      O amigo que comprou uma skin e nunca recebeu. O avô que atendeu a central do banco
+      que não era o banco.</p>
+      <p>O que essas histórias têm em comum não é burrice. É <b>pressa</b>. O golpe chega no
+      momento em que a pessoa está distraída, com medo ou com vontade de acreditar —
+      e a decisão precisa ser tomada em segundos.</p>
+      <p>A gente construiu o confia? pra ocupar esses segundos. Você cola o link,
+      a gente investiga no nosso servidor e responde em português, com o motivo de cada
+      conclusão. <b>Sem termo técnico e sem julgar quem perguntou.</b></p>
+      <p class="assina">Feito no interior de São Paulo, em versão beta, melhorando toda semana.</p>
+    </div>
+
+    <div class="crencas">
+      <div class="crenca">
+        <i class="bi bi-eye" aria-hidden="true"></i>
+        <div><b>Mostramos o porquê</b><span>Nunca só "é golpe". Sempre a lista do que encontramos, pra você conferir e decidir.</span></div>
+      </div>
+      <div class="crenca">
+        <i class="bi bi-hand-thumbs-up" aria-hidden="true"></i>
+        <div><b>Não prometemos milagre</b><span>Nenhuma ferramenta honesta garante 100%. A gente investiga bem e fala a verdade sobre o que não sabe.</span></div>
+      </div>
+      <div class="crenca">
+        <i class="bi bi-trash3" aria-hidden="true"></i>
+        <div><b>Guardamos o mínimo</b><span>Sua imagem é apagada assim que a análise termina. Fica o resultado, não a foto.</span></div>
+      </div>
+      <div class="crenca">
+        <i class="bi bi-scales" aria-hidden="true"></i>
+        <div><b>Empresa tem direito de resposta</b><span>Loja honesta que aparecer com sinal ruim pode se cadastrar e provar. De graça.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="convites">
+  <div class="convites">
+    <a class="convite" href="registrar-loja.html">
+      <i class="ico bi bi-shop" aria-hidden="true"></i>
+      <h3>Tem uma loja? Cadastre de graça</h3>
+      <p>Loja nova sofre com desconfiança justamente por ser nova. Cadastre seu CNPJ e o endereço
+      do seu site: quando alguém verificar sua loja, aparece que ela é registrada e conferida
+      por aqui. Não custa nada e leva poucos minutos.</p>
+      <em>Registrar minha loja <i class="bi bi-arrow-right" aria-hidden="true"></i></em>
+    </a>
+
+    <a class="convite" href="denunciar.html">
+      <i class="ico bi bi-megaphone" aria-hidden="true"></i>
+      <h3>Caiu ou quase caiu? Conte pra gente</h3>
+      <p>Sua denúncia entra na base e derruba a nota do site, do perfil ou do número.
+      A próxima pessoa que verificar aquilo já recebe o aviso. Pode anexar prints e o
+      boletim de ocorrência, e é anônima por padrão.</p>
+      <em>Fazer uma denúncia <i class="bi bi-arrow-right" aria-hidden="true"></i></em>
+    </a>
+  </div>
+</section>
+
+<section id="politicas">
+  <div class="sec-head">
+    <p class="eyebrow">Ajuda e políticas</p>
+    <h2>Transparência é parte do serviço</h2>
+    <p>Um site que pede confiança precisa explicar direitinho o que faz com o que você envia.</p>
+  </div>
+
+  <div class="grid-pol">
+    <a class="pol pane" href="#">
+      <i class="ico bi bi-shield-lock" aria-hidden="true"></i>
+      <b>Privacidade</b>
+      <span>O que guardamos, por quanto tempo e o que nunca sai daqui. Prints são apagados após a análise.</span>
+      <em>Ler a política <i class="bi bi-arrow-right" aria-hidden="true"></i></em>
+    </a>
+    <a class="pol pane" href="#">
+      <i class="ico bi bi-file-earmark-text" aria-hidden="true"></i>
+      <b>Termos de uso</b>
+      <span>O que o confia? faz, o que ele não promete, e as regras de quem usa o serviço.</span>
+      <em>Ler os termos <i class="bi bi-arrow-right" aria-hidden="true"></i></em>
+    </a>
+    <a class="pol pane" href="#">
+      <i class="ico bi bi-megaphone" aria-hidden="true"></i>
+      <b>Denunciar golpe</b>
+      <span>Caiu ou quase caiu? Conte o caso. Cada denúncia protege a próxima pessoa que receber o mesmo link.</span>
+      <em>Fazer denúncia <i class="bi bi-arrow-right" aria-hidden="true"></i></em>
+    </a>
+    <a class="pol pane" href="#">
+      <i class="ico bi bi-chat-left-dots" aria-hidden="true"></i>
+      <b>Falar com a gente</b>
+      <span>Dúvida, erro de análise ou sugestão. Tem gente de verdade lendo do outro lado.</span>
+      <em>Abrir conversa <i class="bi bi-arrow-right" aria-hidden="true"></i></em>
+    </a>
+  </div>
+</section>
+
+<footer>
+  <div class="foot">
+    <svg class="foot-logo" role="img" aria-label="confia?"><use href="#logo-confia"/></svg>
+    <div class="links">
+      <a href="#politicas">Privacidade</a>
+      <a href="#politicas">Termos</a>
+      <a href="#politicas">Denunciar golpe</a>
+      <a href="#politicas">Contato</a>
+    </div>
+    <span>© 2026 confia? — verifique antes de clicar.</span>
+  </div>
+</footer>
+
+<script src="assets/confia.js"></script>
+</body>
+</html>

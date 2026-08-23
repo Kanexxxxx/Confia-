@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>confia? — Verifique antes de clicar</title>
+<meta name="description" content="Cole um link, print ou perfil e descubra em segundos se é golpe ou seguro.">
+<meta name="theme-color" content="#0c2441">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================================================
+     confia? — Versão 3 "Editorial"
+     Marca à esquerda, painel de ação à direita. Navy da logo (#0c2441).
+     ============================================================ */
+  :root{
+    --navy-950:#061527;
+    --navy-900:#081c33;
+    --navy-800:#0c2441;   /* cor exata da logo */
+    --navy-700:#123255;
+    --navy-600:#1b4675;
+
+    --azure:#4c8dff;
+    --azure-dim:#2f6fe0;
+    --azure-wash:#e4ecfb;
+
+    --safe:#3ad29f;
+    --warn:#f6bb52;
+    --risk:#f77468;
+
+    --paper:#ffffff;
+    --wash-2:#f5f8fd;
+    --line:#dfe6f0;
+    --ink:#0c2441;
+    --ink-2:#41597a;
+    --ink-3:#7387a3;
+    --on-dark:#e9f0fc;
+    --on-dark-2:rgba(233,240,252,.72);
+    --on-dark-3:rgba(233,240,252,.48);
+    --hair:rgba(255,255,255,.13);
+
+    --r-md:14px; --r-lg:22px; --r-xl:28px;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  html,body{margin:0;padding:0}
+  body{
+    min-height:100vh;
+    font-family:Inter,"Segoe UI",system-ui,sans-serif;font-size:16px;
+    color:var(--on-dark);background:var(--navy-900);
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .bg{position:fixed;inset:0;z-index:-2;pointer-events:none;
+    background:
+      radial-gradient(900px 620px at 18% 6%, rgba(76,141,255,.24), transparent 62%),
+      radial-gradient(760px 520px at 88% 78%, rgba(27,70,117,.5), transparent 66%),
+      linear-gradient(160deg, var(--navy-900) 0%, var(--navy-950) 70%);
+  }
+  .grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  ::selection{background:rgba(76,141,255,.35)}
+  :focus-visible{outline:2px solid var(--azure);outline-offset:3px;border-radius:6px}
+  .skip{position:absolute;left:-9999px;top:0;background:#fff;color:var(--ink);
+    padding:10px 16px;border-radius:0 0 10px 0;z-index:60;font-weight:600}
+  .skip:focus{left:0}
+
+  /* ---------- topo ---------- */
+  .topbar{
+    position:fixed;top:0;left:0;right:0;z-index:40;
+    display:flex;align-items:center;gap:16px;padding:20px 40px;
+    transition:padding .35s var(--ease);
+  }
+  .topbar::before,.topbar::after,.topbar .veil{
+    content:"";position:absolute;left:0;right:0;top:0;
+    pointer-events:none;opacity:0;transition:opacity .4s var(--ease);
+  }
+  .topbar::before{
+    height:150%;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+    -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 30%,transparent 78%);
+    mask-image:linear-gradient(to bottom,#000 0%,#000 30%,transparent 78%);
+  }
+  .topbar::after{
+    height:120%;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 42%,transparent 88%);
+    mask-image:linear-gradient(to bottom,#000 0%,#000 42%,transparent 88%);
+  }
+  .topbar .veil{height:135%;
+    background:linear-gradient(to bottom, rgba(8,28,51,.84) 0%, rgba(8,28,51,.44) 55%, transparent 100%)}
+  .is-scrolled .topbar::before,.is-scrolled .topbar::after,.is-scrolled .topbar .veil{opacity:1}
+  .is-scrolled .topbar{padding-top:13px;padding-bottom:13px}
+
+  /* nesta versão a marca reduzida fica sempre visível (é a âncora da esquerda) */
+  .mini{
+    display:flex;align-items:baseline;position:relative;z-index:1;margin-right:auto;
+    font-family:Poppins,sans-serif;font-weight:700;font-size:22px;letter-spacing:-.03em;
+    color:#fff;text-decoration:none;
+  }
+  .mini .lens{width:.62em;height:.55em}
+
+  .glass{
+    position:relative;z-index:1;display:flex;align-items:center;gap:4px;padding:5px;
+    border-radius:999px;background:rgba(255,255,255,.07);
+    backdrop-filter:blur(26px) saturate(180%);-webkit-backdrop-filter:blur(26px) saturate(180%);
+    border:1px solid var(--hair);
+    box-shadow:0 14px 40px -12px rgba(3,10,24,.7),
+               inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(255,255,255,.05);
+    transition:background .35s var(--ease),box-shadow .35s var(--ease);
+  }
+  .is-scrolled .glass{background:rgba(255,255,255,.11);
+    box-shadow:0 18px 46px -14px rgba(3,10,24,.85), inset 0 1px 0 rgba(255,255,255,.3)}
+  .nav-link{
+    display:inline-block;padding:10px 20px;border-radius:999px;color:var(--on-dark-2);
+    font-size:14.5px;font-weight:500;text-decoration:none;white-space:nowrap;
+    text-shadow:0 1px 2px rgba(4,12,28,.45);
+    transition:color .22s var(--ease),background .22s var(--ease);
+  }
+  .nav-link:hover{color:#fff;background:rgba(255,255,255,.09)}
+  .nav-link[aria-current="page"]{color:#fff;font-weight:600;
+    background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,.1));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.4), 0 2px 10px rgba(3,10,24,.3)}
+  .avatar{
+    position:relative;z-index:1;width:46px;height:46px;flex:none;display:grid;place-items:center;
+    border:1px solid var(--hair);border-radius:50%;background:rgba(255,255,255,.08);
+    backdrop-filter:blur(26px) saturate(180%);-webkit-backdrop-filter:blur(26px) saturate(180%);
+    color:#fff;cursor:pointer;
+    box-shadow:0 14px 40px -14px rgba(3,10,24,.7), inset 0 1px 0 rgba(255,255,255,.22);
+    transition:background .22s var(--ease),transform .22s var(--ease);
+  }
+  .avatar:hover{background:rgba(255,255,255,.16);transform:translateY(-1px)}
+  .avatar svg{width:21px;height:21px}
+
+  /* ---------- hero em duas colunas ---------- */
+  .hero{
+    max-width:1200px;margin:0 auto;
+    display:grid;grid-template-columns:1.05fr .95fr;
+    align-items:center;gap:64px;
+    min-height:100vh;padding:118px 40px 76px;
+  }
+
+  .pitch .logo{
+    margin:0;font-family:Poppins,sans-serif;
+    font-size:clamp(56px,7vw,104px);
+    font-weight:700;line-height:1;letter-spacing:-.03em;color:#fff;
+  }
+  .lens{display:inline-block;position:relative;width:.62em;height:.55em;vertical-align:baseline}
+  .lens img{position:absolute;left:-.01em;bottom:-.33em;width:.75em;height:.92em;
+    filter:brightness(0) invert(1)}
+  .card .lens img{filter:none}
+
+  .kicker{
+    display:inline-flex;align-items:center;gap:8px;
+    margin:0 0 22px;padding:7px 14px 7px 10px;border-radius:999px;
+    background:rgba(255,255,255,.06);border:1px solid var(--hair);
+    font-size:12.5px;font-weight:500;color:var(--on-dark-2);letter-spacing:.01em;
+  }
+  .kicker i{width:6px;height:6px;border-radius:50%;background:var(--safe);
+    box-shadow:0 0 0 4px rgba(58,210,159,.16)}
+
+  .lead{
+    margin:26px 0 0;max-width:480px;
+    font-family:Poppins,sans-serif;font-weight:500;
+    font-size:clamp(19px,2vw,24px);line-height:1.4;color:#fff;letter-spacing:-.01em;
+  }
+  .sub{margin:14px 0 0;max-width:460px;font-size:15.5px;line-height:1.65;color:var(--on-dark-3)}
+
+  .marks{display:flex;flex-wrap:wrap;gap:8px;margin-top:32px;max-width:520px}
+  .mark{
+    display:inline-flex;align-items:center;gap:9px;
+    padding:9px 14px;border-radius:999px;
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);
+    font-size:13px;color:var(--on-dark-2);
+    transition:background .3s var(--ease),border-color .3s var(--ease);
+  }
+  .mark:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.18)}
+  .mark i{width:6px;height:6px;border-radius:50%;flex:none}
+  .i--safe{background:var(--safe)} .i--warn{background:var(--warn)} .i--risk{background:var(--risk)}
+
+  /* ---------- painel de ação ---------- */
+  .card{
+    background:var(--paper);border-radius:var(--r-xl);padding:34px 34px 26px;
+    box-shadow:0 1px 2px rgba(2,8,20,.3), 0 40px 90px -34px rgba(2,8,20,.85);
+  }
+  .card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}
+  .card-head h2{margin:0;font-size:16.5px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+  .badge{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;
+    background:#e9f7f1;color:#0e8a63;font-size:11.5px;font-weight:600}
+  .badge i{width:5px;height:5px;border-radius:50%;background:#12a97b}
+
+  form{margin:0}
+  .field{position:relative;text-align:left}
+  .field input{
+    width:100%;height:58px;padding:0 92px 0 18px;
+    border:1.5px solid var(--line);border-radius:var(--r-md);background:var(--wash-2);
+    font-family:inherit;font-size:15px;color:var(--ink);outline:none;
+    transition:border-color .2s var(--ease),background .2s var(--ease),box-shadow .2s var(--ease);
+  }
+  .field input::placeholder{color:#93a1b8}
+  .field input:hover{border-color:#c8d3e2}
+  .field input:focus{background:#fff;border-color:var(--azure-dim);box-shadow:0 0 0 4px rgba(47,111,224,.14)}
+  .field.has-error input{border-color:var(--risk);box-shadow:0 0 0 4px rgba(224,82,63,.12)}
+  .field-tools{position:absolute;right:7px;top:50%;transform:translateY(-50%);display:flex;gap:2px}
+  .icon-btn{width:40px;height:40px;display:grid;place-items:center;border:none;border-radius:10px;
+    background:transparent;color:var(--ink-3);cursor:pointer;
+    transition:background .2s var(--ease),color .2s var(--ease)}
+  .icon-btn:hover{background:#e8eefa;color:var(--navy-800)}
+  .icon-btn svg{width:19px;height:19px}
+
+  .hint{display:flex;align-items:center;gap:7px;margin:9px 2px 0;min-height:18px;
+    font-size:12.5px;color:var(--ink-3)}
+  .hint svg{width:14px;height:14px;flex:none}
+  .has-error + .hint{color:var(--risk)}
+
+  .files{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+  .files:empty{display:none}
+  .chip{display:inline-flex;align-items:center;gap:7px;padding:6px 8px 6px 11px;border-radius:999px;
+    background:var(--azure-wash);color:var(--navy-700);font-size:12.5px;font-weight:500;max-width:100%}
+  .chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px}
+  .chip button{width:18px;height:18px;display:grid;place-items:center;flex:none;border:none;
+    border-radius:50%;background:rgba(12,36,65,.12);color:var(--navy-700);cursor:pointer;
+    font-size:13px;line-height:1;padding:0}
+  .chip button:hover{background:rgba(12,36,65,.24)}
+
+  .actions{display:flex;gap:10px;margin-top:16px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;height:54px;
+    padding:0 22px;border:none;border-radius:var(--r-md);font-family:inherit;font-size:15px;
+    font-weight:600;cursor:pointer;
+    transition:transform .18s var(--ease),background .18s var(--ease),
+               box-shadow .18s var(--ease),border-color .18s var(--ease),color .18s var(--ease)}
+  .btn svg{width:19px;height:19px;flex:none}
+  .btn:active{transform:translateY(1px)}
+  .btn--primary{flex:1;background:linear-gradient(180deg,var(--navy-700),var(--navy-800));color:#fff;
+    box-shadow:0 14px 26px -12px rgba(12,36,65,.75), inset 0 1px 0 rgba(255,255,255,.14)}
+  .btn--primary:hover{background:linear-gradient(180deg,var(--navy-600),var(--navy-700));
+    box-shadow:0 20px 34px -14px rgba(12,36,65,.8), inset 0 1px 0 rgba(255,255,255,.2)}
+  .btn--primary[data-loading]{pointer-events:none;color:transparent;position:relative}
+  .btn--primary[data-loading] svg{visibility:hidden}
+  .btn--primary[data-loading]::after{content:"";position:absolute;width:19px;height:19px;
+    border-radius:50%;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;
+    animation:spin .7s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .btn--ghost{background:#fff;color:var(--navy-700);border:1.5px solid var(--line)}
+  .btn--ghost:hover{background:var(--wash-2);border-color:#c8d3e2;color:var(--navy-800)}
+
+  .status{display:none;align-items:flex-start;gap:12px;margin-top:14px;padding:14px 16px;
+    border-radius:var(--r-md);text-align:left;background:var(--azure-wash);
+    border:1px solid rgba(47,111,224,.18)}
+  .status[data-show]{display:flex}
+  .status svg{width:19px;height:19px;flex:none;margin-top:1px;color:var(--azure-dim)}
+  .status p{margin:0;font-size:13.5px;line-height:1.55;color:var(--ink-2)}
+  .status b{color:var(--ink)}
+
+  .assure{display:flex;align-items:center;gap:12px;margin-top:22px;padding-top:18px;
+    border-top:1px solid #eef1f7}
+  .assure .shield{width:34px;height:34px;flex:none;display:grid;place-items:center;
+    border-radius:10px;background:var(--azure-wash);color:var(--azure-dim)}
+  .assure svg{width:18px;height:18px}
+  .assure b{display:block;font-size:13px;font-weight:600;color:var(--ink)}
+  .assure span{display:block;font-size:12px;color:var(--ink-3);margin-top:1px}
+
+  /* ---------- como funciona + rodapé ---------- */
+  .how{max-width:1200px;margin:0 auto;padding:0 40px 90px}
+  .how h2{font-family:Poppins,sans-serif;font-size:12.5px;font-weight:600;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--on-dark-3);margin:0 0 26px}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .step{padding:26px 24px;border-radius:var(--r-lg);background:rgba(255,255,255,.045);
+    border:1px solid rgba(255,255,255,.09)}
+  .step i{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;
+    background:rgba(76,141,255,.16);color:#9dc0ff;font-family:Poppins,sans-serif;
+    font-style:normal;font-weight:600;font-size:14px;margin-bottom:14px}
+  .step h3{margin:0 0 6px;font-size:15.5px;font-weight:600;color:var(--on-dark)}
+  .step p{margin:0;font-size:13.5px;line-height:1.6;color:var(--on-dark-3)}
+
+  footer{border-top:1px solid rgba(255,255,255,.08);padding:22px 40px 30px}
+  .foot{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;
+    justify-content:space-between;gap:12px;font-size:12.5px;color:var(--on-dark-3)}
+  .foot nav{display:flex;flex-wrap:wrap;gap:18px}
+  .foot a{color:var(--on-dark-3);text-decoration:none}
+  .foot a:hover{color:var(--on-dark)}
+
+  /* ---------- responsivo ---------- */
+  @media (max-width:1020px){
+    .hero{grid-template-columns:1fr;gap:40px;padding:130px 26px 60px;min-height:auto}
+    .pitch{text-align:center}
+    .lead,.sub{margin-left:auto;margin-right:auto}
+    .marks{justify-content:center;margin-left:auto;margin-right:auto}
+    .how,footer{padding-left:26px;padding-right:26px}
+  }
+  @media (max-width:820px){
+    .topbar{padding:14px 16px;gap:10px}
+    .glass{overflow-x:auto;scrollbar-width:none;max-width:100%}
+    .glass::-webkit-scrollbar{display:none}
+    .mini{font-size:19px}
+    .nav-link{padding:9px 14px;font-size:13.5px}
+    .avatar{width:40px;height:40px}
+    .hero{padding:104px 16px 48px}
+    .card{padding:24px 20px 20px;border-radius:20px}
+    .actions{flex-direction:column-reverse}
+    .btn{width:100%;flex:none}
+    .steps{grid-template-columns:1fr}
+    .how{padding-bottom:60px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+<div class="bg"></div><div class="grain"></div>
+<a class="skip" href="#verificador">Ir para o verificador</a>
+
+<header class="topbar" id="topbar">
+  <div class="veil"></div>
+
+  <a class="mini" href="#topo">c<span class="lens"><img src="assets/lupa-confia.svg" alt=""></span>nfia?</a>
+
+  <nav class="glass" aria-label="Principal">
+    <a class="nav-link" href="#topo" aria-current="page">Confia?</a>
+    <a class="nav-link" href="#">Histórico</a>
+    <a class="nav-link" href="#como">Como funciona</a>
+    <a class="nav-link" href="#">Premium</a>
+    <a class="nav-link" href="#">Docs</a>
+  </nav>
+
+  <button class="avatar" type="button" aria-label="Entrar na conta">
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <circle cx="12" cy="8" r="3.6"/>
+      <path d="M12 13.4c-4 0-7.2 2.5-7.2 5.7 0 .5.4.9.9.9h12.6c.5 0 .9-.4.9-.9 0-3.2-3.2-5.7-7.2-5.7z"/>
+    </svg>
+  </button>
+</header>
+
+<div class="hero" id="topo">
+
+  <section class="pitch">
+    <p class="kicker"><i></i> Análise em segundos, sem abrir o link</p>
+
+    <h1 class="logo">c<span class="lens"><img src="assets/lupa-confia.svg" alt=""></span>nfia?</h1>
+
+    <p class="lead">Antes de clicar ou pagar… confia?</p>
+    <p class="sub">
+      Cole um link, o @ de um perfil ou o print da conversa. A gente abre, checa e devolve
+      um veredito claro: seguro, suspeito ou golpe — com o motivo em português.
+    </p>
+
+    <div class="marks">
+      <span class="mark"><i class="i--risk"></i> Domínio recém-criado</span>
+      <span class="mark"><i class="i--warn"></i> Link encurtado</span>
+      <span class="mark"><i class="i--safe"></i> Certificado SSL</span>
+      <span class="mark"><i class="i--risk"></i> Chave Pix suspeita</span>
+      <span class="mark"><i class="i--warn"></i> Perfil clonado</span>
+      <span class="mark"><i class="i--safe"></i> CNPJ da loja</span>
+      <span class="mark"><i class="i--risk"></i> Página de login falsa</span>
+      <span class="mark"><i class="i--warn"></i> Boleto adulterado</span>
+    </div>
+  </section>
+
+  <main class="card" id="verificador">
+    <div class="card-head">
+      <h2>Verificar agora</h2>
+      <span class="badge"><i></i> Gratuito</span>
+    </div>
+
+    <form id="form" novalidate>
+      <div class="field" id="field">
+        <label class="skip" for="alvo">Link, print ou perfil para verificar</label>
+        <input id="alvo" name="alvo" type="text" autocomplete="off" spellcheck="false"
+               placeholder="Cole o link ou o @ do perfil" aria-describedby="dica">
+        <div class="field-tools">
+          <button class="icon-btn" type="button" id="btn-colar" aria-label="Colar da área de transferência" title="Colar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="8" y="3" width="8" height="4" rx="1.5"/>
+              <path d="M16 5h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"/>
+            </svg>
+          </button>
+          <button class="icon-btn" type="button" id="btn-anexar" aria-label="Anexar prints ou vídeos" title="Anexar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.4 11.05 12.3 20.2a5.5 5.5 0 0 1-7.8-7.8l9.2-9.2a3.7 3.7 0 0 1 5.2 5.2l-9.1 9.2a1.8 1.8 0 0 1-2.6-2.6l8.5-8.5"/>
+            </svg>
+          </button>
+        </div>
+        <input type="file" id="arquivos" multiple accept="image/*,video/*" hidden>
+      </div>
+
+      <p class="hint" id="dica">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.4"/>
+        </svg>
+        <span id="dica-txt">Ou arraste o print da conversa para cá.</span>
+      </p>
+
+      <div class="files" id="anexos"></div>
+
+      <div class="actions">
+        <button class="btn btn--ghost" type="button" id="btn-uploads">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 13v8"/><path d="m8 17 4-4 4 4"/><path d="M20.9 18.1A5 5 0 0 0 18 9h-1.3A8 8 0 1 0 3 16.3"/>
+          </svg>
+          Uploads
+        </button>
+        <button class="btn btn--primary" type="submit" id="btn-verificar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/>
+          </svg>
+          Verificar
+        </button>
+      </div>
+
+      <div class="status" id="status" role="status" aria-live="polite">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.6v.4"/>
+        </svg>
+        <p id="status-txt"></p>
+      </div>
+    </form>
+
+    <div class="assure">
+      <div class="shield">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 1.7 4.6 4.4a1 1 0 0 0-.66.94V12c0 4.9 3.5 8.4 7.7 10.1.23.1.49.1.72 0C16.56 20.4 20.06 16.9 20.06 12V5.34a1 1 0 0 0-.66-.94L12 1.7z"/>
+        </svg>
+      </div>
+      <p style="margin:0">
+        <b>Sua segurança começa aqui.</b>
+        <span>Nenhum link é aberto no seu aparelho.</span>
+      </p>
+    </div>
+  </main>
+</div>
+
+<section class="how" id="como">
+  <h2>Como funciona</h2>
+  <div class="steps">
+    <article class="step"><i>1</i><h3>Cole ou anexe</h3>
+      <p>Link, @ do perfil, print da conversa ou foto do boleto. Nada é aberto no seu aparelho.</p></article>
+    <article class="step"><i>2</i><h3>Analisamos em segundos</h3>
+      <p>Domínio, certificado, redirecionamentos, reputação, dados da loja e o texto da mensagem.</p></article>
+    <article class="step"><i>3</i><h3>Veredito claro</h3>
+      <p>Seguro, suspeito ou golpe — com o motivo em português e o que fazer em seguida.</p></article>
+  </div>
+</section>
+
+<footer>
+  <div class="foot">
+    <span>© 2026 confia? — verifique antes de clicar.</span>
+    <nav aria-label="Rodapé">
+      <a href="#">Privacidade</a><a href="#">Termos</a><a href="#">Denunciar golpe</a><a href="#">Contato</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="assets/confia.js"></script>
+</body>
+</html>

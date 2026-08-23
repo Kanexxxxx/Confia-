@@ -1,0 +1,43 @@
+# =============================================================
+# confiia.com.br — o que NÃO entra no histórico
+#
+# Regra de ouro: se vazar e causar estrago, não entra aqui.
+# =============================================================
+
+# ---------- SEGREDO. Nunca versionar. ----------
+# Senha do banco, chave do Resend, chave da OpenAI.
+# Um commit com isto dentro é permanente: apagar depois não
+# resolve, porque fica no histórico para sempre.
+.env
+.env.*
+!.env.exemplo
+*.pem
+*.key
+id_*
+!id_*.pub
+
+# ---------- gerado pela máquina ----------
+node_modules/
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# ---------- lixo do sistema ----------
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+npm-debug.log*
+
+# ---------- backup baixado do servidor ----------
+# Cópia do banco tem dado pessoal de gente real.
+backups/
+*.sql.gz
+
+# ---------- editor ----------
+.vscode/*
+!.vscode/extensions.json
+.idea/

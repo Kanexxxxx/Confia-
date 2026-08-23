@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>confia? — Painel</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#050f1e">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link href="assets/admin.css" rel="stylesheet">
+</head>
+
+<!--
+  =============================================================
+  confiia.com.br — PAINEL ADMINISTRATIVO (protótipo)
+
+  Esta tela é a bancada de trabalho de quem opera o confia?.
+  Ela existe para uma coisa só: fazer você decidir sempre pelo
+  mesmo critério, dentro do prazo, deixando registro do porquê.
+
+  De onde vem cada tela (servidor/db/):
+    Painel   → v_fila_admin, v_custo_dia, orcamento, auditoria
+    Fila     → v_fila_admin (005 + 006), politica_moderacao
+    Contas   → v_conta_completa, uso_mensal, assinaturas
+    Empresas → empresas, empresa_dominios, empresa_eventos (004)
+    Custos   → logs_externos, v_custo_dia, orcamento (005)
+
+  Os dados visíveis aqui são de exemplo e ficam em assets/admin.js,
+  no objeto DADOS, com o mesmo formato que a API vai devolver.
+  Trocar por chamada de rede depois é mexer só no carregador.
+
+  CUIDADO AO MEXER:
+    - Toda ação que decide alguma coisa PRECISA gravar em
+      `auditoria`. É o que te defende numa reclamação ou processo.
+    - Prazo mostrado aqui = prazo prometido nos Termos (7 dias).
+      Mudou lá, muda em 005_moderacao.sql e no cálculo do admin.js.
+    - Esta página tem noindex. Em produção precisa de login de
+      verdade, 2FA e a checagem da tabela `admins`.
+  =============================================================
+-->
+
+<body class="trancado">
+
+<!-- ============================================================
+     TRANCA DO PROTÓTIPO
+     Não é segurança de verdade — ver o cabeçalho de assets/tranca.js.
+     Este bloco inteiro some quando o painel real (Next.js) entrar
+     no ar. Se ainda estiver aqui depois disso, alguém esqueceu.
+     ============================================================ -->
+<div class="tranca" id="tranca">
+  <form class="tranca-caixa" id="tranca-form" autocomplete="off">
+    <img src="assets/logo-confia.svg" alt="confia?">
+
+    <div class="tranca-selo">
+      <i class="bi bi-cone-striped" aria-hidden="true"></i> protótipo · não publicar
+    </div>
+
+    <h1 id="tranca-titulo">Painel administrativo</h1>
+    <p id="tranca-texto">Digite a senha local deste protótipo.</p>
+
+    <label class="tranca-campo">
+      <span>Senha</span>
+      <input type="password" id="tranca-senha" autocomplete="new-password" required>
+    </label>
+
+    <label class="tranca-campo" id="tranca-nova" hidden>
+      <span>Repita a senha</span>
+      <input type="password" id="tranca-senha2" autocomplete="new-password">
+    </label>
+
+    <p class="tranca-recado" id="tranca-recado" hidden></p>
+
+    <button class="bt bt--principal" type="submit" id="tranca-botao">Entrar</button>
+    <button class="tranca-esqueci" type="button" id="tranca-esqueci">Esqueci a senha</button>
+
+    <p class="tranca-nota">
+      Esta senha existe só para o arquivo não ficar aberto na sua máquina. Ela fica neste
+      navegador, guardada como hash — não sai daqui. A proteção de verdade (sessão no
+      servidor, tabela <code>admins</code> e segundo fator) é do painel em produção,
+      e este arquivo <b>não vai para servidor nenhum</b>.
+    </p>
+  </form>
+</div>
+
+<!-- ============================================================
+     TRILHO LATERAL
+     ============================================================ -->
+<aside class="rail" id="rail">
+  <div class="rail-topo">
+    <img src="assets/logo-confia.svg" alt="confia?">
+    <span class="etiqueta-beta"><i class="bi bi-cone-striped" aria-hidden="true"></i> beta · dados de exemplo</span>
+  </div>
+
+  <nav aria-label="Seções do painel">
+    <p class="rail-grupo">Trabalho do dia</p>
+    <a href="#/painel"   data-tela="painel"><i class="bi bi-grid-1x2" aria-hidden="true"></i> Painel</a>
+    <a href="#/fila"     data-tela="fila"><i class="bi bi-inboxes" aria-hidden="true"></i> Fila
+      <span class="conta-badge quente" id="badge-fila">0</span></a>
+
+    <p class="rail-grupo">Base</p>
+    <a href="#/contas"   data-tela="contas"><i class="bi bi-people" aria-hidden="true"></i> Contas</a>
+    <a href="#/empresas" data-tela="empresas"><i class="bi bi-shop" aria-hidden="true"></i> Empresas
+      <span class="conta-badge" id="badge-empresas">0</span></a>
+
+    <p class="rail-grupo">Operação</p>
+    <a href="#/custos"   data-tela="custos"><i class="bi bi-cash-coin" aria-hidden="true"></i> Custos</a>
+
+    <p class="rail-grupo">Site</p>
+    <a href="index.html"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i> Abrir o site</a>
+  </nav>
+
+  <div class="rail-pe">
+    <span class="av">KR</span>
+    <span class="quem">
+      <b>Kaina Rodrigues</b>
+      <span>Dono · nível 1</span>
+    </span>
+    <button type="button" title="Sair" aria-label="Sair do painel">
+      <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+    </button>
+  </div>
+</aside>
+
+<div class="conteudo">
+
+  <!-- barra do topo: muda de título conforme a tela -->
+  <div class="topo">
+    <button class="abre-rail" id="abre-rail" type="button" aria-label="Abrir menu">
+      <i class="bi bi-list" aria-hidden="true"></i>
+    </button>
+    <h1 id="titulo-tela">Painel</h1>
+    <span class="sub" id="sub-tela">sábado, 22 de agosto de 2026</span>
+    <div class="direita">
+      <label class="busca">
+        <span class="sr">Buscar</span>
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <input type="search" id="busca" placeholder="Buscar protocolo, e-mail, domínio…">
+      </label>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       TELA 1 — PAINEL
+
+       A primeira coisa que aparece não é faturamento. É quanta
+       gente está esperando resposta e há quanto tempo, porque
+       esse é o compromisso que está escrito nos Termos.
+       ========================================================== -->
+  <section class="tela ativa" id="tela-painel" aria-labelledby="titulo-tela">
+
+    <div class="painel">
+      <div class="painel-cab">
+        <h2>A fila agora</h2>
+        <span class="apoio">prazo prometido nos Termos: 7 dias · golpe novo: 2 dias</span>
+        <div class="direita">
+          <a class="bt bt--calmo bt--pequeno" href="#/fila">
+            Abrir a fila <i class="bi bi-arrow-right" aria-hidden="true"></i>
+          </a>
+        </div>
+      </div>
+      <div class="destaque-fila" id="destaque-fila"></div>
+      <div class="painel-pe">
+        <b>Atrasado</b> quer dizer que o prazo escrito nos seus próprios Termos foi ultrapassado.
+        Não é métrica de vaidade — é a promessa que você fez para quem escreveu.
+      </div>
+    </div>
+
+    <div class="espaco"></div>
+
+    <div class="grade grade--4" id="stats-painel"></div>
+
+    <div class="espaco"></div>
+
+    <div class="grade grade--fila">
+      <div class="painel">
+        <div class="painel-cab">
+          <h2>Verificações por dia</h2>
+          <span class="apoio">últimos 14 dias</span>
+        </div>
+        <div class="painel-corpo">
+          <div class="grafico" id="grafico"></div>
+        </div>
+        <div class="painel-pe" id="resumo-grafico"></div>
+      </div>
+
+      <div class="painel" id="painel-orcamento">
+        <div class="painel-cab">
+          <h2>Orçamento de API</h2>
+          <span class="apoio">agosto</span>
+        </div>
+        <div class="medidor" id="medidor-painel"></div>
+        <div class="painel-pe">
+          Ao bater o teto o sistema <b>trava sozinho</b> e passa a responder só com as checagens
+          gratuitas. Ninguém fica sem resposta — a resposta é que fica mais rasa.
+        </div>
+      </div>
+    </div>
+
+    <div class="espaco"></div>
+
+    <div class="painel">
+      <div class="painel-cab">
+        <h2>Últimas decisões</h2>
+        <span class="apoio">tudo que muda a vida de alguém fica registrado em <code class="mono">auditoria</code></span>
+      </div>
+      <div class="painel-corpo">
+        <ul class="trilha" id="trilha-auditoria"></ul>
+      </div>
+      <div class="painel-pe">
+        Este registro guarda quem decidiu, quando, o valor antes e o valor depois. É ele que
+        responde a pergunta “por que vocês tiraram isso do ar?” meses depois.
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       TELA 2 — FILA DE MODERAÇÃO
+
+       Uma fila só, com tudo que espera decisão humana:
+       contestação de empresa, denúncia de usuário, golpe novo
+       e cadastro de empresa. Ordem: golpe novo primeiro, depois
+       o que está atrasado, depois por prazo.
+       ========================================================== -->
+  <section class="tela" id="tela-fila" aria-labelledby="titulo-tela">
+
+    <div class="aviso-linha">
+      <i class="bi bi-lightning-charge-fill" aria-hidden="true"></i>
+      <p><b>Golpe novo passa na frente de tudo.</b> Quando alguém marca “nunca vi isso antes”,
+      ninguém está protegido ainda — nem a base, nem a IA. Cada dia parado ali vira mais vítima.
+      Por isso o prazo desses é de 2 dias, e não de 7.</p>
+    </div>
+
+    <div class="painel">
+      <div class="painel-cab">
+        <h2>Fila</h2>
+        <div class="direita">
+          <div class="filtros" id="filtros-fila" role="group" aria-label="Filtrar a fila"></div>
+        </div>
+      </div>
+      <div class="rolagem">
+        <table class="tabela">
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th>Referência</th>
+              <th>Assunto</th>
+              <th>Alvo</th>
+              <th>Prazo</th>
+              <th class="apertado">Situação</th>
+              <th class="apertado"></th>
+            </tr>
+          </thead>
+          <tbody id="corpo-fila"></tbody>
+        </table>
+      </div>
+      <div class="painel-pe" id="pe-fila"></div>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       TELA 3 — CONTAS
+
+       Regra desta tela: mostrar o mínimo. E-mail e telefone só
+       aparecem quando você clica para revelar, e revelar fica
+       registrado. Não é frescura — é o princípio da minimização
+       da LGPD aplicado a você mesmo. Se um dia sua conta de admin
+       vazar, o estrago é menor.
+       ========================================================== -->
+  <section class="tela" id="tela-contas" aria-labelledby="titulo-tela">
+
+    <div class="grade grade--4" id="stats-contas"></div>
+    <div class="espaco"></div>
+
+    <div class="painel">
+      <div class="painel-cab">
+        <h2>Contas</h2>
+        <span class="apoio" id="conta-total"></span>
+        <div class="direita">
+          <div class="filtros" id="filtros-contas" role="group" aria-label="Filtrar contas"></div>
+        </div>
+      </div>
+      <div class="rolagem">
+        <table class="tabela">
+          <thead>
+            <tr>
+              <th>Pessoa</th>
+              <th>Plano</th>
+              <th>Uso do mês</th>
+              <th>Assinatura</th>
+              <th>Último acesso</th>
+              <th class="apertado">Situação</th>
+            </tr>
+          </thead>
+          <tbody id="corpo-contas"></tbody>
+        </table>
+      </div>
+      <div class="painel-pe">
+        <i class="bi bi-eye-slash" aria-hidden="true"></i>
+        E-mail e telefone aparecem cobertos. Clicar para revelar grava uma linha em
+        <code class="mono">auditoria</code> com o seu nome. Você não tem motivo para abrir
+        o dado de todo mundo — só de quem você está atendendo.
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       TELA 4 — EMPRESAS
+
+       O ponto sensível do produto inteiro. Dar selo para quem
+       não provou que é dono do site é o mesmo que assinar embaixo
+       do golpe. Por isso a aprovação para "verificada" fica
+       travada enquanto empresa_dominios.posse_confirmada_em
+       estiver nulo — e a trava aparece na tela com o motivo.
+       ========================================================== -->
+  <section class="tela" id="tela-empresas" aria-labelledby="titulo-tela">
+
+    <div class="aviso-linha">
+      <i class="bi bi-shield-exclamation" aria-hidden="true"></i>
+      <p><b>Nível “verificada” exige prova de posse do domínio.</b> CNPJ ativo só diz que a
+      empresa existe; não diz que ela é dona daquele site. Golpista abre CNPJ. O que golpista
+      não faz é publicar um registro DNS no domínio da vítima.</p>
+    </div>
+
+    <div class="grade grade--4" id="stats-empresas"></div>
+    <div class="espaco"></div>
+
+    <div class="painel">
+      <div class="painel-cab">
+        <h2>Empresas cadastradas</h2>
+        <div class="direita">
+          <div class="filtros" id="filtros-empresas" role="group" aria-label="Filtrar empresas"></div>
+        </div>
+      </div>
+      <div class="rolagem">
+        <table class="tabela">
+          <thead>
+            <tr>
+              <th>Empresa</th>
+              <th>CNPJ</th>
+              <th>Propriedades</th>
+              <th>Nível</th>
+              <th>Denúncias 90d</th>
+              <th class="apertado">Situação</th>
+            </tr>
+          </thead>
+          <tbody id="corpo-empresas"></tbody>
+        </table>
+      </div>
+      <div class="painel-pe">
+        <b>Denúncias 90d</b> é o contador que suspende sozinho: ao chegar em 3 denúncias
+        confirmadas em 90 dias, o selo cai automaticamente e a empresa vai para análise.
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================
+       TELA 5 — CUSTOS
+
+       Você definiu R$ 70/mês para as APIs no beta. Esta tela
+       existe para você descobrir que estourou aqui, e não na
+       fatura do cartão.
+       ========================================================== -->
+  <section class="tela" id="tela-custos" aria-labelledby="titulo-tela">
+
+    <div class="grade grade--fila">
+      <div class="painel" id="painel-custo-gauge">
+        <div class="painel-cab">
+          <h2>Teto do mês</h2>
+          <span class="apoio">tabela <code class="mono">orcamento</code></span>
+          <div class="direita">
+            <button class="bt bt--calmo bt--pequeno" id="bt-travar" type="button">
+              <i class="bi bi-pause-circle" aria-hidden="true"></i> Travar agora
+            </button>
+          </div>
+        </div>
+        <div class="medidor" id="medidor-custos"></div>
+        <div class="painel-corpo" style="padding-top:0">
+          <div class="trava trava--aviso" id="explica-trava">
+            <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+            <p><b>O que acontece ao travar:</b> a leitura de imagem por IA e a análise de
+            conteúdo param. Continuam funcionando idade do domínio, certificado, listas
+            públicas de phishing e a sua própria base de denúncias. O site avisa que a
+            análise está reduzida — não finge que analisou.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="painel">
+        <div class="painel-cab">
+          <h2>Conta que fecha</h2>
+          <span class="apoio">quanto custa uma resposta</span>
+        </div>
+        <div class="painel-corpo">
+          <dl class="pares" id="pares-margem"></dl>
+          <div class="espaco"></div>
+          <div class="trava trava--ok">
+            <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+            <p id="ponto-equilibrio"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="espaco"></div>
+
+    <div class="painel">
+      <div class="painel-cab">
+        <h2>Gasto por serviço</h2>
+        <span class="apoio">mês corrente</span>
+      </div>
+      <div class="rolagem">
+        <table class="tabela">
+          <thead>
+            <tr>
+              <th>Serviço</th>
+              <th>Para quê</th>
+              <th class="dir">Chamadas</th>
+              <th class="dir">Custo médio</th>
+              <th class="dir">Total no mês</th>
+              <th class="dir">Falhas</th>
+            </tr>
+          </thead>
+          <tbody id="corpo-servicos"></tbody>
+        </table>
+      </div>
+      <div class="painel-pe">
+        Sai de <code class="mono">logs_externos</code>. Cada chamada externa grava duração,
+        código HTTP e custo — é isso que permite achar o serviço lento sem adivinhar.
+      </div>
+    </div>
+
+    <div class="espaco"></div>
+
+    <div class="painel">
+      <div class="painel-cab">
+        <h2>Últimos dias</h2>
+        <span class="apoio">view <code class="mono">v_custo_dia</code></span>
+      </div>
+      <div class="rolagem">
+        <table class="tabela">
+          <thead>
+            <tr>
+              <th>Dia</th>
+              <th class="dir">Verificações</th>
+              <th class="dir">Com imagem</th>
+              <th class="dir">Custo</th>
+              <th class="dir">Custo por verificação</th>
+            </tr>
+          </thead>
+          <tbody id="corpo-dias"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ============================================================
+     GAVETA DE DECISÃO
+     Conteúdo montado pelo admin.js conforme o item aberto.
+     ============================================================ -->
+<div class="fundo-gaveta" id="fundo-gaveta" hidden></div>
+
+<aside class="gaveta" id="gaveta" role="dialog" aria-modal="true" aria-labelledby="gaveta-titulo" hidden>
+  <div class="gaveta-cab">
+    <div class="titulo">
+      <h2 id="gaveta-titulo">—</h2>
+      <div class="refs" id="gaveta-refs"></div>
+    </div>
+    <button class="fechar" id="fecha-gaveta" type="button" aria-label="Fechar">
+      <i class="bi bi-x-lg" aria-hidden="true"></i>
+    </button>
+  </div>
+  <div class="gaveta-corpo" id="gaveta-corpo"></div>
+  <div class="gaveta-pe" id="gaveta-pe"></div>
+</aside>
+
+<script src="assets/tranca.js"></script>
+<script src="assets/admin.js"></script>
+</body>
+</html>
