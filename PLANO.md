@@ -9,6 +9,10 @@ você consegue ver**. Nada de "etapa concluída" sem prova na tela.
 
 **Última atualização:** 22/08/2026
 
+> O IP de verdade da VPS **não fica escrito aqui** — este arquivo está num
+> repositório público. Ele está no seu `~/.ssh/config`, sob o apelido
+> `confia-vps`. Para ver: `ssh -G confia-vps | grep hostname`
+
 ---
 
 ## Onde estamos agora
@@ -188,7 +192,7 @@ não entra — nem sabendo a senha.
 > A troca do endereço principal, se um dia acontecer, é decisão
 > sua com ele — não é passo técnico deste plano.
 
-- [ ] Criar registro `A`: **`beta`** → `147.93.9.185`, com proxy
+- [ ] Criar registro `A`: **`beta`** → `IP-DA-VPS`, com proxy
       **desligado** (nuvem cinza — o certificado precisa falar
       direto com a VPS)
 - [ ] nginx na frente da aplicação
