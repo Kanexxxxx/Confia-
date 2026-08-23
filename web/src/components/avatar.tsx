@@ -55,7 +55,14 @@ function corDe(texto: string): readonly [string, string] {
 }
 
 function iniciais(nome: string): string {
-  const partes = (nome || '?').trim().split(/\s+/).filter(Boolean);
+  /* Só pedaços que COMEÇAM com letra. Sem isto, "Kaina (teste)"
+     vira "K(" — o parêntese entra como inicial. O mesmo valeria
+     para nomes com hífen, aspas ou emoji. */
+  const partes = (nome || '')
+    .trim()
+    .split(/\s+/)
+    .filter((p) => /^\p{L}/u.test(p));
+
   if (partes.length === 0) return '?';
   if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
   return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();

@@ -1,0 +1,21 @@
+/* CSS extraído de cookies.html por porta-pagina.mjs.
+   Revise: pode haver regra que agora vive no globals.css. */
+
+
+  .escolha{display:flex;align-items:flex-start;gap:14px;padding:20px 22px;border-radius:14px;
+    border:1.5px solid var(--line);background:var(--paper-2);margin-bottom:12px}
+  .escolha .txt{flex:1}
+  .escolha b{display:block;font-size:15px;color:var(--ink);margin-bottom:4px}
+  .escolha p{margin:0;font-size:13.5px;line-height:1.6;color:var(--ink-2)}
+  .chave{position:relative;width:46px;height:26px;flex:none;margin-top:2px}
+  .chave input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+  .chave i{position:absolute;inset:0;border-radius:999px;background:#cbd5e5;
+    transition:background .25s var(--ease)}
+  .chave i::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;
+    border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(11,36,67,.3);
+    transition:transform .25s var(--ease)}
+  .chave input:checked + i{background:var(--sky)}
+  .chave input:checked + i::after{transform:translateX(20px)}
+  .chave input:disabled + i{background:#12a97b;opacity:.6;cursor:not-allowed}
+  .chave input:focus-visible + i{outline:2px solid var(--sky);outline-offset:3px}
+  .fixo{font-size:12px;font-weight:600;color:#12a97b;white-space:nowrap;margin-top:6px}

@@ -12,6 +12,7 @@
     "db:estudio": "drizzle-kit studio"
   },
   "dependencies": {
+    "bootstrap-icons": "^1.13.1",
     "drizzle-orm": "^0.45.2",
     "next": "16.3.2",
     "otpauth": "^9.5.1",

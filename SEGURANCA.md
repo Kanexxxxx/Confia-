@@ -167,6 +167,7 @@ dessas linhas é alguém varrendo — e isso a gente precisa **enxergar**.
 
 | Ataque | O que impede |
 |---|---|
+| Entregar o IP do visitante a terceiro | Fonte e ícones vêm do **nosso** servidor. Zero requisição para Google ou CDN. |
 | XSS (injetar script) | React escapa tudo. Zero `dangerouslySetInnerHTML` no projeto. |
 | Clickjacking (tela falsa por cima) | `X-Frame-Options: DENY`. |
 | Navegador adivinhar tipo de arquivo | `X-Content-Type-Options: nosniff`. |

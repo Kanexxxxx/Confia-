@@ -230,18 +230,46 @@ isso aparece na sua lista de aparelhos — e é o aviso de que sua senha vazou.
 
 ---
 
-## Etapa 6 — Site migrado para o Next
+## 🔨 Etapa 6 — Site migrado para o Next
 
 **Objetivo:** as páginas que já existem viram aplicação.
 
-- [ ] `index`, `planos`, `resultado`, `denunciar`, políticas → Next
-- [ ] `registrar-loja` — **ainda não existe** e a home já aponta para ela
-- [ ] Histórico de consultas
-- [ ] **Hospedar fonte e ícone no seu servidor** (hoje o IP de cada visitante
-      vai para o Google e para o jsDelivr — contradiz sua Política de Privacidade)
-- [ ] Design continua exatamente o mesmo
+### Já feito
 
-**Prova:** o site parece igual, mas agora tem conta, histórico e dado real.
+- [x] **Fonte e ícones no seu servidor.** Era o problema de LGPD: o IP de cada
+      visitante ia para o Google e para o jsDelivr em toda visita, enquanto a
+      Política promete guardar o mínimo. **Zero requisição externa agora** —
+      conferido na aba de rede.
+- [x] Cabeçalho e rodapé num lugar só (antes: copiados em dez arquivos)
+- [x] O cabeçalho reconhece quem está logado e mostra o bicho + apelido
+- [x] `privacidade`, `termos`, `reembolso`, `cookies` → rotas de verdade
+- [x] Sistema visual do protótipo incorporado
+
+### Falta
+
+- [ ] `index` (a maior: 62 KB), `planos`, `resultado`
+- [ ] `denunciar` e `registrar-loja` (têm formulário, viram componente cliente)
+- [ ] Histórico de consultas
+- [ ] Apagar a pasta `prototipo/` quando tudo tiver migrado
+
+**Prova até aqui:** as quatro páginas legais abrem em `/termos`, `/privacidade`,
+`/reembolso`, `/cookies`, com Lighthouse **100** em acessibilidade no celular.
+
+### Como está sendo feito
+
+`web/scripts/porta-pagina.mjs` converte o HTML em JSX. São 200 KB em dez
+páginas, e boa parte é documento legal: transcrever à mão significaria errar
+uma palavra em algum lugar — e num texto que promete coisa ao usuário, uma
+palavra trocada não é bug, é problema jurídico.
+
+O script faz a parte mecânica e **avisa o que não sabe fazer**. Duas coisas já
+apareceram e viraram regra dentro dele:
+
+- **`<table>` sem `<tbody>`** quebrava a hidratação. O navegador insere o
+  `<tbody>` ao ler o HTML do servidor; o React não. As duas árvores ficavam
+  diferentes, com uma mensagem de erro que não dizia onde estava o problema.
+- **Script que mexe no `<body>`** precisa rodar *depois* da hidratação, senão
+  o React desfaz. O painel de acessibilidade estava sumindo por isso.
 
 **Preciso de você:** nada.
 
