@@ -575,6 +575,24 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 }
 </style>
   <link href="assets/acessibilidade.css" rel="stylesheet">
+
+<!--
+  REGRA DOS ÍCONES (Bootstrap Icons 1.11)
+
+  Preenchido (-fill) = ESTADO: aviso, erro, confirmação, selo.
+  Contorno            = COISA ou AÇÃO: categoria, botão, objeto.
+
+  E o ícone tem que dizer a MESMA COISA que o texto ao lado. Já
+  erramos nisso três vezes:
+    bag-check     em "compra que não chega"  (check = chegou!)
+    shield-lock   em "página de login falsa" (escudo = proteção,
+                  quando o item é a ameaça)
+    hand-thumbs-up em "não prometemos milagre" (polegar = aprovação,
+                  quando o texto fala do limite que admitimos ter)
+
+  Ícone que contradiz o texto é pior que ícone nenhum: a pessoa lê
+  o desenho antes de ler a frase.
+-->
 </head>
 <body>
 <a class="pular" href="#conteudo">Pular para o conteúdo</a>
@@ -875,11 +893,11 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
       <div><b>Skin, case e conta de jogo</b><span>Sorteio de skin, troca fora da plataforma oficial, intermediário que some com o item. Cresce junto com o público jovem.</span></div>
     </div>
     <div class="check pane">
-      <i class="ico ico--risk bi bi-bag-check" aria-hidden="true"></i>
+      <i class="ico ico--risk bi bi-bag-x" aria-hidden="true"></i>
       <div><b>Compra que não chega</b><span>Loja criada semana passada, preço fora da realidade, pagamento só por transferência.</span></div>
     </div>
     <div class="check pane">
-      <i class="ico ico--risk bi bi-shield-lock" aria-hidden="true"></i>
+      <i class="ico ico--risk bi bi-window-stack" aria-hidden="true"></i>
       <div><b>Página de login falsa</b><span>Cópia da tela do banco ou da rede social pra roubar sua senha. Muda uma letra no endereço.</span></div>
     </div>
     <div class="check pane">
@@ -928,7 +946,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
         <div><b>Mostramos o porquê</b><span>Nunca só "é golpe". Sempre a lista do que encontramos, pra você conferir e decidir.</span></div>
       </div>
       <div class="crenca">
-        <i class="bi bi-hand-thumbs-up" aria-hidden="true"></i>
+        <i class="bi bi-patch-question" aria-hidden="true"></i>
         <div><b>Não prometemos milagre</b><span>Nenhuma ferramenta honesta garante 100%. A gente investiga bem e fala a verdade sobre o que não sabe.</span></div>
       </div>
       <div class="crenca">

@@ -38,8 +38,18 @@ Não existe `/cliente/01`. Todo identificador no confia? é um **UUID**:
 verificacao/a3f8b2c1-9d4e-4a7f-b012-8e6c4d1f9a30
 ```
 
-São 2ⁿ possibilidades com n=122. Para dar ideia: chutar isso é mais difícil do
-que acertar na Mega-Sena **treze vezes seguidas**. Não existe "o próximo".
+Não existe "o próximo".
+
+**A conta, para dar ideia** (corrigi um número que eu havia exagerado antes):
+
+| | Combinações | Mega-Senas seguidas |
+|---|---|---|
+| Mega-Sena, uma aposta | 5,0 × 10⁷ | 1 |
+| Código público (16 caracteres) | 5,2 × 10²⁷ | **~3,6** |
+| UUID interno | 5,3 × 10³⁶ | **~4,8** |
+
+O endereço que aparece na URL usa o código de 16. O UUID continua sendo a chave
+interna, e não sai do banco.
 
 ### Tranca 2 — mesmo com o endereço, o servidor pergunta de quem é
 

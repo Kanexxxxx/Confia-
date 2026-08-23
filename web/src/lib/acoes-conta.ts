@@ -40,6 +40,7 @@ import { criaToken, usaToken } from '@/lib/tokens';
 import { confereLimite, zeraLimite, ipDeQuemChama } from '@/lib/limite';
 import { registra } from '@/lib/auditoria';
 import { env } from '@/lib/env';
+import { cnpjValido, soNumeros } from '@/lib/documento';
 import {
   mandaVerificarEmail, mandaTrocarSenha, mandaSenhaTrocada, mandaBoasVindas,
 } from '@/lib/email';
@@ -47,7 +48,7 @@ import {
 /* Formato do retorno para o `useActionState` das telas. */
 export type Estado = {
   erro?: string;
-  campo?: 'nome' | 'apelido' | 'email' | 'senha' | 'telefone' | 'geral';
+  campo?: 'nome' | 'apelido' | 'email' | 'senha' | 'telefone' | 'cnpj' | 'geral';
   ok?: string;
 } | null;
 
@@ -81,7 +82,13 @@ export async function criarConta(_anterior: Estado, form: FormData): Promise<Est
 
   /* Só os números. O banco também limpa (gatilho tg_limpa_telefone),
      mas validar aqui dá mensagem melhor que erro de banco. */
-  const telefone = String(form.get('telefone') ?? '').replace(/\D/g, '') || null;
+  const telefone = soNumeros(String(form.get('telefone') ?? '')) || null;
+
+  /* CNPJ só para empresa. É dado PÚBLICO (a Receita publica), então
+     guardar não cria risco novo — e é o que sustenta o selo.
+     CPF é outra história: nunca entra aqui. Vai direto para o Asaas
+     no checkout, e do nosso lado ficam só os 4 últimos dígitos. */
+  const cnpj = tipo === 'juridica' ? soNumeros(String(form.get('cnpj') ?? '')) : null;
 
   if (nome.length < 2) return { erro: 'Diga seu nome.', campo: 'nome' };
   if (tipo === 'fisica' && !nome.includes(' ')) {
@@ -95,6 +102,15 @@ export async function criarConta(_anterior: Estado, form: FormData): Promise<Est
   /* Telefone: opcional para pessoa física, obrigatório para empresa.
      A regra também está no banco (CHECK em 008_pessoa.sql) — aqui é
      só para a mensagem ser gentil. */
+  if (tipo === 'juridica') {
+    if (!cnpj) {
+      return { erro: 'Para conta de empresa, o CNPJ é obrigatório — é ele que comprova que a empresa existe.', campo: 'cnpj' };
+    }
+    if (!cnpjValido(cnpj)) {
+      return { erro: 'Este CNPJ não é válido. Confira os números — costuma ser um dígito trocado.', campo: 'cnpj' };
+    }
+  }
+
   if (tipo === 'juridica' && (!telefone || telefone.length < 10)) {
     return { erro: 'Para empresa o telefone é obrigatório — é o contato que aparece no seu cadastro.', campo: 'telefone' };
   }
@@ -142,6 +158,7 @@ export async function criarConta(_anterior: Estado, form: FormData): Promise<Est
       apelido,
       avatar,
       telefone,
+      cnpj,
       tipoPessoa: tipo,
       aceitouTermosEm: new Date(),
       aceitouTermosVersao: '1.0',
@@ -152,7 +169,7 @@ export async function criarConta(_anterior: Estado, form: FormData): Promise<Est
     ator: nova.id, acao: 'conta.criar', alvoTipo: 'conta', alvoId: nova.id,
     /* Não gravamos o telefone na auditoria: ela é lida por gente e
        fica anos guardada. Registra QUE mudou, não o dado. */
-    depois: { nome, email, tipo, temTelefone: Boolean(telefone) },
+    depois: { nome, email, tipo, temTelefone: Boolean(telefone), cnpj },
     ip: await ipDeQuemChama(),
   });
 

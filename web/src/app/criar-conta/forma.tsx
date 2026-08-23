@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { criarConta, type Estado } from '@/lib/acoes-conta';
 import { Campo, CampoSenha, BotaoEnviar, Recado } from '@/components/campos';
 import { EscolheAvatar } from '@/components/escolhe-avatar';
+import { mascaraCnpj, cnpjValido, soNumeros } from '@/lib/documento';
 
 /* Máscara só de aparência. Quem vale é a limpeza no servidor e o
    gatilho do banco, que guardam só os números. */
@@ -25,6 +26,7 @@ export function FormaCriarConta() {
   const [tipo, setTipo] = useState<'fisica' | 'juridica'>('fisica');
   const [tel, setTel] = useState('');
   const [nome, setNome] = useState('');
+  const [cnpj, setCnpj] = useState('');
 
   const ehEmpresa = tipo === 'juridica';
 
@@ -113,6 +115,28 @@ export function FormaCriarConta() {
             : 'Vamos mandar um link para confirmar que é seu.'}
           erro={estado?.campo === 'email'}
         />
+
+        {/* ---- CNPJ, só para empresa ----
+            Conferimos os dígitos aqui e no banco. Aqui, para a
+            mensagem ser gentil; lá, porque é o que vale. */}
+        {ehEmpresa && (
+          <div className={`campo${estado?.campo === 'cnpj' ? ' erro' : ''}`}>
+            <label htmlFor="cnpj">CNPJ da empresa</label>
+            <input
+              id="cnpj" name="cnpj" type="text" inputMode="numeric" required
+              placeholder="00.000.000/0000-00"
+              value={cnpj}
+              onChange={(e) => setCnpj(mascaraCnpj(e.target.value))}
+              aria-describedby="dica-cnpj"
+              aria-invalid={estado?.campo === 'cnpj' || undefined}
+            />
+            <span className="dica" id="dica-cnpj">
+              {soNumeros(cnpj).length === 14 && !cnpjValido(cnpj)
+                ? '⚠ Os dígitos não batem. Costuma ser um número trocado.'
+                : 'Conferimos na Receita Federal. MEI também vale.'}
+            </span>
+          </div>
+        )}
 
         {/* ---- telefone ----
             Opcional para pessoa, obrigatório para empresa. O texto da

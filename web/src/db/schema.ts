@@ -20,7 +20,7 @@
    ============================================================= */
 
 import { citext } from './tipos';
-import { pgTable, index, foreignKey, unique, uuid, text, smallint, timestamp, check, inet, smallserial, integer, jsonb, boolean, date, bigserial, char, bigint, uniqueIndex, primaryKey, pgView, numeric, pgSequence, pgEnum } from "drizzle-orm/pg-core"
+import { pgTable, index, foreignKey, unique, uuid, text, smallint, timestamp, inet, smallserial, integer, jsonb, boolean, uniqueIndex, check, char, date, bigserial, bigint, primaryKey, pgView, numeric, pgSequence, pgEnum } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 export const categoriaLigacao = pgEnum("categoria_ligacao", ['golpe', 'telemarketing', 'cobranca', 'trote', 'robo', 'desconhecido', 'legitimo'])
@@ -73,34 +73,6 @@ export const tokens = pgTable("tokens", {
 	unique("tokens_token_hash_key").on(table.tokenHash),
 ]);
 
-export const contas = pgTable("contas", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
-	// TODO: failed to parse database type 'citext'
-	email: citext("email").notNull(),
-	senhaHash: text("senha_hash"),
-	nome: text().notNull(),
-	telefone: text(),
-	status: statusConta().default('ativa').notNull(),
-	emailVerificadoEm: timestamp("email_verificado_em", { withTimezone: true, mode: 'date' }),
-	aceitouTermosEm: timestamp("aceitou_termos_em", { withTimezone: true, mode: 'date' }),
-	aceitouTermosVersao: text("aceitou_termos_versao"),
-	ultimoAcessoEm: timestamp("ultimo_acesso_em", { withTimezone: true, mode: 'date' }),
-	criadaEm: timestamp("criada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
-	atualizadaEm: timestamp("atualizada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
-	excluidaEm: timestamp("excluida_em", { withTimezone: true, mode: 'date' }),
-	tipoPessoa: tipoPessoa("tipo_pessoa").default('fisica').notNull(),
-	telefoneVerificadoEm: timestamp("telefone_verificado_em", { withTimezone: true, mode: 'date' }),
-	apelido: text(),
-	avatar: text().default('inicial').notNull(),
-	recuperacao: metodoRecuperacao().default('email').notNull(),
-}, (table) => [
-	index("idx_contas_status").using("btree", table.status.asc().nullsLast().op("enum_ops")).where(sql`(excluida_em IS NULL)`),
-	index("idx_contas_telefone").using("btree", table.telefone.asc().nullsLast().op("text_ops")).where(sql`((telefone IS NOT NULL) AND (excluida_em IS NULL))`),
-	unique("contas_email_key").on(table.email),
-	check("avatar_conhecido", sql`avatar ~ '^[a-z][a-z0-9-]{0,23}$'::text`),
-	check("telefone_obrigatorio_para_empresa", sql`(tipo_pessoa = 'fisica'::tipo_pessoa) OR ((telefone IS NOT NULL) AND (length(regexp_replace(telefone, '\D'::text, ''::text, 'g'::text)) >= 10))`),
-]);
-
 export const sessoes = pgTable("sessoes", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	contaId: uuid("conta_id").notNull(),
@@ -132,6 +104,38 @@ export const planos = pgTable("planos", {
 	ordem: smallint().default(0).notNull(),
 }, (table) => [
 	unique("planos_slug_key").on(table.slug),
+]);
+
+export const contas = pgTable("contas", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	// TODO: failed to parse database type 'citext'
+	email: citext("email").notNull(),
+	senhaHash: text("senha_hash"),
+	nome: text().notNull(),
+	telefone: text(),
+	status: statusConta().default('ativa').notNull(),
+	emailVerificadoEm: timestamp("email_verificado_em", { withTimezone: true, mode: 'date' }),
+	aceitouTermosEm: timestamp("aceitou_termos_em", { withTimezone: true, mode: 'date' }),
+	aceitouTermosVersao: text("aceitou_termos_versao"),
+	ultimoAcessoEm: timestamp("ultimo_acesso_em", { withTimezone: true, mode: 'date' }),
+	criadaEm: timestamp("criada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+	atualizadaEm: timestamp("atualizada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+	excluidaEm: timestamp("excluida_em", { withTimezone: true, mode: 'date' }),
+	tipoPessoa: tipoPessoa("tipo_pessoa").default('fisica').notNull(),
+	telefoneVerificadoEm: timestamp("telefone_verificado_em", { withTimezone: true, mode: 'date' }),
+	apelido: text(),
+	avatar: text().default('inicial').notNull(),
+	recuperacao: metodoRecuperacao().default('email').notNull(),
+	cnpj: char({ length: 14 }),
+}, (table) => [
+	uniqueIndex("idx_contas_cnpj").using("btree", table.cnpj.asc().nullsLast().op("bpchar_ops")).where(sql`((cnpj IS NOT NULL) AND (excluida_em IS NULL))`),
+	index("idx_contas_status").using("btree", table.status.asc().nullsLast().op("enum_ops")).where(sql`(excluida_em IS NULL)`),
+	index("idx_contas_telefone").using("btree", table.telefone.asc().nullsLast().op("text_ops")).where(sql`((telefone IS NOT NULL) AND (excluida_em IS NULL))`),
+	unique("contas_email_key").on(table.email),
+	check("avatar_conhecido", sql`avatar ~ '^[a-z][a-z0-9-]{0,23}$'::text`),
+	check("cnpj_com_digito_certo", sql`(cnpj IS NULL) OR cnpj_valido((cnpj)::text)`),
+	check("cnpj_combina_com_o_tipo", sql`((tipo_pessoa = 'juridica'::tipo_pessoa) AND (cnpj IS NOT NULL) AND (cnpj ~ '^[0-9]{14}$'::text)) OR ((tipo_pessoa = 'fisica'::tipo_pessoa) AND (cnpj IS NULL))`),
+	check("telefone_obrigatorio_para_empresa", sql`(tipo_pessoa = 'fisica'::tipo_pessoa) OR ((telefone IS NOT NULL) AND (length(regexp_replace(telefone, '\D'::text, ''::text, 'g'::text)) >= 10))`),
 ]);
 
 export const pagamentos = pgTable("pagamentos", {

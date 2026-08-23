@@ -35,7 +35,7 @@ export function EscolheAvatar({
     <fieldset className="escolha-avatar">
       <legend>Sua figura</legend>
       <p className="dica" style={{ marginTop: -2, marginBottom: 10 }}>
-        Escolha uma. Não tem envio de foto — sua imagem não fica guardada com a gente.
+        Escolha um bicho. Não tem envio de foto — sua imagem não fica guardada com a gente.
       </p>
 
       <div className="grade-avatar" role="radiogroup" aria-label="Escolha sua figura">
