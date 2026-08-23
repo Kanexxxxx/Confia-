@@ -4,9 +4,14 @@ import { useActionState, useState } from 'react';
 import Link from 'next/link';
 import { criarConta, type Estado } from '@/lib/acoes-conta';
 import { Campo, CampoSenha, BotaoEnviar, Recado } from '@/components/campos';
+import { EscolheAvatar } from '@/components/escolhe-avatar';
 
 /* Máscara só de aparência. Quem vale é a limpeza no servidor e o
    gatilho do banco, que guardam só os números. */
+function primeiroNome(nome: string) {
+  return (nome || '').trim().split(/\s+/)[0] || '';
+}
+
 function mascaraTelefone(v: string) {
   const n = v.replace(/\D/g, '').slice(0, 11);
   if (n.length <= 2) return n;
@@ -19,6 +24,7 @@ export function FormaCriarConta() {
   const [estado, acao] = useActionState<Estado, FormData>(criarConta, null);
   const [tipo, setTipo] = useState<'fisica' | 'juridica'>('fisica');
   const [tel, setTel] = useState('');
+  const [nome, setNome] = useState('');
 
   const ehEmpresa = tipo === 'juridica';
 
@@ -65,12 +71,37 @@ export function FormaCriarConta() {
           </div>
         </fieldset>
 
-        <Campo
-          nome="nome"
-          rotulo={ehEmpresa ? 'Seu nome (quem administra a conta)' : 'Como você quer ser chamado'}
-          autoComplete="name"
-          erro={estado?.campo === 'nome'}
-        />
+        {/* Nome completo vai para nota fiscal e contrato.
+            O apelido é como o site chama a pessoa no dia a dia. */}
+        <div className={`campo${estado?.campo === 'nome' ? ' erro' : ''}`}>
+          <label htmlFor="nome">
+            {ehEmpresa ? 'Seu nome completo (quem administra)' : 'Nome completo'}
+          </label>
+          <input
+            id="nome" name="nome" type="text" required autoComplete="name"
+            value={nome} onChange={(e) => setNome(e.target.value)}
+            aria-describedby="dica-nome"
+            aria-invalid={estado?.campo === 'nome' || undefined}
+          />
+          <span className="dica" id="dica-nome">
+            Vai na nota fiscal e no contrato. Não aparece para outras pessoas.
+          </span>
+        </div>
+
+        <div className={`campo${estado?.campo === 'apelido' ? ' erro' : ''}`}>
+          <label htmlFor="apelido">
+            Como quer ser chamado{' '}
+            <span style={{ fontWeight: 400, color: 'var(--ink-3)' }}>(opcional)</span>
+          </label>
+          <input
+            id="apelido" name="apelido" type="text" autoComplete="nickname"
+            placeholder={primeiroNome(nome) || 'seu primeiro nome'}
+            aria-describedby="dica-apelido"
+          />
+          <span className="dica" id="dica-apelido">
+            É assim que o site vai te cumprimentar. Deixando vazio, usamos seu primeiro nome.
+          </span>
+        </div>
 
         <Campo
           nome="email"
@@ -119,6 +150,8 @@ export function FormaCriarConta() {
           dica="Pelo menos 10 caracteres. Três palavras que só você junta funcionam melhor que símbolo no meio."
           erro={estado?.campo === 'senha'}
         />
+
+        <EscolheAvatar nome={nome || 'confia'} />
 
         <label className="aceite">
           <input type="checkbox" name="aceite" required />

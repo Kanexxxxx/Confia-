@@ -200,7 +200,13 @@ testa o fluxo inteiro de quebra.
 **Prova:** você entra no painel com senha + código do celular. Sem o código,
 não entra — nem sabendo a senha.
 
-**Preciso de você:** um app de autenticação no celular.
+**Preciso de você:** o **Google Authenticator** no celular (já escolhido).
+
+**Também entra aqui:**
+- [ ] **Códigos de reserva** — a alternativa ao e-mail para recuperar a conta.
+      A coluna `contas.recuperacao` já existe (migração 009); a tela de escolher
+      só faz sentido quando houver a segunda opção, que nasce aqui.
+- [ ] Melhorar os ícones do protótipo, tela por tela
 
 ---
 

@@ -20,7 +20,7 @@
    ============================================================= */
 
 import { citext } from './tipos';
-import { pgTable, index, foreignKey, unique, uuid, text, smallint, timestamp, check, uniqueIndex, date, inet, smallserial, integer, jsonb, boolean, bigserial, char, bigint, primaryKey, pgView, numeric, pgSequence, pgEnum } from "drizzle-orm/pg-core"
+import { pgTable, index, foreignKey, unique, uuid, text, smallint, timestamp, check, inet, smallserial, integer, jsonb, boolean, date, bigserial, char, bigint, uniqueIndex, primaryKey, pgView, numeric, pgSequence, pgEnum } from "drizzle-orm/pg-core"
 import { sql } from "drizzle-orm"
 
 export const categoriaLigacao = pgEnum("categoria_ligacao", ['golpe', 'telemarketing', 'cobranca', 'trote', 'robo', 'desconhecido', 'legitimo'])
@@ -28,6 +28,7 @@ export const cicloCobranca = pgEnum("ciclo_cobranca", ['mensal', 'anual'])
 export const classeImagem = pgEnum("classe_imagem", ['print_conversa', 'comprovante', 'anuncio_produto', 'perfil', 'documento', 'site', 'outra'])
 export const estadoItem = pgEnum("estado_item", ['ok', 'alerta', 'risco', 'indisponivel'])
 export const metodoPosse = pgEnum("metodo_posse", ['dns_txt', 'arquivo_html', 'email_do_dominio', 'manual'])
+export const metodoRecuperacao = pgEnum("metodo_recuperacao", ['email', 'reserva', 'sms'])
 export const nivelEmpresa = pgEnum("nivel_empresa", ['registrada', 'verificada', 'estabelecida', 'curadoria'])
 export const origemRelato = pgEnum("origem_relato", ['usuario', 'parceiro', 'anatel', 'procon', 'importacao'])
 export const origemReq = pgEnum("origem_req", ['site', 'extensao', 'app', 'api', 'whatsapp'])
@@ -89,40 +90,15 @@ export const contas = pgTable("contas", {
 	excluidaEm: timestamp("excluida_em", { withTimezone: true, mode: 'date' }),
 	tipoPessoa: tipoPessoa("tipo_pessoa").default('fisica').notNull(),
 	telefoneVerificadoEm: timestamp("telefone_verificado_em", { withTimezone: true, mode: 'date' }),
+	apelido: text(),
+	avatar: text().default('inicial').notNull(),
+	recuperacao: metodoRecuperacao().default('email').notNull(),
 }, (table) => [
 	index("idx_contas_status").using("btree", table.status.asc().nullsLast().op("enum_ops")).where(sql`(excluida_em IS NULL)`),
 	index("idx_contas_telefone").using("btree", table.telefone.asc().nullsLast().op("text_ops")).where(sql`((telefone IS NOT NULL) AND (excluida_em IS NULL))`),
 	unique("contas_email_key").on(table.email),
+	check("avatar_conhecido", sql`avatar ~ '^[a-z][a-z0-9-]{0,23}$'::text`),
 	check("telefone_obrigatorio_para_empresa", sql`(tipo_pessoa = 'fisica'::tipo_pessoa) OR ((telefone IS NOT NULL) AND (length(regexp_replace(telefone, '\D'::text, ''::text, 'g'::text)) >= 10))`),
-]);
-
-export const assinaturas = pgTable("assinaturas", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
-	contaId: uuid("conta_id").notNull(),
-	planoId: smallint("plano_id").notNull(),
-	status: statusAssinatura().default('pendente').notNull(),
-	ciclo: cicloCobranca().default('mensal').notNull(),
-	asaasClienteId: text("asaas_cliente_id"),
-	asaasAssinaturaId: text("asaas_assinatura_id"),
-	inicioEm: timestamp("inicio_em", { withTimezone: true, mode: 'date' }),
-	proximaCobranca: date("proxima_cobranca"),
-	canceladaEm: timestamp("cancelada_em", { withTimezone: true, mode: 'date' }),
-	motivoCancelamento: text("motivo_cancelamento"),
-	criadaEm: timestamp("criada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
-	atualizadaEm: timestamp("atualizada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
-}, (table) => [
-	uniqueIndex("idx_assinatura_viva").using("btree", table.contaId.asc().nullsLast().op("uuid_ops")).where(sql`(status = ANY (ARRAY['ativa'::status_assinatura, 'pendente'::status_assinatura, 'atrasada'::status_assinatura, 'teste'::status_assinatura]))`),
-	foreignKey({
-			columns: [table.contaId],
-			foreignColumns: [contas.id],
-			name: "assinaturas_conta_id_fkey"
-		}).onDelete("cascade"),
-	foreignKey({
-			columns: [table.planoId],
-			foreignColumns: [planos.id],
-			name: "assinaturas_plano_id_fkey"
-		}),
-	unique("assinaturas_asaas_assinatura_id_key").on(table.asaasAssinaturaId),
 ]);
 
 export const sessoes = pgTable("sessoes", {
@@ -233,11 +209,13 @@ export const verificacoes = pgTable("verificacoes", {
 	revisadoPor: uuid("revisado_por"),
 	revisadoEm: timestamp("revisado_em", { withTimezone: true, mode: 'date' }),
 	criadaEm: timestamp("criada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+	codigo: text(),
 }, (table) => [
-	index("idx_verif_alvo").using("btree", table.alvoNormalizado.asc().nullsLast().op("text_ops"), table.criadaEm.desc().nullsFirst().op("timestamptz_ops")),
-	index("idx_verif_anonimo").using("btree", table.anonimoHash.asc().nullsLast().op("text_ops"), table.criadaEm.desc().nullsFirst().op("timestamptz_ops")).where(sql`(conta_id IS NULL)`),
+	index("idx_verif_alvo").using("btree", table.alvoNormalizado.asc().nullsLast().op("timestamptz_ops"), table.criadaEm.desc().nullsFirst().op("text_ops")),
+	index("idx_verif_anonimo").using("btree", table.anonimoHash.asc().nullsLast().op("timestamptz_ops"), table.criadaEm.desc().nullsFirst().op("timestamptz_ops")).where(sql`(conta_id IS NULL)`),
 	index("idx_verif_busca").using("gin", sql`to_tsvector('portuguese'::regconfig, ((COALESCE(alvo, ''::text)`),
-	index("idx_verif_conta").using("btree", table.contaId.asc().nullsLast().op("uuid_ops"), table.criadaEm.desc().nullsFirst().op("uuid_ops")),
+	index("idx_verif_conta").using("btree", table.contaId.asc().nullsLast().op("uuid_ops"), table.criadaEm.desc().nullsFirst().op("timestamptz_ops")),
+	index("idx_verificacoes_codigo").using("btree", table.codigo.asc().nullsLast().op("text_ops")),
 	foreignKey({
 			columns: [table.contaId],
 			foreignColumns: [contas.id],
@@ -248,6 +226,7 @@ export const verificacoes = pgTable("verificacoes", {
 			foreignColumns: [contas.id],
 			name: "verificacoes_revisado_por_fkey"
 		}),
+	unique("verificacoes_codigo_key").on(table.codigo),
 	check("verificacoes_confianca_check", sql`(confianca >= 0) AND (confianca <= 100)`),
 	check("verificacoes_score_check", sql`(score >= 0) AND (score <= 100)`),
 ]);
@@ -281,6 +260,45 @@ export const cacheDominio = pgTable("cache_dominio", {
 	atualizadoEm: timestamp("atualizado_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
 }, (table) => [
 	index("idx_cache_expira").using("btree", table.expiraEm.asc().nullsLast().op("timestamptz_ops")),
+]);
+
+export const denuncias = pgTable("denuncias", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	contaId: uuid("conta_id"),
+	alvo: text().notNull(),
+	categoria: text().notNull(),
+	relato: text(),
+	prejuizoCent: integer("prejuizo_cent"),
+	status: statusDenuncia().default('nova').notNull(),
+	analisadaPor: uuid("analisada_por"),
+	analisadaEm: timestamp("analisada_em", { withTimezone: true, mode: 'date' }),
+	criadaEm: timestamp("criada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+	golpeNovo: boolean("golpe_novo").default(false).notNull(),
+	descricaoNovo: text("descricao_novo"),
+	golpeId: uuid("golpe_id"),
+	boAnexado: boolean("bo_anexado").default(false).notNull(),
+	codigo: text(),
+}, (table) => [
+	index("idx_denuncias_alvo").using("btree", table.alvo.asc().nullsLast().op("text_ops")),
+	index("idx_denuncias_codigo").using("btree", table.codigo.asc().nullsLast().op("text_ops")),
+	index("idx_denuncias_novo").using("btree", table.criadaEm.desc().nullsFirst().op("timestamptz_ops")).where(sql`(golpe_novo AND (status = ANY (ARRAY['nova'::status_denuncia, 'em_analise'::status_denuncia])))`),
+	index("idx_denuncias_status").using("btree", table.status.asc().nullsLast().op("enum_ops"), table.criadaEm.desc().nullsFirst().op("enum_ops")),
+	foreignKey({
+			columns: [table.analisadaPor],
+			foreignColumns: [contas.id],
+			name: "denuncias_analisada_por_fkey"
+		}),
+	foreignKey({
+			columns: [table.contaId],
+			foreignColumns: [contas.id],
+			name: "denuncias_conta_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.golpeId],
+			foreignColumns: [golpesConhecidos.id],
+			name: "fk_denuncia_golpe"
+		}).onDelete("set null"),
+	unique("denuncias_codigo_key").on(table.codigo),
 ]);
 
 export const monitoramentos = pgTable("monitoramentos", {
@@ -320,42 +338,6 @@ export const apiChaves = pgTable("api_chaves", {
 			name: "api_chaves_conta_id_fkey"
 		}).onDelete("cascade"),
 	unique("api_chaves_chave_hash_key").on(table.chaveHash),
-]);
-
-export const denuncias = pgTable("denuncias", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
-	contaId: uuid("conta_id"),
-	alvo: text().notNull(),
-	categoria: text().notNull(),
-	relato: text(),
-	prejuizoCent: integer("prejuizo_cent"),
-	status: statusDenuncia().default('nova').notNull(),
-	analisadaPor: uuid("analisada_por"),
-	analisadaEm: timestamp("analisada_em", { withTimezone: true, mode: 'date' }),
-	criadaEm: timestamp("criada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
-	golpeNovo: boolean("golpe_novo").default(false).notNull(),
-	descricaoNovo: text("descricao_novo"),
-	golpeId: uuid("golpe_id"),
-	boAnexado: boolean("bo_anexado").default(false).notNull(),
-}, (table) => [
-	index("idx_denuncias_alvo").using("btree", table.alvo.asc().nullsLast().op("text_ops")),
-	index("idx_denuncias_novo").using("btree", table.criadaEm.desc().nullsFirst().op("timestamptz_ops")).where(sql`(golpe_novo AND (status = ANY (ARRAY['nova'::status_denuncia, 'em_analise'::status_denuncia])))`),
-	index("idx_denuncias_status").using("btree", table.status.asc().nullsLast().op("enum_ops"), table.criadaEm.desc().nullsFirst().op("enum_ops")),
-	foreignKey({
-			columns: [table.analisadaPor],
-			foreignColumns: [contas.id],
-			name: "denuncias_analisada_por_fkey"
-		}),
-	foreignKey({
-			columns: [table.contaId],
-			foreignColumns: [contas.id],
-			name: "denuncias_conta_id_fkey"
-		}).onDelete("set null"),
-	foreignKey({
-			columns: [table.golpeId],
-			foreignColumns: [golpesConhecidos.id],
-			name: "fk_denuncia_golpe"
-		}).onDelete("set null"),
 ]);
 
 export const webhooks = pgTable("webhooks", {
@@ -440,6 +422,37 @@ export const emails = pgTable("emails", {
 		}).onDelete("set null"),
 ]);
 
+export const telefones = pgTable("telefones", {
+	numeroE164: text("numero_e164").primaryKey().notNull(),
+	ddd: smallint(),
+	tipoLinha: text("tipo_linha"),
+	operadora: text(),
+	portado: boolean(),
+	origemVerificada: boolean("origem_verificada"),
+	emNaoPerturbe: boolean("em_nao_perturbe"),
+	relatosTotal: integer("relatos_total").default(0).notNull(),
+	relatosGolpe: integer("relatos_golpe").default(0).notNull(),
+	relatos30D: integer("relatos_30d").default(0).notNull(),
+	categoriaPredominante: categoriaLigacao("categoria_predominante"),
+	score: smallint(),
+	veredito: veredito(),
+	primeiroRelatoEm: timestamp("primeiro_relato_em", { withTimezone: true, mode: 'date' }),
+	ultimoRelatoEm: timestamp("ultimo_relato_em", { withTimezone: true, mode: 'date' }),
+	atualizadoEm: timestamp("atualizado_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+	sinais: jsonb().default([]).notNull(),
+	campanhaId: uuid("campanha_id"),
+	primeiraVezVisto: timestamp("primeira_vez_visto", { withTimezone: true, mode: 'date' }).defaultNow(),
+}, (table) => [
+	index("idx_telefones_recente").using("btree", table.ultimoRelatoEm.desc().nullsFirst().op("timestamptz_ops")),
+	index("idx_telefones_score").using("btree", table.score.asc().nullsLast().op("int2_ops")).where(sql`(relatos_total > 0)`),
+	foreignKey({
+			columns: [table.campanhaId],
+			foreignColumns: [campanhasGolpe.id],
+			name: "telefones_campanha_id_fkey"
+		}).onDelete("set null"),
+	check("telefones_score_check", sql`(score >= 0) AND (score <= 100)`),
+]);
+
 export const auditoria = pgTable("auditoria", {
 	id: bigserial({ mode: "bigint" }).primaryKey().notNull(),
 	atorId: uuid("ator_id"),
@@ -495,35 +508,19 @@ export const pedidosLgpd = pgTable("pedidos_lgpd", {
 		}).onDelete("cascade"),
 ]);
 
-export const telefones = pgTable("telefones", {
-	numeroE164: text("numero_e164").primaryKey().notNull(),
-	ddd: smallint(),
-	tipoLinha: text("tipo_linha"),
-	operadora: text(),
-	portado: boolean(),
-	origemVerificada: boolean("origem_verificada"),
-	emNaoPerturbe: boolean("em_nao_perturbe"),
-	relatosTotal: integer("relatos_total").default(0).notNull(),
-	relatosGolpe: integer("relatos_golpe").default(0).notNull(),
-	relatos30D: integer("relatos_30d").default(0).notNull(),
-	categoriaPredominante: categoriaLigacao("categoria_predominante"),
-	score: smallint(),
-	veredito: veredito(),
-	primeiroRelatoEm: timestamp("primeiro_relato_em", { withTimezone: true, mode: 'date' }),
-	ultimoRelatoEm: timestamp("ultimo_relato_em", { withTimezone: true, mode: 'date' }),
-	atualizadoEm: timestamp("atualizado_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
-	sinais: jsonb().default([]).notNull(),
-	campanhaId: uuid("campanha_id"),
-	primeiraVezVisto: timestamp("primeira_vez_visto", { withTimezone: true, mode: 'date' }).defaultNow(),
+export const campanhasGolpe = pgTable("campanhas_golpe", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	sePassaPor: text("se_passa_por").notNull(),
+	setor: text(),
+	numeros: integer().default(0).notNull(),
+	relatos: integer().default(0).notNull(),
+	regioes: text().array(),
+	roteiro: text(),
+	ativa: boolean().default(true).notNull(),
+	detectadaEm: timestamp("detectada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+	encerradaEm: timestamp("encerrada_em", { withTimezone: true, mode: 'date' }),
 }, (table) => [
-	index("idx_telefones_recente").using("btree", table.ultimoRelatoEm.desc().nullsFirst().op("timestamptz_ops")),
-	index("idx_telefones_score").using("btree", table.score.asc().nullsLast().op("int2_ops")).where(sql`(relatos_total > 0)`),
-	foreignKey({
-			columns: [table.campanhaId],
-			foreignColumns: [campanhasGolpe.id],
-			name: "telefones_campanha_id_fkey"
-		}).onDelete("set null"),
-	check("telefones_score_check", sql`(score >= 0) AND (score <= 100)`),
+	index("idx_campanhas_ativas").using("btree", table.ativa.asc().nullsLast().op("timestamptz_ops"), table.detectadaEm.desc().nullsFirst().op("timestamptz_ops")),
 ]);
 
 export const empresas = pgTable("empresas", {
@@ -556,9 +553,11 @@ export const empresas = pgTable("empresas", {
 	revisarEm: date("revisar_em"),
 	criadaEm: timestamp("criada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
 	atualizadaEm: timestamp("atualizada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+	codigo: text(),
 }, (table) => [
+	index("idx_empresas_codigo").using("btree", table.codigo.asc().nullsLast().op("text_ops")),
 	index("idx_empresas_revisar").using("btree", table.revisarEm.asc().nullsLast().op("date_ops")).where(sql`(status = 'aprovada'::status_empresa)`),
-	index("idx_empresas_status").using("btree", table.status.asc().nullsLast().op("timestamptz_ops"), table.criadaEm.desc().nullsFirst().op("timestamptz_ops")),
+	index("idx_empresas_status").using("btree", table.status.asc().nullsLast().op("enum_ops"), table.criadaEm.desc().nullsFirst().op("enum_ops")),
 	foreignKey({
 			columns: [table.aprovadaPor],
 			foreignColumns: [contas.id],
@@ -570,6 +569,7 @@ export const empresas = pgTable("empresas", {
 			name: "empresas_conta_id_fkey"
 		}).onDelete("set null"),
 	unique("empresas_cnpj_key").on(table.cnpj),
+	unique("empresas_codigo_key").on(table.codigo),
 ]);
 
 export const alvoHistorico = pgTable("alvo_historico", {
@@ -597,21 +597,6 @@ export const numerosOficiais = pgTable("numeros_oficiais", {
 	conferidoEm: timestamp("conferido_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
 }, (table) => [
 	index("idx_oficiais_empresa").using("btree", table.empresa.asc().nullsLast().op("text_ops")),
-]);
-
-export const campanhasGolpe = pgTable("campanhas_golpe", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
-	sePassaPor: text("se_passa_por").notNull(),
-	setor: text(),
-	numeros: integer().default(0).notNull(),
-	relatos: integer().default(0).notNull(),
-	regioes: text().array(),
-	roteiro: text(),
-	ativa: boolean().default(true).notNull(),
-	detectadaEm: timestamp("detectada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
-	encerradaEm: timestamp("encerrada_em", { withTimezone: true, mode: 'date' }),
-}, (table) => [
-	index("idx_campanhas_ativas").using("btree", table.ativa.asc().nullsLast().op("timestamptz_ops"), table.detectadaEm.desc().nullsFirst().op("timestamptz_ops")),
 ]);
 
 export const empresaDocumentos = pgTable("empresa_documentos", {
@@ -943,6 +928,39 @@ export const golpesConhecidos = pgTable("golpes_conhecidos", {
 	atualizadoEm: timestamp("atualizado_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
 }, (table) => [
 	index("idx_golpes_ativos").using("btree", table.ativo.asc().nullsLast().op("int4_ops"), table.denuncias.desc().nullsFirst().op("int4_ops")),
+]);
+
+export const assinaturas = pgTable("assinaturas", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	contaId: uuid("conta_id").notNull(),
+	planoId: smallint("plano_id").notNull(),
+	status: statusAssinatura().default('pendente').notNull(),
+	ciclo: cicloCobranca().default('mensal').notNull(),
+	asaasClienteId: text("asaas_cliente_id"),
+	asaasAssinaturaId: text("asaas_assinatura_id"),
+	inicioEm: timestamp("inicio_em", { withTimezone: true, mode: 'date' }),
+	proximaCobranca: date("proxima_cobranca"),
+	canceladaEm: timestamp("cancelada_em", { withTimezone: true, mode: 'date' }),
+	motivoCancelamento: text("motivo_cancelamento"),
+	criadaEm: timestamp("criada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+	atualizadaEm: timestamp("atualizada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+	documentoUltimos: char("documento_ultimos", { length: 4 }),
+	documentoTipo: text("documento_tipo"),
+}, (table) => [
+	uniqueIndex("idx_assinatura_viva").using("btree", table.contaId.asc().nullsLast().op("uuid_ops")).where(sql`(status = ANY (ARRAY['ativa'::status_assinatura, 'pendente'::status_assinatura, 'atrasada'::status_assinatura, 'teste'::status_assinatura]))`),
+	foreignKey({
+			columns: [table.contaId],
+			foreignColumns: [contas.id],
+			name: "assinaturas_conta_id_fkey"
+		}).onDelete("cascade"),
+	foreignKey({
+			columns: [table.planoId],
+			foreignColumns: [planos.id],
+			name: "assinaturas_plano_id_fkey"
+		}),
+	unique("assinaturas_asaas_assinatura_id_key").on(table.asaasAssinaturaId),
+	check("assinaturas_documento_tipo_check", sql`documento_tipo = ANY (ARRAY['cpf'::text, 'cnpj'::text])`),
+	check("documento_so_os_ultimos", sql`(documento_ultimos IS NULL) OR (documento_ultimos ~ '^[0-9]{4}$'::text)`),
 ]);
 
 export const usoMensal = pgTable("uso_mensal", {

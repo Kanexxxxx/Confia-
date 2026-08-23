@@ -47,7 +47,7 @@ import {
 /* Formato do retorno para o `useActionState` das telas. */
 export type Estado = {
   erro?: string;
-  campo?: 'nome' | 'email' | 'senha' | 'telefone' | 'geral';
+  campo?: 'nome' | 'apelido' | 'email' | 'senha' | 'telefone' | 'geral';
   ok?: string;
 } | null;
 
@@ -70,11 +70,23 @@ export async function criarConta(_anterior: Estado, form: FormData): Promise<Est
      empresa vai para o fluxo de CNPJ e prova de posse do domínio. */
   const tipo = form.get('tipo') === 'juridica' ? 'juridica' : 'fisica';
 
+  /* Como a pessoa quer ser chamada na tela. Vazio = o banco usa o
+     primeiro nome (gatilho tg_apelido em 009). */
+  const apelido = String(form.get('apelido') ?? '').trim() || null;
+
+  /* Figura escolhida da lista. NUNCA um caminho de arquivo: não
+     existe upload de foto de perfil neste produto. */
+  const avatarBruto = String(form.get('avatar') ?? 'inicial');
+  const avatar = /^[a-z][a-z0-9-]{0,23}$/.test(avatarBruto) ? avatarBruto : 'inicial';
+
   /* Só os números. O banco também limpa (gatilho tg_limpa_telefone),
      mas validar aqui dá mensagem melhor que erro de banco. */
   const telefone = String(form.get('telefone') ?? '').replace(/\D/g, '') || null;
 
-  if (nome.length < 2) return { erro: 'Diga como você quer ser chamado.', campo: 'nome' };
+  if (nome.length < 2) return { erro: 'Diga seu nome.', campo: 'nome' };
+  if (tipo === 'fisica' && !nome.includes(' ')) {
+    return { erro: 'Escreva o nome completo — nome e sobrenome.', campo: 'nome' };
+  }
   if (!EMAIL_VALIDO.test(email)) return { erro: 'Confira o e-mail: parece estar incompleto.', campo: 'email' };
 
   const problema = criticaSenha(senha, email);
@@ -127,6 +139,8 @@ export async function criarConta(_anterior: Estado, form: FormData): Promise<Est
       nome,
       email,
       senhaHash,
+      apelido,
+      avatar,
       telefone,
       tipoPessoa: tipo,
       aceitouTermosEm: new Date(),
