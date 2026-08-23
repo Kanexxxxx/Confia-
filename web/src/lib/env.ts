@@ -40,6 +40,13 @@ const forma = z.object({
      funcionalidade avisa que está desligada em vez de quebrar.
      Viram obrigatórias nas Etapas 4, 8 e 9 do PLANO.md. */
   RESEND_API_KEY: z.string().optional(),
+  /* Quem aparece como remetente. Precisa ser um endereço do domínio
+     verificado no Resend — @gmail.com seria recusado por ele e
+     bloqueado pelo Google. */
+  EMAIL_REMETENTE: z.string().default('confia? <naoresponda@confiia.com.br>'),
+  /* Para onde vai a resposta de quem apertar "responder". Cai no
+     Gmail pelo roteamento do Cloudflare. */
+  EMAIL_RESPOSTA: z.string().optional(),
   OPENAI_API_KEY: z.string().optional(),
   HIVE_API_KEY: z.string().optional(),
   SAFEBROWSING_API_KEY: z.string().optional(),

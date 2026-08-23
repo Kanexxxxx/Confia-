@@ -1,67 +1,195 @@
 /* =============================================================
    confiia.com.br — base visual da aplicação
-   Provisório: o design completo vem de assets/base.css na Etapa 6.
+
+   Vem do prototipo/assets/base.css, que foi o desenho aprovado.
+   Na Etapa 6, quando o site inteiro migrar, este arquivo passa a
+   ser o único — e o base.css é apagado.
+
+   A acessibilidade NÃO mora aqui: está em public/assets/
+   acessibilidade.css, carregado pelo layout. Assim o mesmo
+   arquivo serve o protótipo e a aplicação, e uma correção
+   conserta os dois.
    ============================================================= */
 
 :root{
-  --fundo:#050f1e; --painel:rgba(255,255,255,.04); --borda:rgba(255,255,255,.09);
-  --texto:#e9f1fc; --texto-2:rgba(233,241,252,.66); --texto-3:rgba(233,241,252,.42);
-  --azul:#4d9fff; --azul-claro:#a9cdff; --ok:#2fd39b; --alerta:#ffc65c; --risco:#ff7a6b;
+  --navy-950:#04101f; --navy-900:#07182c; --navy-800:#0b2443;
+  --navy-700:#11375f; --navy-600:#1a4d80;
+  --sky:#4d9fff; --sky-soft:#a9cdff; --sky-wash:#e6efff;
+  --safe:#2fd39b; --warn:#ffc65c; --risk:#ff7a6b;
+  --paper:#fff; --paper-2:#f5f8fd; --line:#e2e8f2;
+  --ink:#0b2443; --ink-2:#41597a; --ink-3:#62738b;
+  --on-dark:#eaf1fd; --on-dark-2:rgba(234,241,253,.74); --on-dark-3:rgba(234,241,253,.55);
+  --r-md:14px; --r-lg:20px; --r-xl:26px;
+  --ease:cubic-bezier(.22,.61,.36,1);
 }
+
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{
-  min-height:100vh;background:var(--fundo);color:var(--texto);
-  font-family:system-ui,-apple-system,'Segoe UI',sans-serif;font-size:15px;line-height:1.6;
+  min-height:100vh;
+  font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  font-size:16px;line-height:1.5;color:var(--on-dark);
+  background:linear-gradient(158deg,#0a2140 0%,var(--navy-900) 46%,var(--navy-950) 100%);
+  background-attachment:fixed;
   -webkit-font-smoothing:antialiased;
 }
-.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.9em}
+::selection{background:rgba(77,159,255,.32)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
-.folha{max-width:860px;margin:0 auto;padding:48px 24px 80px}
-.folha h1{margin:0 0 6px;font-size:26px;font-weight:600;letter-spacing:-.02em;color:#fff}
-.folha .sub{margin:0 0 34px;color:var(--texto-3);font-size:14px}
+/* =============================================================
+   TELAS DE CONTA (entrar, criar conta, esqueci a senha…)
 
-.cartao{
-  border:1px solid var(--borda);border-radius:14px;background:var(--painel);
-  padding:20px 22px;margin-bottom:16px;
+   Uma coluna, centralizada, sem menu. Quem está nesta tela tem
+   uma tarefa só — qualquer outra coisa na frente atrapalha.
+   ============================================================= */
+.porta{
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:32px 20px 60px;
 }
-.cartao h2{
+.porta-marca{display:block;margin-bottom:26px}
+.porta-marca img{display:block;width:118px;filter:brightness(0) invert(1)}
+
+.cartao-conta{
+  width:100%;max-width:420px;padding:32px 30px 28px;border-radius:22px;
+  background:var(--paper);color:var(--ink);
+  box-shadow:0 30px 70px -30px rgba(2,10,24,.9);
+}
+.cartao-conta h1{
+  margin:0 0 6px;font-size:23px;font-weight:600;letter-spacing:-.02em;color:var(--ink);
+}
+.cartao-conta .lead{margin:0 0 24px;font-size:14.5px;line-height:1.65;color:var(--ink-2)}
+
+/* ---------- campos ---------- */
+.campo{display:block;margin-bottom:18px}
+.campo > label{display:block;margin-bottom:7px;font-size:13.5px;font-weight:600;color:var(--ink)}
+.campo input{
+  width:100%;height:52px;padding:0 16px;
+  border:1.5px solid var(--line);border-radius:12px;background:var(--paper-2);
+  font-family:inherit;font-size:16px;color:var(--ink);outline:none;
+  transition:border-color .2s var(--ease),background .2s var(--ease),box-shadow .2s var(--ease);
+}
+.campo input:hover{border-color:#c9d4e4}
+.campo input:focus{background:#fff;border-color:var(--sky);box-shadow:0 0 0 4px rgba(77,159,255,.16)}
+.campo .dica{display:block;margin-top:7px;font-size:12.5px;line-height:1.55;color:var(--ink-3)}
+.campo.erro input{border-color:#e0523f;box-shadow:0 0 0 4px rgba(224,82,63,.12)}
+
+/* mostrar/esconder senha
+   O invólucro é quem tem position:relative — se fosse o .campo,
+   o botão se posicionaria pela caixa inteira e cairia em cima da
+   dica que fica embaixo do campo. */
+.caixa-senha{position:relative;display:block}
+.caixa-senha input{padding-right:54px}
+.caixa-senha button{
+  position:absolute;right:6px;top:6px;width:40px;height:40px;
+  display:grid;place-items:center;border:none;border-radius:9px;cursor:pointer;
+  background:transparent;color:var(--ink-3);font-size:17px;
+}
+.caixa-senha button:hover{background:var(--paper-2);color:var(--ink-2)}
+.caixa-senha button:focus-visible{background:var(--paper-2)}
+
+/* ---------- botões ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  width:100%;height:52px;padding:0 22px;border:none;border-radius:12px;cursor:pointer;
+  font-family:inherit;font-size:15.5px;font-weight:600;text-decoration:none;
+  transition:background .2s var(--ease),transform .16s var(--ease);
+}
+.btn--forte{background:var(--navy-800);color:#fff}
+.btn--forte:hover{background:var(--navy-700)}
+.btn--calmo{background:#fff;color:var(--ink-2);border:1.5px solid var(--line)}
+.btn--calmo:hover{background:var(--paper-2);color:var(--navy-800)}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{opacity:.6;pointer-events:none}
+.btn[data-carregando]{color:transparent;position:relative;pointer-events:none}
+.btn[data-carregando]::after{
+  content:"";position:absolute;width:19px;height:19px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.3);border-top-color:#fff;animation:girar .7s linear infinite;
+}
+@keyframes girar{to{transform:rotate(360deg)}}
+
+/* ---------- recados ---------- */
+.recado{
+  display:flex;gap:11px;padding:14px 16px;border-radius:12px;margin-bottom:20px;
+  font-size:13.5px;line-height:1.6;
+}
+.recado b{font-weight:600}
+.recado--erro{background:#fdeceb;border:1px solid #f3bfba;color:#8a2f22}
+.recado--ok{background:#e8f8f1;border:1px solid #a7dfc7;color:#0f6b3a}
+.recado--info{background:var(--sky-wash);border:1px solid rgba(77,159,255,.24);color:var(--ink-2)}
+.recado--aviso{background:#fff6e0;border:1px solid #f0d68a;color:#6b5a10}
+
+/* ---------- rodapé do cartão ---------- */
+.divide{
+  display:flex;align-items:center;gap:14px;margin:22px 0;
+  font-size:12.5px;color:var(--ink-3);
+}
+.divide::before,.divide::after{content:"";flex:1;height:1px;background:var(--line)}
+
+.pe-conta{margin:22px 0 0;text-align:center;font-size:14px;color:var(--ink-2)}
+.pe-conta a{color:#2970d3;font-weight:600}
+.aceite{
+  display:flex;gap:11px;align-items:flex-start;margin:4px 0 20px;
+  font-size:13px;line-height:1.6;color:var(--ink-2);cursor:pointer;
+}
+.aceite input{width:20px;height:20px;flex:none;margin:1px 0 0;accent-color:var(--navy-800)}
+.aceite a{color:#2970d3}
+
+.abaixo{
+  margin:22px auto 0;max-width:420px;text-align:center;
+  font-size:12.5px;line-height:1.65;color:var(--on-dark-3);
+}
+.abaixo a{color:var(--sky-soft)}
+
+/* =============================================================
+   PÁGINA DA CONTA
+   ============================================================= */
+.folha-conta{max-width:760px;margin:0 auto;padding:40px 20px 80px}
+.cabeca-conta{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  flex-wrap:wrap;margin-bottom:30px;
+}
+.cabeca-conta h1{margin:0;font-size:24px;font-weight:600;letter-spacing:-.02em;color:#fff}
+.cabeca-conta p{margin:5px 0 0;font-size:14px;color:var(--on-dark-3)}
+
+.bloco{
+  border:1px solid rgba(255,255,255,.1);border-radius:18px;
+  background:rgba(255,255,255,.045);padding:22px 24px;margin-bottom:16px;
+}
+.bloco h2{
   margin:0 0 14px;font-size:12px;font-weight:700;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--texto-3);
+  text-transform:uppercase;color:var(--on-dark-3);
 }
-
 .linha{
   display:flex;align-items:baseline;justify-content:space-between;gap:16px;
-  padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);
+  padding:11px 0;border-bottom:1px solid rgba(255,255,255,.06);
 }
 .linha:last-child{border-bottom:none}
-.linha .rot{color:var(--texto-2);font-size:14px}
-.linha .val{color:var(--texto);font-weight:600;text-align:right}
+.linha .rot{font-size:14px;color:var(--on-dark-2)}
+.linha .val{font-size:14px;font-weight:600;color:#fff;text-align:right;word-break:break-word}
 
 .selo{
-  display:inline-flex;align-items:center;gap:6px;padding:2px 9px;border-radius:6px;
+  display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:7px;
   font-size:12px;font-weight:600;
 }
-.selo--ok{background:rgba(47,211,155,.14);color:var(--ok)}
-.selo--off{background:rgba(255,255,255,.07);color:var(--texto-3)}
-.selo--erro{background:rgba(255,122,107,.16);color:var(--risco)}
+.selo--ok{background:rgba(47,211,155,.14);color:var(--safe)}
+.selo--aviso{background:rgba(255,198,92,.14);color:var(--warn)}
 
-table{width:100%;border-collapse:collapse;font-size:14px}
-th{
-  text-align:left;padding:8px 10px;font-size:11px;font-weight:600;letter-spacing:.07em;
-  text-transform:uppercase;color:var(--texto-3);border-bottom:1px solid var(--borda);
+.aparelho{
+  display:flex;align-items:center;gap:12px;padding:12px 0;
+  border-bottom:1px solid rgba(255,255,255,.06);font-size:13.5px;
 }
-td{padding:10px;border-bottom:1px solid rgba(255,255,255,.05);color:var(--texto-2)}
-tr:last-child td{border-bottom:none}
-td.dir,th.dir{text-align:right}
-td b{color:var(--texto)}
+.aparelho:last-child{border-bottom:none}
+.aparelho b{color:#fff;font-weight:600}
+.aparelho span{color:var(--on-dark-3);font-size:12.5px}
+.aparelho .agora{
+  margin-left:auto;padding:2px 9px;border-radius:6px;
+  background:rgba(47,211,155,.14);color:var(--safe);font-size:11.5px;font-weight:600;
+}
 
-.nota{
-  margin-top:26px;padding:14px 16px;border-radius:12px;font-size:13px;line-height:1.65;
-  background:rgba(77,159,255,.08);border:1px solid rgba(77,159,255,.22);color:var(--texto-2);
-}
-.nota b{color:var(--azul-claro)}
-.erro{
-  padding:16px;border-radius:12px;background:rgba(255,122,107,.1);
-  border:1px solid rgba(255,122,107,.28);color:#ffb3a8;font-size:14px;
+.btn--linha{width:auto;height:44px;font-size:14px;padding:0 18px}
+
+@media (max-width:600px){
+  .cartao-conta{padding:26px 20px 24px;border-radius:18px}
+  .cartao-conta h1{font-size:21px}
+  .porta{padding:24px 14px 50px}
 }

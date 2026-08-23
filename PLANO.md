@@ -21,8 +21,8 @@ você consegue ver**. Nada de "etapa concluída" sem prova na tela.
 [✅] 1. Servidor blindado
 [✅] 2. Banco de dados no ar
 [✅] 3. TypeScript ligado no banco
-[🔨] 4. Conta: cadastro, login, e-mail   <-- é aqui que estamos
-[  ] 5. 2FA e painel trancado de verdade
+[✅] 4. Conta: cadastro, login, e-mail
+[🔨] 5. 2FA e painel trancado de verdade   <-- é aqui que estamos
 [  ] 6. Site migrado para o Next
 [  ] 7. No ar com HTTPS
 [  ] 8. Motor de verificação
@@ -125,23 +125,60 @@ Mudou alguma tabela no banco? `npm run db:puxar` regera os tipos.
 
 ---
 
-## Etapa 4 — Conta: cadastro, login, e-mail
+## ✅ Etapa 4 — Conta: cadastro, login, e-mail
 
 **Objetivo:** dá para criar conta e entrar.
 
-- [ ] Cadastro com crítica de senha
-- [ ] Login com bloqueio por tentativas
-- [ ] Sessão no banco, revogável (dá para derrubar sessão de longe)
-- [ ] Confirmação de e-mail (Resend)
-- [ ] Recuperação de senha
-- [ ] Trocar senha e trocar e-mail
-- [ ] Telas: entrar, criar conta, e-mail enviado, link expirado
+- [x] Cadastro com crítica de senha
+- [x] Login com bloqueio por tentativas (5 erros = 15 min)
+- [x] Sessão no banco, revogável — dá para derrubar de longe
+- [x] Confirmação de e-mail pelo Resend
+- [x] Recuperação de senha
+- [x] Página da conta com os **aparelhos conectados**
+- [x] Telas: entrar, criar conta, e-mail enviado, link expirado, link usado
+- [ ] Trocar e-mail — fica para quando houver quem precise
 
-**Prova:** você cria uma conta com seu e-mail de verdade, recebe o e-mail,
-confirma e entra.
+**Provado no banco, não no papel:**
 
-**Preciso de você:** ⚠️ **chave da API do Resend** e o domínio verificado lá
-(SPF, DKIM, DMARC no DNS). Sem isso o e-mail cai em spam ou não sai.
+| Teste | Resultado |
+|---|---|
+| Criar conta grava tudo | conta + token + e-mail + auditoria |
+| Senha errada | recusada, e a tentativa fica registrada |
+| Senha certa | entra e cria sessão |
+| Trocar senha derruba tudo | 3 sessões revogadas, **0 ativas** |
+| Token de e-mail vale uma vez | segunda vez responde "já usado" |
+| Lighthouse (celular) | **100** em acessibilidade |
+
+### Decisões de segurança que ficaram no código
+
+**Não contamos quem tem conta.** "E-mail ou senha errados", nunca "este e-mail
+não existe" — e o mesmo ao criar conta e ao pedir nova senha. Sem isso, qualquer
+pessoa poderia testar uma lista de e-mails e descobrir quem é nosso cliente.
+Num serviço antigolpe, saber quem já foi vítima tem valor para quem aplica golpe.
+
+**Tempo constante.** Não basta a mensagem ser igual; a demora também. Quando a
+conta não existe, o sistema gasta o mesmo tempo de uma conferência de verdade.
+
+**Trocar senha derruba TODAS as sessões.** Se alguém tinha entrado na conta,
+sai agora. Sem isso, trocar a senha seria teatro: o invasor continuaria dentro
+com o cookie que já tinha.
+
+**Sessão no banco, não em JWT.** JWT não dá para cancelar antes de expirar.
+Custa uma consulta por requisição — barato perto de não conseguir expulsar
+ninguém.
+
+**Limite de tentativas é obrigatório aqui, não opcional.** A conferência de
+senha gasta 32 MB e um pedaço do único núcleo de propósito. Sem limite, essa
+mesma proteção vira a arma: vinte tentativas ao mesmo tempo derrubam o site.
+
+**Arquivos:** `web/src/lib/` (senha, sessao, tokens, email, limite, acoes-conta)
+e `web/src/app/` (entrar, criar-conta, esqueci-senha, nova-senha, confirmar, conta)
+
+### Conta de teste
+
+`teste@confiia.com.br` já existe no banco de desenvolvimento. Para entrar,
+use **Esqueci minha senha** — o e-mail cai no seu Gmail pelo catch-all, e você
+testa o fluxo inteiro de quebra.
 
 ---
 
