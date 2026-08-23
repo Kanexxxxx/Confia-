@@ -20,7 +20,7 @@
   --ok:#8fe3a3; --ok-tinta:#0f6b3a;
 
   --paper:#fff; --paper-2:#f5f8fd; --line:#e2e8f2;
-  --ink:#0b2443; --ink-2:#41597a; --ink-3:#7387a3;
+  --ink:#0b2443; --ink-2:#41597a; --ink-3:#62738b;
   --on-dark:#eaf1fd; --on-dark-3:rgba(234,241,253,.5);
   --r-md:14px; --r-xl:26px; --r-2xl:36px;
   --ease:cubic-bezier(.22,.61,.36,1);
@@ -172,8 +172,10 @@ body{
 }
 @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms !important}}
 </style>
+  <link href="assets/acessibilidade.css" rel="stylesheet">
 </head>
 <body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
 <div class="bg"></div>
 <div class="orbs" aria-hidden="true"><div class="orb orb--1"></div><div class="orb orb--2"></div></div>
 
@@ -184,7 +186,7 @@ body{
   <button type="button" data-estado="confiavel" aria-pressed="false">Confiável</button>
 </div>
 
-<main class="tablet">
+<main id="conteudo" class="tablet">
   <div class="tela">
     <img class="marca" src="assets/logo-confia.svg" alt="confia?">
 
@@ -361,5 +363,6 @@ if (!CASOS[inicial]) inicial = 'perigoso';
 botoes.forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.estado === inicial ? 'true' : 'false'); });
 desenhar(inicial);
 </script>
+<script src="assets/acessibilidade.js"></script>
 </body>
 </html>

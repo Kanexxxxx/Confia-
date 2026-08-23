@@ -36,7 +36,7 @@
   --line:#e2e8f2;
   --ink:#0b2443;
   --ink-2:#41597a;
-  --ink-3:#7387a3;
+  --ink-3:#62738b;
 
   --on-dark:#eaf1fd;
   --on-dark-2:rgba(234,241,253,.74);
@@ -461,7 +461,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 .numero b{display:block;font-family:Poppins,sans-serif;font-size:clamp(26px,3vw,34px);
   font-weight:700;letter-spacing:-.02em;color:#fff;line-height:1.1}
 .numero span{display:block;margin-top:8px;font-size:13px;line-height:1.55;color:var(--on-dark-3)}
-.fonte{margin:16px 0 0;font-size:12px;color:rgba(234,241,253,.38)}
+.fonte{margin:16px 0 0;font-size:12px;color:rgba(234,241,253,.55)}
 .fonte a{color:rgba(234,241,253,.55)}
 
 /* ---------- ranking ---------- */
@@ -574,8 +574,10 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
   .orb{animation:none}
 }
 </style>
+  <link href="assets/acessibilidade.css" rel="stylesheet">
 </head>
 <body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
 <div class="bg"></div>
 <div class="orbs" aria-hidden="true">
   <div class="orb orb--1"></div><div class="orb orb--2"></div><div class="orb orb--3"></div>
@@ -645,7 +647,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 
 <div class="hero" id="topo">
 
-  <section class="pitch">
+  <section id="conteudo" class="pitch">
     <p class="kicker rv" style="--d:.02s">
       <i class="bi bi-shield-check" aria-hidden="true"></i>
       2 verificações sem criar conta
@@ -1014,5 +1016,6 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 </footer>
 
 <script src="assets/confia.js"></script>
+<script src="assets/acessibilidade.js"></script>
 </body>
 </html>

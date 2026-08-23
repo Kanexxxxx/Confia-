@@ -19,8 +19,10 @@
   .zap .bi{font-size:19px}
   .destaque{border-left:3px solid var(--sky);padding:2px 0 2px 18px;margin:0 0 16px}
 </style>
+  <link href="assets/acessibilidade.css" rel="stylesheet">
 </head>
 <body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
 <div class="bg"></div>
 <div class="orbs" aria-hidden="true"><div class="orb orb--1"></div><div class="orb orb--2"></div></div>
 
@@ -72,7 +74,7 @@
     </ol>
   </div>
 
-  <main class="doc-corpo folha">
+  <main class="doc-corpo folha" id="conteudo">
 
     <div class="nota-doc nota-doc--info">
       <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
@@ -381,5 +383,6 @@
     <span>© 2026 confia? — confiia.com.br</span>
   </div>
 </footer>
+<script src="assets/acessibilidade.js"></script>
 </body>
 </html>

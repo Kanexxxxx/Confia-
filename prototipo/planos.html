@@ -17,7 +17,7 @@
   --sky:#4d9fff; --sky-soft:#a9cdff; --sky-wash:#e6efff;
   --safe:#2fd39b; --warn:#ffc65c; --risk:#ff7a6b;
   --paper:#fff; --paper-2:#f5f8fd; --line:#e2e8f2;
-  --ink:#0b2443; --ink-2:#41597a; --ink-3:#7387a3;
+  --ink:#0b2443; --ink-2:#41597a; --ink-3:#62738b;
   --on-dark:#eaf1fd; --on-dark-2:rgba(234,241,253,.74); --on-dark-3:rgba(234,241,253,.5);
   --r-md:14px; --r-lg:20px; --r-xl:26px;
   --ease:cubic-bezier(.22,.61,.36,1);
@@ -184,8 +184,10 @@ footer{margin-top:80px;border-top:1px solid rgba(255,255,255,.08)}
 }
 @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms !important}}
 </style>
+  <link href="assets/acessibilidade.css" rel="stylesheet">
 </head>
 <body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
 <div class="bg"></div>
 <div class="orbs" aria-hidden="true"><div class="orb orb--1"></div><div class="orb orb--2"></div></div>
 
@@ -205,7 +207,7 @@ footer{margin-top:80px;border-top:1px solid rgba(255,255,255,.08)}
   </button>
 </header>
 
-<section class="topo">
+<section id="conteudo" class="topo">
   <p class="eyebrow"><i class="bi bi-tags" aria-hidden="true"></i> Planos</p>
   <h1>Custa menos que cair<br>em um golpe só</h1>
   <p>Comece de graça, sem cartão. Se precisar de mais, o plano acompanha —
@@ -430,5 +432,6 @@ footer{margin-top:80px;border-top:1px solid rgba(255,255,255,.08)}
   aplicar('mes');
 })();
 </script>
+<script src="assets/acessibilidade.js"></script>
 </body>
 </html>

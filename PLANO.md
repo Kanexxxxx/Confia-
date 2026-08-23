@@ -30,6 +30,9 @@ você consegue ver**. Nada de "etapa concluída" sem prova na tela.
 [  ] 10. Painel ligado e auditoria final
 ```
 
+> **Sempre, em toda etapa:** celular funcionando e acessibilidade 100.
+> Ver "Regras que valem em TODAS as etapas", no fim deste arquivo.
+
 ---
 
 ## ✅ Etapa 1 — Servidor blindado
@@ -271,10 +274,70 @@ para `confiia.com.br/api/asaas/webhook`.
 
 ---
 
+## Regras que valem em TODAS as etapas
+
+Não são etapas — são condições. Se alguma delas quebrar, a etapa não está pronta.
+
+### 📱 Celular vem primeiro, não depois
+
+A pessoa que precisa do confia? está com o celular na mão, no meio de uma
+conversa de WhatsApp, decidindo se clica. É ali que o produto é usado.
+
+**Um site só, que se adapta.** Não existe "versão para celular" separada:
+dois códigos seriam dois lugares para consertar cada bug, e um sempre ficaria
+para trás. Toda tela nova é conferida em `390px` de largura antes de ser
+considerada pronta.
+
+- [x] Sem rolagem lateral em nenhuma página
+- [x] Alvo de toque de **44px** (recomendação da Apple, do Google e da WCAG 2.5.5)
+- [x] Campo de texto com fonte de 16px — abaixo disso o iPhone dá zoom sozinho
+- [x] Layout aguenta o texto a 150% sem quebrar
+
+### ♿ Acessibilidade não é enfeite
+
+Quem mais cai em golpe de central falsa e de boleto é justamente quem enxerga
+menos, escuta menos e tem menos intimidade com tecnologia. Um site antigolpe
+que só serve para quem tem visão perfeita está deixando de fora exatamente
+quem mais precisa dele.
+
+E é **lei**: Lei Brasileira de Inclusão (13.146/2015), artigo 63.
+
+- [x] Painel de acessibilidade em todas as páginas (botão ♿ no canto)
+- [x] Tamanho do texto em 4 níveis, até 150%
+- [x] Alto contraste (preto, branco e amarelo)
+- [x] Espaçamento de leitura, que ajuda na dislexia
+- [x] Destacar links, para não depender só da cor
+- [x] Reduzir animação, para quem sente tontura
+- [x] **Libras** pelo VLibras do governo — carregado só quando a pessoa liga,
+      para não entregar o IP de todo visitante a um terceiro
+- [x] Link "pular para o conteúdo" em todas as páginas
+- [x] Tudo pelo teclado, com foco sempre visível
+- [x] **Lighthouse 100/100** em acessibilidade, no computador e no celular
+
+Toda tela nova passa pelo Lighthouse antes de entrar. Nota abaixo de 100 é
+tratada como bug, não como detalhe.
+
+---
+
 ## Depois das 10
 
-Extensão do navegador, aplicativo, documentação da API. Nenhuma delas faz
-sentido antes do site funcionar.
+### 📱 Aplicativo para celular
+
+**Vai existir.** É o formato natural do produto: dá para compartilhar um link
+direto do WhatsApp para o confia? sem copiar e colar, e dá para avisar a
+pessoa por notificação quando um site que ela verificou piorar.
+
+Só não vem antes porque depende de tudo que está nas 10 etapas — conta,
+verificação, pagamento. Aplicativo sem isso é uma casca bonita.
+
+Quando chegar a hora, a decisão será entre app nativo e um site que instala
+como app (PWA). Para começar, o segundo entrega quase tudo por uma fração do
+trabalho, e usa o mesmo código do site.
+
+### Também depois
+
+Extensão do navegador e documentação da API. Nenhuma delas faz sentido antes
+do site funcionar.
 
 ---
 

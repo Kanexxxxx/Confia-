@@ -47,8 +47,10 @@
     .lateral{position:static;order:-1}
   }
 </style>
+  <link href="assets/acessibilidade.css" rel="stylesheet">
 </head>
 <body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
 <div class="bg"></div>
 <div class="orbs" aria-hidden="true"><div class="orb orb--1"></div><div class="orb orb--2"></div></div>
 
@@ -75,7 +77,7 @@
 
 <div class="corpo">
 
-  <main class="folha">
+  <main class="folha" id="conteudo">
     <div class="passos">
       <i>1</i> <span>Leva uns 3 minutos. Só o essencial é obrigatório.</span>
     </div>
@@ -105,7 +107,7 @@
           <label class="opcao"><input type="radio" name="categoria" value="outro">
             <span><i class="bi bi-three-dots" aria-hidden="true"></i> Outro</span></label>
         </div>
-        <span class="aviso-erro">Escolha uma opção para continuar.</span>
+        <span class="aviso-erro" role="alert">Escolha uma opção para continuar.</span>
       </div>
 
       <!-- golpe inédito: entra na frente da fila, porque ninguém está protegido dele ainda -->
@@ -135,7 +137,7 @@
         <input id="alvo" name="alvo" type="text" required
                placeholder="Cole o link, o @ do perfil ou o número de telefone">
         <span class="dica">É o dado mais importante da denúncia — é ele que vai ficar marcado na nossa base.</span>
-        <span class="aviso-erro">Precisamos do link, perfil ou telefone.</span>
+        <span class="aviso-erro" role="alert">Precisamos do link, perfil ou telefone.</span>
       </div>
 
       <div class="dupla">
@@ -161,7 +163,7 @@
         <textarea id="relato" name="relato" required minlength="30"
           placeholder="O que te chamou pra conversa, o que prometeram, como pediram o pagamento, o que aconteceu depois..."></textarea>
         <span class="dica">Quanto mais detalhe do roteiro, melhor a gente reconhece o mesmo golpe quando ele voltar com outro nome.</span>
-        <span class="aviso-erro">Escreva pelo menos algumas linhas sobre o que aconteceu.</span>
+        <span class="aviso-erro" role="alert">Escreva pelo menos algumas linhas sobre o que aconteceu.</span>
       </div>
 
       <div class="divisor"></div>
@@ -359,5 +361,6 @@
   });
 })();
 </script>
+<script src="assets/acessibilidade.js"></script>
 </body>
 </html>

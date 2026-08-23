@@ -97,8 +97,10 @@
     .lateral{position:static;order:-1}
   }
 </style>
+  <link href="assets/acessibilidade.css" rel="stylesheet">
 </head>
 <body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
 <div class="bg"></div>
 <div class="orbs" aria-hidden="true"><div class="orb orb--1"></div><div class="orb orb--2"></div></div>
 
@@ -129,7 +131,7 @@
 
 <div class="corpo">
 
-  <main class="folha">
+  <main class="folha" id="conteudo">
     <div class="passos">
       <i>1</i> Dados da empresa
       <span aria-hidden="true" style="color:var(--ink-3)">›</span>
@@ -147,22 +149,22 @@
         Conferimos o CNPJ direto na Receita Federal. Se estiver ativo, o cadastro é aceito.
       </p>
 
-      <label class="campo">
-        <label for="cnpj">CNPJ</label>
+      <div class="campo">
+        <label for="cnpj">CNPJ</div>
         <input type="text" id="cnpj" inputmode="numeric" placeholder="00.000.000/0000-00" required>
         <span class="dica">MEI também vale. É de graça e sai no mesmo dia, pelo Portal do Empreendedor.</span>
-        <span class="aviso-erro">Digite os 14 números do CNPJ.</span>
+        <span class="aviso-erro" role="alert">Digite os 14 números do CNPJ.</span>
       </label>
 
-      <label class="campo">
-        <label for="fantasia">Nome que aparece para o cliente</label>
+      <div class="campo">
+        <label for="fantasia">Nome que aparece para o cliente</div>
         <input type="text" id="fantasia" placeholder="Kaza Verde Decorações" required>
         <span class="dica">O nome pelo qual as pessoas conhecem a loja, não a razão social.</span>
-        <span class="aviso-erro">Diga o nome da loja.</span>
+        <span class="aviso-erro" role="alert">Diga o nome da loja.</span>
       </label>
 
-      <label class="campo">
-        <label for="categoria">O que vocês fazem</label>
+      <div class="campo">
+        <label for="categoria">O que vocês fazem</div>
         <select id="categoria" required>
           <option value="">Escolha…</option>
           <option>Moda e acessórios</option>
@@ -174,7 +176,7 @@
           <option>Saúde e beleza</option>
           <option>Outro</option>
         </select>
-        <span class="aviso-erro">Escolha uma categoria.</span>
+        <span class="aviso-erro" role="alert">Escolha uma categoria.</span>
       </label>
 
       <div class="divisor"></div>
@@ -187,32 +189,32 @@
         Coloque só o que é realmente da empresa.
       </p>
 
-      <label class="campo">
-        <label for="site">Endereço do site</label>
+      <div class="campo">
+        <label for="site">Endereço do site</div>
         <input type="text" id="site" placeholder="minhaloja.com.br" required>
         <span class="dica">Só o endereço, sem <code>https://</code>. É neste que a prova do passo 3 é feita.</span>
-        <span class="aviso-erro">Diga o endereço do site.</span>
+        <span class="aviso-erro" role="alert">Diga o endereço do site.</span>
       </label>
 
       <div class="dupla">
-        <label class="campo">
-          <label for="instagram">Instagram <span style="font-weight:400;color:var(--ink-3)">(opcional)</span></label>
+        <div class="campo">
+          <label for="instagram">Instagram <span style="font-weight:400;color:var(--ink-3)">(opcional)</span></div>
           <input type="text" id="instagram" placeholder="@minhaloja">
         </label>
-        <label class="campo">
-          <label for="whatsapp">WhatsApp <span style="font-weight:400;color:var(--ink-3)">(opcional)</span></label>
+        <div class="campo">
+          <label for="whatsapp">WhatsApp <span style="font-weight:400;color:var(--ink-3)">(opcional)</span></div>
           <input type="tel" id="whatsapp" placeholder="(00) 00000-0000">
         </label>
       </div>
 
-      <label class="campo">
-        <label for="email">E-mail de contato</label>
+      <div class="campo">
+        <label for="email">E-mail de contato</div>
         <input type="email" id="email" placeholder="contato@minhaloja.com.br" required>
         <span class="dica">
           Se for um e-mail <b>do próprio domínio</b>, ele já serve como prova de posse
           e você pula o passo 3.
         </span>
-        <span class="aviso-erro">Digite um e-mail válido.</span>
+        <span class="aviso-erro" role="alert">Digite um e-mail válido.</span>
       </label>
 
       <div class="divisor"></div>
@@ -233,7 +235,7 @@
           Declaro que represento esta empresa e que os dados são verdadeiros.
         </span>
       </label>
-      <span class="aviso-erro" id="erro-aceite" style="display:none;font-size:12.5px;color:#e0523f">
+      <span class="aviso-erro" role="alert" id="erro-aceite" style="display:none;font-size:12.5px;color:#e0523f">
         Precisa marcar para continuar.
       </span>
 
@@ -464,5 +466,6 @@
   });
 })();
 </script>
+<script src="assets/acessibilidade.js"></script>
 </body>
 </html>

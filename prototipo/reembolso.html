@@ -25,8 +25,10 @@
   .zap:hover{filter:brightness(1.06);transform:translateY(-1px)}
   .zap .bi{font-size:19px}
 </style>
+  <link href="assets/acessibilidade.css" rel="stylesheet">
 </head>
 <body>
+<a class="pular" href="#conteudo">Pular para o conteúdo</a>
 <div class="bg"></div>
 <div class="orbs" aria-hidden="true"><div class="orb orb--1"></div><div class="orb orb--2"></div></div>
 
@@ -53,7 +55,7 @@
     </div>
   </div>
 
-  <main class="doc-corpo folha">
+  <main class="doc-corpo folha" id="conteudo">
 
     <div class="nota-doc nota-doc--info">
       <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
@@ -234,5 +236,6 @@
     <span>© 2026 confia? — confiia.com.br</span>
   </div>
 </footer>
+<script src="assets/acessibilidade.js"></script>
 </body>
 </html>
