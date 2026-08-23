@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>confia? — Cadastre sua loja</title>
+<meta name="description" content="Loja nova sofre desconfiança justamente por ser nova. Cadastre seu CNPJ e prove que o site é seu — de graça.">
+<meta name="theme-color" content="#0b2443">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<link href="assets/base.css" rel="stylesheet">
+
+<!--
+  =============================================================
+  CADASTRO DE EMPRESA
+
+  Esta é a página mais delicada do produto inteiro, porque é
+  onde o selo nasce. Selo dado sem prova é pior que selo nenhum:
+  vira carimbo de confiança para quem não merece, e a culpa
+  passa a ser nossa.
+
+  Por isso a página inteira gira em torno de UMA ideia, dita sem
+  rodeio: CNPJ prova que a empresa existe; só a prova de posse
+  do domínio prova que este site é dela.
+
+  De onde vem: servidor/db/004_empresas.sql
+    - empresas.nivel          registrada | verificada | estabelecida | curadoria
+    - empresa_dominios.posse_confirmada_em   NULO = não vale selo
+    - gatilho tg_trava_selo (007) recusa selo sem posse, no banco
+
+  CUIDADO AO MEXER:
+    - Os 4 níveis descritos aqui são promessa ao usuário. Mudou o
+      texto, mude também o ENUM `nivel_empresa` e a função
+      `bonus_empresa()`. Prometer aqui o que o banco não faz é
+      propaganda enganosa.
+  =============================================================
+-->
+
+<style>
+  .corpo{width:var(--shell);margin:34px auto 0;display:grid;grid-template-columns:1fr 330px;gap:24px;align-items:start}
+  .lateral{display:grid;gap:14px;position:sticky;top:100px}
+  .bloco{padding:22px 22px 20px}
+  .bloco h2{margin:0 0 10px;font-size:15px;font-weight:600;color:#fff;display:flex;align-items:center;gap:9px}
+  .bloco h2 .bi{color:var(--sky-soft);font-size:17px}
+  .bloco p{margin:0;font-size:13px;line-height:1.65;color:var(--on-dark-3)}
+  .bloco p + p{margin-top:9px}
+  .bloco b{color:#fff}
+
+  .passos{display:flex;align-items:center;gap:10px;margin-bottom:24px;font-size:12.5px;color:var(--ink-3)}
+  .passos i{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;
+    background:var(--navy-800);color:#fff;font-style:normal;font-size:12px;font-weight:700}
+  .divisor{height:1px;background:var(--line);margin:26px 0}
+  .rodape-form{display:flex;gap:12px;margin-top:26px}
+  .rodape-form .btn--forte{flex:1}
+
+  /* escada dos níveis */
+  .escada{display:grid;gap:9px;margin:0}
+  .degrau{display:grid;grid-template-columns:auto 1fr;gap:11px;padding:12px 14px;border-radius:12px;
+    background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09)}
+  .degrau .bi{font-size:16px;line-height:1.35}
+  .degrau b{display:block;font-size:13px;color:#fff;margin-bottom:3px}
+  .degrau span{display:block;font-size:12px;line-height:1.55;color:var(--on-dark-3)}
+  .degrau--1 .bi{color:var(--on-dark-3)}
+  .degrau--2 .bi{color:var(--sky)}
+  .degrau--3 .bi{color:var(--safe)}
+  .degrau--4 .bi{color:var(--warn)}
+
+  /* o bloco da prova de posse */
+  .prova{
+    margin-top:22px;padding:20px 22px;border-radius:14px;
+    background:var(--sky-wash);border:1.5px solid rgba(77,159,255,.3);
+  }
+  .prova h3{margin:0 0 8px;font-size:15px;font-weight:600;color:var(--ink);
+    display:flex;align-items:center;gap:8px}
+  .prova h3 .bi{color:#2f7ff0}
+  .prova p{margin:0 0 14px;font-size:13.5px;line-height:1.7;color:var(--ink-2)}
+  .prova .codigo{
+    display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;
+    background:#fff;border:1px solid #cfe0f7;font-family:ui-monospace,Menlo,monospace;
+    font-size:13px;color:var(--navy-700);word-break:break-all;
+  }
+  .prova .codigo button{flex:none;border:none;border-radius:7px;cursor:pointer;padding:6px 10px;
+    background:var(--navy-800);color:#fff;font-family:inherit;font-size:11.5px;font-weight:600}
+  .prova .codigo button:hover{background:var(--navy-700)}
+  .prova ol{margin:14px 0 0;padding-left:20px;display:grid;gap:7px}
+  .prova li{font-size:13px;line-height:1.6;color:var(--ink-2)}
+  .prova li b{color:var(--ink)}
+
+  .resultado{display:none}
+  .resultado.aparece{display:block;animation:sobe .3s var(--ease)}
+  @keyframes sobe{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  @media (max-width:900px){
+    .corpo{grid-template-columns:1fr}
+    .lateral{position:static;order:-1}
+  }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="orbs" aria-hidden="true"><div class="orb orb--1"></div><div class="orb orb--2"></div></div>
+
+<header class="topbar">
+  <a class="brand" href="index.html" aria-label="confia? — início"><img src="assets/logo-confia.svg" alt="confia?"></a>
+  <nav class="nav" aria-label="Principal">
+    <a href="index.html">Confia?</a>
+    <a href="planos.html">Planos</a>
+    <a href="registrar-loja.html" aria-current="page">Registrar loja</a>
+    <a href="denunciar.html">Denunciar</a>
+  </nav>
+  <button class="account" type="button">
+    <span class="ring"><i class="bi bi-person-fill" aria-hidden="true"></i></span>
+    <span class="rotulo">Entrar</span>
+  </button>
+</header>
+
+<div class="capa">
+  <p class="eyebrow"><i class="bi bi-shop" aria-hidden="true"></i> Para lojas e prestadores</p>
+  <h1>Cadastre sua loja. De graça.</h1>
+  <p class="lead">
+    Loja nova sofre desconfiança justamente por ser nova — domínio recente e dados
+    do dono ocultos são exatamente os sinais que a gente aponta. Cadastrando, quem
+    verificar seu site vê que a empresa foi conferida por aqui, e não só os sinais
+    de alerta.
+  </p>
+</div>
+
+<div class="corpo">
+
+  <main class="folha">
+    <div class="passos">
+      <i>1</i> Dados da empresa
+      <span aria-hidden="true" style="color:var(--ink-3)">›</span>
+      <i>2</i> Onde ela atende
+      <span aria-hidden="true" style="color:var(--ink-3)">›</span>
+      <i>3</i> Provar que é sua
+    </div>
+
+    <form id="form" novalidate>
+
+      <h2 style="margin:0 0 4px;font-family:Poppins,sans-serif;font-size:18px;color:var(--ink)">
+        Dados da empresa
+      </h2>
+      <p style="margin:0 0 20px;font-size:13.5px;color:var(--ink-3)">
+        Conferimos o CNPJ direto na Receita Federal. Se estiver ativo, o cadastro é aceito.
+      </p>
+
+      <label class="campo">
+        <label for="cnpj">CNPJ</label>
+        <input type="text" id="cnpj" inputmode="numeric" placeholder="00.000.000/0000-00" required>
+        <span class="dica">MEI também vale. É de graça e sai no mesmo dia, pelo Portal do Empreendedor.</span>
+        <span class="aviso-erro">Digite os 14 números do CNPJ.</span>
+      </label>
+
+      <label class="campo">
+        <label for="fantasia">Nome que aparece para o cliente</label>
+        <input type="text" id="fantasia" placeholder="Kaza Verde Decorações" required>
+        <span class="dica">O nome pelo qual as pessoas conhecem a loja, não a razão social.</span>
+        <span class="aviso-erro">Diga o nome da loja.</span>
+      </label>
+
+      <label class="campo">
+        <label for="categoria">O que vocês fazem</label>
+        <select id="categoria" required>
+          <option value="">Escolha…</option>
+          <option>Moda e acessórios</option>
+          <option>Eletrônicos e informática</option>
+          <option>Casa e decoração</option>
+          <option>Alimentação</option>
+          <option>Serviços e assistência</option>
+          <option>Peças e automotivo</option>
+          <option>Saúde e beleza</option>
+          <option>Outro</option>
+        </select>
+        <span class="aviso-erro">Escolha uma categoria.</span>
+      </label>
+
+      <div class="divisor"></div>
+
+      <h2 style="margin:0 0 4px;font-family:Poppins,sans-serif;font-size:18px;color:var(--ink)">
+        Onde a loja atende
+      </h2>
+      <p style="margin:0 0 20px;font-size:13.5px;color:var(--ink-3)">
+        Cada endereço aqui passa a ser reconhecido como seu quando alguém verificar.
+        Coloque só o que é realmente da empresa.
+      </p>
+
+      <label class="campo">
+        <label for="site">Endereço do site</label>
+        <input type="text" id="site" placeholder="minhaloja.com.br" required>
+        <span class="dica">Só o endereço, sem <code>https://</code>. É neste que a prova do passo 3 é feita.</span>
+        <span class="aviso-erro">Diga o endereço do site.</span>
+      </label>
+
+      <div class="dupla">
+        <label class="campo">
+          <label for="instagram">Instagram <span style="font-weight:400;color:var(--ink-3)">(opcional)</span></label>
+          <input type="text" id="instagram" placeholder="@minhaloja">
+        </label>
+        <label class="campo">
+          <label for="whatsapp">WhatsApp <span style="font-weight:400;color:var(--ink-3)">(opcional)</span></label>
+          <input type="tel" id="whatsapp" placeholder="(00) 00000-0000">
+        </label>
+      </div>
+
+      <label class="campo">
+        <label for="email">E-mail de contato</label>
+        <input type="email" id="email" placeholder="contato@minhaloja.com.br" required>
+        <span class="dica">
+          Se for um e-mail <b>do próprio domínio</b>, ele já serve como prova de posse
+          e você pula o passo 3.
+        </span>
+        <span class="aviso-erro">Digite um e-mail válido.</span>
+      </label>
+
+      <div class="divisor"></div>
+
+      <div class="recado recado--info" style="margin-bottom:20px">
+        <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+        <p>
+          <b>O cadastro não custa nada e não vira assinatura.</b> Ele existe porque
+          separar loja honesta de loja falsa é bom para você e é bom para quem compra.
+          Você pode sair quando quiser, por e-mail, sem justificar.
+        </p>
+      </div>
+
+      <label class="opcao" style="display:block;margin-bottom:6px">
+        <input type="checkbox" id="aceite" required>
+        <span>
+          <i class="bi bi-check2-square" aria-hidden="true"></i>
+          Declaro que represento esta empresa e que os dados são verdadeiros.
+        </span>
+      </label>
+      <span class="aviso-erro" id="erro-aceite" style="display:none;font-size:12.5px;color:#e0523f">
+        Precisa marcar para continuar.
+      </span>
+
+      <div class="rodape-form">
+        <button class="btn btn--forte" type="submit">
+          <i class="bi bi-shield-check" aria-hidden="true"></i> Cadastrar loja
+        </button>
+        <a class="btn btn--calmo" href="index.html">Voltar</a>
+      </div>
+    </form>
+
+    <!-- ===============================================================
+         PASSO 3 — A PROVA DE POSSE
+
+         Aparece depois do envio. É o coração da página: sem isto,
+         qualquer pessoa cadastraria o site de qualquer empresa.
+         =============================================================== -->
+    <div class="resultado" id="resultado">
+      <div class="divisor"></div>
+
+      <div class="recado recado--ok" style="margin-bottom:4px">
+        <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+        <p><b>Cadastro recebido.</b> Sua loja já entrou como <b>Registrada</b>.
+        Falta um passo para o selo de <b>Verificada</b>.</p>
+      </div>
+
+      <div class="prova">
+        <h3><i class="bi bi-key" aria-hidden="true"></i> Prove que o site é seu</h3>
+        <p>
+          O CNPJ mostra que a empresa existe. Ele não mostra que <b>este site</b> é dela —
+          e golpista abre CNPJ. O que golpista não consegue é publicar um registro no DNS
+          do domínio da vítima. Por isso pedimos isto:
+        </p>
+
+        <div class="codigo">
+          <span id="codigo-posse">confia-verificacao=7f2a9c41e8b03d5a</span>
+          <button type="button" id="copiar">copiar</button>
+        </div>
+
+        <ol>
+          <li>Entre no painel onde seu domínio está registrado (Registro.br, Cloudflare, GoDaddy…).</li>
+          <li>Crie um registro do tipo <b>TXT</b> na raiz do domínio.</li>
+          <li>Cole o código acima no conteúdo e salve.</li>
+          <li>Volte aqui e clique em conferir. <b>A checagem é automática e roda de hora em hora.</b></li>
+        </ol>
+
+        <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
+          <button class="btn btn--forte" type="button" id="conferir">
+            <i class="bi bi-arrow-repeat" aria-hidden="true"></i> Conferir agora
+          </button>
+          <a class="btn btn--calmo" href="mailto:suporte@confiia.com.br?subject=Ajuda%20com%20a%20prova%20de%20posse">
+            Não sei fazer isso
+          </a>
+        </div>
+
+        <p style="margin:16px 0 0;font-size:12.5px;color:var(--ink-3)">
+          Sem essa prova sua loja continua como <b>Registrada</b> — o que já ajuda, mas
+          não recebe o selo. É de propósito: selo dado sem conferir não valeria nada
+          para quem confia nele.
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <!-- =============================================================
+       LATERAL
+       ============================================================= -->
+  <aside class="lateral">
+
+    <div class="bloco pane">
+      <h2><i class="bi bi-bar-chart-steps" aria-hidden="true"></i> Os quatro níveis</h2>
+      <div class="escada">
+        <div class="degrau degrau--1">
+          <i class="bi bi-file-earmark-check" aria-hidden="true"></i>
+          <span>
+            <b>Registrada</b>
+            <span>CNPJ ativo conferido na Receita. Sai na hora.</span>
+          </span>
+        </div>
+        <div class="degrau degrau--2">
+          <i class="bi bi-patch-check-fill" aria-hidden="true"></i>
+          <span>
+            <b>Verificada</b>
+            <span>Você provou que o site é seu. É o selo que aparece para o cliente.</span>
+          </span>
+        </div>
+        <div class="degrau degrau--3">
+          <i class="bi bi-award-fill" aria-hidden="true"></i>
+          <span>
+            <b>Estabelecida</b>
+            <span>Mais de um ano de casa e nenhuma denúncia confirmada.</span>
+          </span>
+        </div>
+        <div class="degrau degrau--4">
+          <i class="bi bi-star-fill" aria-hidden="true"></i>
+          <span>
+            <b>Curadoria</b>
+            <span>Conferimos uma a uma, à mão. Poucas chegam aqui.</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bloco pane">
+      <h2><i class="bi bi-exclamation-diamond" aria-hidden="true"></i> O que o selo <em>não</em> diz</h2>
+      <p>
+        Que a empresa <b>é quem diz ser</b> — só isso, e é bastante.
+      </p>
+      <p>
+        Ele não diz que o produto é bom, que a entrega é rápida nem que você vai
+        gostar do atendimento. Não somos avaliação de compra.
+      </p>
+      <p>
+        E não é para sempre: <b>3 denúncias confirmadas em 90 dias derrubam o selo
+        sozinhas</b>, sem ninguém precisar decidir.
+      </p>
+    </div>
+
+    <div class="bloco pane">
+      <h2><i class="bi bi-chat-left-quote" aria-hidden="true"></i> Já apareceu com sinal ruim?</h2>
+      <p>
+        Se sua loja já foi verificada por alguém e o resultado te prejudicou, você pode
+        contestar. A gente reanalisa e responde <b>em até 7 dias</b>.
+      </p>
+      <p>
+        Não apagamos relato de consumidor sem prova de que é falso — mas publicamos a
+        sua versão junto. As duas ficam visíveis.
+      </p>
+      <p style="margin-top:12px">
+        <a href="index.html#politicas" style="color:var(--sky-soft);font-size:13px">
+          Como funciona a contestação <i class="bi bi-arrow-right" aria-hidden="true"></i>
+        </a>
+      </p>
+    </div>
+  </aside>
+</div>
+
+<footer>
+  <div class="foot">
+    <img src="assets/logo-confia.svg" alt="confia?">
+    <div class="links">
+      <a href="privacidade.html">Privacidade</a>
+      <a href="termos.html">Termos</a>
+      <a href="denunciar.html">Denunciar</a>
+      <a href="https://www.instagram.com/confia.iia/" target="_blank" rel="noopener noreferrer">
+        <i class="bi bi-instagram" aria-hidden="true"></i> Instagram
+      </a>
+      <a href="https://www.facebook.com/profile.php?id=100081737570267" target="_blank" rel="noopener noreferrer">
+        <i class="bi bi-facebook" aria-hidden="true"></i> Facebook
+      </a>
+    </div>
+    <span>© 2026 confia? — confiia.com.br</span>
+  </div>
+</footer>
+
+<script>
+/* =============================================================
+   Protótipo: valida os campos e mostra o passo da prova de posse.
+   Nada é enviado — a gravação entra na Etapa 6 do PLANO.md.
+   ============================================================= */
+(function () {
+  var form = document.getElementById('form');
+  var resultado = document.getElementById('resultado');
+
+  function campoDe(el) { return el.closest('.campo'); }
+
+  function critica(el, ok) {
+    var c = campoDe(el);
+    if (c) c.classList.toggle('erro', !ok);
+    return ok;
+  }
+
+  /* Máscara do CNPJ. Só enfeite: quem valida de verdade é a Receita. */
+  var cnpj = document.getElementById('cnpj');
+  cnpj.addEventListener('input', function () {
+    var n = cnpj.value.replace(/\D/g, '').slice(0, 14);
+    cnpj.value = n
+      .replace(/^(\d{2})(\d)/, '$1.$2')
+      .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+      .replace(/\.(\d{3})(\d)/, '.$1/$2')
+      .replace(/(\d{4})(\d)/, '$1-$2');
+  });
+
+  form.addEventListener('submit', function (ev) {
+    ev.preventDefault();
+
+    var ok = true;
+    ok = critica(cnpj, cnpj.value.replace(/\D/g, '').length === 14) && ok;
+    ok = critica(document.getElementById('fantasia'), document.getElementById('fantasia').value.trim().length > 1) && ok;
+    ok = critica(document.getElementById('categoria'), document.getElementById('categoria').value !== '') && ok;
+    ok = critica(document.getElementById('site'), document.getElementById('site').value.trim().length > 3) && ok;
+    ok = critica(document.getElementById('email'), /.+@.+\..+/.test(document.getElementById('email').value)) && ok;
+
+    var aceite = document.getElementById('aceite');
+    document.getElementById('erro-aceite').style.display = aceite.checked ? 'none' : 'block';
+    if (!aceite.checked) ok = false;
+
+    if (!ok) {
+      var primeiro = form.querySelector('.campo.erro input, .campo.erro select');
+      if (primeiro) primeiro.focus();
+      return;
+    }
+
+    /* Código de posse: no sistema de verdade ele nasce no servidor,
+       guardado em empresa_dominios.codigo_posse. Aqui é só amostra. */
+    resultado.classList.add('aparece');
+    resultado.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  document.getElementById('copiar').addEventListener('click', function () {
+    var txt = document.getElementById('codigo-posse').textContent;
+    var botao = this;
+    navigator.clipboard.writeText(txt).then(function () {
+      botao.textContent = 'copiado';
+      setTimeout(function () { botao.textContent = 'copiar'; }, 1800);
+    });
+  });
+
+  document.getElementById('conferir').addEventListener('click', function () {
+    var b = this;
+    b.setAttribute('data-carregando', '');
+    setTimeout(function () {
+      b.removeAttribute('data-carregando');
+      b.insertAdjacentHTML('afterend',
+        '<span style="margin-left:12px;font-size:13px;color:#6b5a10">' +
+        'Ainda não achei o registro. O DNS costuma demorar alguns minutos.</span>');
+    }, 1400);
+  });
+})();
+</script>
+</body>
+</html>
