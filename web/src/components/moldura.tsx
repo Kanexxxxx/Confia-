@@ -2,19 +2,31 @@
    confiia.com.br — cabeçalho e rodapé
 
    No protótipo, cada uma das dez páginas trazia a sua cópia
-   destes dois blocos. Isso significa que mudar um link do menu
-   era mudar dez arquivos — e esquecer um.
+   destes dois blocos. Mudar um link do menu era mudar dez
+   arquivos — e esquecer um. Aqui é um lugar só.
 
-   Aqui é um lugar só.
+   ─────────────────────────────────────────────────────────────
+   O CABEÇALHO DE VIDRO É O PADRÃO AGORA
+
+   No protótipo ele existia só na home e em planos; as páginas
+   legais usavam uma versão simples. Isso era inconsistência de
+   quem escreveu, não decisão de design — o vidro é a assinatura
+   da marca e agora vale em todo lugar.
+
+   As camadas (.lg-refract, .lg-tint, .lg-shine) são o efeito.
+   O filtro SVG que elas usam mora no layout, definido uma vez.
+   ─────────────────────────────────────────────────────────────
 
    O CABEÇALHO SABE QUEM ESTÁ LOGADO: mostra "Entrar" para quem
    não está, e o bicho escolhido + o apelido para quem está. Por
-   isso ele é componente de servidor: a sessão nunca chega ao
+   isso é componente de servidor: a sessão nunca chega ao
    navegador.
 
    CUIDADO AO MEXER:
-     - Os endereços aqui são os de verdade (`/termos`), não os do
-       protótipo (`termos.html`).
+     - O deslocamento do filtro é proporcional à ALTURA do
+       elemento. O da pílula do menu (52px) usa escala 10; o do
+       card grande usa 30. Trocar sem recalcular deixa borda
+       fantasma — já aconteceu.
    ============================================================= */
 
 import Link from 'next/link';
@@ -23,9 +35,33 @@ import { db } from '@/db';
 import { contas } from '@/db/schema';
 import { sessaoAtual } from '@/lib/sessao';
 import { Avatar } from '@/components/avatar';
+import { MenuVivo } from '@/components/menu-vivo';
+import {
+  CIDADE_LONGA, ANO_FUNDACAO, EMAIL_CONTATO, WHATSAPP_LINK, WHATSAPP_VISIVEL,
+} from '@/lib/contato';
 
+/* O MENU, E POR QUE ELE TEM ESTES CINCO ITENS
+
+   "Como funciona" aponta para uma âncora da home (/#como) e não
+   para uma página. Isso é de propósito: funciona de qualquer
+   lugar do site, e a explicação não merece uma página só dela —
+   ela precisa estar perto de quem acabou de chegar.
+
+   E ela ENTRA na lista, apesar de ser a única âncora, porque boa
+   parte de quem mais precisa deste site nunca usou um serviço
+   assim. Um menu só com "Planos / Registrar loja / Denunciar"
+   assume que a pessoa já entendeu o que a gente faz. Ela não
+   entendeu — e é por isso que ela está aqui.
+
+   CUIDADO AO MEXER:
+     - Mexer aqui muda o cabeçalho de TODAS as páginas.
+     - Item novo precisa de rota que exista: link morto no menu
+       principal aparece em todo lugar de uma vez.
+     - O indicador que desliza (menu-vivo.tsx) mede os itens no
+       navegador, então não precisa de ajuste ao acrescentar um. */
 const MENU = [
   { href: '/', texto: 'Confia?' },
+  { href: '/#como', texto: 'Como funciona' },
   { href: '/planos', texto: 'Planos' },
   { href: '/registrar-loja', texto: 'Registrar loja' },
   { href: '/denunciar', texto: 'Denunciar' },
@@ -49,33 +85,28 @@ export async function Cabecalho({ atual }: { atual?: string }) {
   }
 
   return (
-    <header className="topbar">
+    <header className="topbar" id="topbar">
+      {/* desfoque em camadas: some suave em vez de cortar reto */}
+      <div className="haze" aria-hidden="true">
+        <span /><span /><span /><span /><span /><span />
+      </div>
+
       <Link className="brand" href="/" aria-label="confia? — início">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/assets/logo-confia.svg" alt="confia?" />
       </Link>
 
-      <nav className="nav" aria-label="Principal">
-        {MENU.map((m) => (
-          <Link
-            key={m.href}
-            href={m.href}
-            aria-current={atual === m.href ? 'page' : undefined}
-          >
-            {m.texto}
-          </Link>
-        ))}
-      </nav>
+      <MenuVivo itens={MENU as unknown as { href: string; texto: string }[]} atual={atual} />
 
       {quem ? (
         <Link className="account" href="/conta">
           <Avatar nome={quem.nome} avatar={avatar} tamanho={36} />
-          <span className="rotulo">{apelido}</span>
+          <span className="label rotulo">{apelido}</span>
         </Link>
       ) : (
         <Link className="account" href="/entrar">
           <span className="ring"><i className="bi bi-person-fill" aria-hidden="true" /></span>
-          <span className="rotulo">Entrar</span>
+          <span className="label rotulo">Entrar</span>
         </Link>
       )}
     </header>
@@ -107,7 +138,30 @@ export function Rodape() {
             <i className="bi bi-facebook" aria-hidden="true" /> Facebook
           </a>
         </div>
-        <span>© 2026 confia? — confiia.com.br</span>
+        {/* A ASSINATURA DO RODAPÉ.
+
+            Cidade e ano de fundação vêm de src/lib/contato.ts, e não
+            escritos aqui: os mesmos dados aparecem nos documentos
+            legais, e dois lugares divergindo sobre onde a empresa
+            fica é o tipo de detalhe que derruba a confiança.
+
+            NÃO tem endereço completo, e é de propósito: enquanto não
+            houver CNPJ, o endereço seria o residencial de uma pessoa
+            física. */}
+        <div className="foot-assina">
+          <span>© {ANO_FUNDACAO} confia? — confiia.com.br</span>
+          <span className="foot-onde">
+            <i className="bi bi-geo-alt" aria-hidden="true" /> Feito em {CIDADE_LONGA}
+            {' · '}desde {ANO_FUNDACAO}
+          </span>
+          <span className="foot-onde">
+            <a href={`mailto:${EMAIL_CONTATO}`}>{EMAIL_CONTATO}</a>
+            {' · '}
+            <a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer">
+              <i className="bi bi-whatsapp" aria-hidden="true" /> {WHATSAPP_VISIVEL}
+            </a>
+          </span>
+        </div>
       </div>
     </footer>
   );
