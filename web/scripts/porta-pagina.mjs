@@ -93,13 +93,27 @@ jsx = jsx.replace(/style="([^"]*)"/g, (_, css) => {
   const pares = css.split(';').map((p) => p.trim()).filter(Boolean).map((p) => {
     const i = p.indexOf(':');
     if (i === -1) return null;
-    const prop = p.slice(0, i).trim().replace(/-([a-z])/g, (_m, c) => c.toUpperCase());
+    const bruta = p.slice(0, i).trim();
     const valor = p.slice(i + 1).trim();
-    /* variável CSS (--x) mantém o nome e precisa de aspas na chave */
-    const chave = prop.startsWith('--') ? `'${prop}'` : prop;
+
+    /* VARIÁVEL CSS (--x) NÃO VIRA camelCase.
+       Testar isto ANTES da conversão é obrigatório: `--d` passado
+       pelo camelCase vira `-D`, porque a regra `-([a-z])` casa com
+       o SEGUNDO traço. O JSX então recebe `{ -D: '.02s' }`, que
+       nem é sintaxe válida. Aconteceu na home. */
+    const chave = bruta.startsWith('--')
+      ? `'${bruta}'`
+      : bruta.replace(/-([a-z])/g, (_m, c) => c.toUpperCase());
     return `${chave}: '${valor.replace(/'/g, "\\'")}'`;
   }).filter(Boolean);
-  return `style={{ ${pares.join(', ')} }}`;
+  const corpo = pares.join(', ');
+
+  /* O tipo CSSProperties do React não conhece variável CSS (--x).
+     Sem a afirmação de tipo, o TypeScript recusa — mesmo o valor
+     funcionando no navegador. */
+  return corpo.includes("'--")
+    ? `style={{ ${corpo} } as React.CSSProperties}`
+    : `style={{ ${corpo} }}`;
 });
 
 /* ---------- 6. tags que se fecham sozinhas ---------- */
@@ -121,6 +135,19 @@ for (const [e, c] of Object.entries(entidades)) jsx = jsx.split(e).join(c);
 /* aspas ficam como entidade JSX para o ESLint não reclamar */
 jsx = jsx.replace(/&quot;/g, '{"\\""}');
 
+/* ---------- 7c. aspas retas viram aspas de verdade ----------
+   O ESLint recusa " solto dentro de texto JSX (react/no-unescaped-
+   entities), e ele tem razão pelo motivo errado: o problema real é
+   tipográfico. Texto em português usa “aspas curvas”. O protótipo
+   foi escrito com a aspa reta do teclado.
+   Só converte PARES dentro de texto — atributo não é tocado, porque
+   este passo roda depois de style/className já estarem resolvidos. */
+jsx = jsx.replace(/>([^<]*)</g, (m, texto) => {
+  if (!texto.includes('"')) return m;
+  let n = 0;
+  return '>' + texto.replace(/"/g, () => (n++ % 2 === 0 ? '“' : '”')) + '<';
+});
+
 /* ---------- 7b. <table> sem <tbody> ----------
    O navegador INSERE <tbody> ao ler o HTML do servidor. O React
    não insere. Resultado: a árvore do servidor e a do cliente
@@ -137,6 +164,60 @@ jsx = jsx.replace(/>([^<]*)</g, (m, texto) => {
   if (texto.includes('{/*') || texto.includes('{"')) return m;
   return '>' + texto.replace(/([{}])/g, '{\'$1\'}') + '<';
 });
+
+/* ---------- 8b. tira o que agora vem de moldura.tsx ----------
+   Cabeçalho, rodapé, fundo decorativo e link de pular existem uma
+   vez só, no layout. Note o `[^>]*` no <header>: a home usa
+   `<header class="topbar" id="topbar">`, e um recorte que exigisse
+   `>` logo depois de "topbar" deixaria passar. Deixou. */
+/* CUIDADO: estes literais NÃO podem ter quebra de linha de verdade
+   dentro deles. Uma edição anterior transformou os `\n` escritos em
+   quebras reais e o arquivo inteiro parou de carregar, com
+   "Invalid regular expression: missing /" — que não diz nada sobre
+   a causa. Se precisar de fim de linha aqui, escreva `\n`. */
+const RECORTES = [
+  /\s*<header className="topbar"[^>]*>[\s\S]*?<\/header>\n?/g,
+  /\s*<footer[^>]*>[\s\S]*?<\/footer>\n?/g,
+  /\s*<div className="bg"><\/div>\n?/g,
+  /\s*<div className="orbs"[\s\S]*?<\/div>\n?/g,
+  /\s*<div className="grain"><\/div>\n?/g,
+  /\s*<a className="pular"[\s\S]*?<\/a>\n?/g,
+  /\s*<a className="skip"[\s\S]*?<\/a>\n?/g,
+];
+for (const r of RECORTES) jsx = jsx.replace(r, '\n');
+
+/* endereços do protótipo → rotas de verdade */
+const ROTAS = [
+  ['href="index.html#politicas"', 'href="/#politicas"'],
+  ['href="index.html"', 'href="/"'],
+  ['href="privacidade.html"', 'href="/privacidade"'],
+  ['href="termos.html"', 'href="/termos"'],
+  ['href="reembolso.html"', 'href="/reembolso"'],
+  ['href="cookies.html"', 'href="/cookies"'],
+  ['href="denunciar.html"', 'href="/denunciar"'],
+  ['href="planos.html"', 'href="/planos"'],
+  ['href="registrar-loja.html"', 'href="/registrar-loja"'],
+  ['href="resultado.html"', 'href="/resultado"'],
+  ['src="assets/', 'src="/assets/'],
+  ['spellcheck=', 'spellCheck='],
+];
+for (const [de, para] of ROTAS) jsx = jsx.split(de).join(para);
+
+/* ---------- 8d. as @media do protótipo ----------
+   AVISO IMPORTANTE. O CSS extraído vai para um .css separado, mas
+   quem funde no globals costuma pular regras que começam com `@`
+   para não duplicar media query. Foi assim que /denunciar e
+   /registrar-loja perderam o colapso para uma coluna e abriram
+   com duas colunas espremidas num celular.
+
+   Este aviso existe para a próxima pessoa não repetir. */
+const midias = [...(estilos.join('\n').match(/@media[^{]*\{/g) ?? [])];
+if (midias.length) {
+  avisos.push(
+    `${midias.length} @media no CSS — NÃO os esqueça ao fundir no globals ` +
+    `(é onde mora o responsivo)`,
+  );
+}
 
 /* ---------- 9. monta o arquivo ---------- */
 const saidaDir = join('src', 'app', '_portado');

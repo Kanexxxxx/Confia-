@@ -271,45 +271,6 @@ export const cacheDominio = pgTable("cache_dominio", {
 	index("idx_cache_expira").using("btree", table.expiraEm.asc().nullsLast().op("timestamptz_ops")),
 ]);
 
-export const denuncias = pgTable("denuncias", {
-	id: uuid().defaultRandom().primaryKey().notNull(),
-	contaId: uuid("conta_id"),
-	alvo: text().notNull(),
-	categoria: text().notNull(),
-	relato: text(),
-	prejuizoCent: integer("prejuizo_cent"),
-	status: statusDenuncia().default('nova').notNull(),
-	analisadaPor: uuid("analisada_por"),
-	analisadaEm: timestamp("analisada_em", { withTimezone: true, mode: 'date' }),
-	criadaEm: timestamp("criada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
-	golpeNovo: boolean("golpe_novo").default(false).notNull(),
-	descricaoNovo: text("descricao_novo"),
-	golpeId: uuid("golpe_id"),
-	boAnexado: boolean("bo_anexado").default(false).notNull(),
-	codigo: text(),
-}, (table) => [
-	index("idx_denuncias_alvo").using("btree", table.alvo.asc().nullsLast().op("text_ops")),
-	index("idx_denuncias_codigo").using("btree", table.codigo.asc().nullsLast().op("text_ops")),
-	index("idx_denuncias_novo").using("btree", table.criadaEm.desc().nullsFirst().op("timestamptz_ops")).where(sql`(golpe_novo AND (status = ANY (ARRAY['nova'::status_denuncia, 'em_analise'::status_denuncia])))`),
-	index("idx_denuncias_status").using("btree", table.status.asc().nullsLast().op("enum_ops"), table.criadaEm.desc().nullsFirst().op("enum_ops")),
-	foreignKey({
-			columns: [table.analisadaPor],
-			foreignColumns: [contas.id],
-			name: "denuncias_analisada_por_fkey"
-		}),
-	foreignKey({
-			columns: [table.contaId],
-			foreignColumns: [contas.id],
-			name: "denuncias_conta_id_fkey"
-		}).onDelete("set null"),
-	foreignKey({
-			columns: [table.golpeId],
-			foreignColumns: [golpesConhecidos.id],
-			name: "fk_denuncia_golpe"
-		}).onDelete("set null"),
-	unique("denuncias_codigo_key").on(table.codigo),
-]);
-
 export const monitoramentos = pgTable("monitoramentos", {
 	id: uuid().defaultRandom().primaryKey().notNull(),
 	contaId: uuid("conta_id").notNull(),
@@ -984,6 +945,53 @@ export const codigosReserva = pgTable("codigos_reserva", {
 			foreignColumns: [contas.id],
 			name: "codigos_reserva_conta_id_fkey"
 		}).onDelete("cascade"),
+]);
+
+export const denuncias = pgTable("denuncias", {
+	id: uuid().defaultRandom().primaryKey().notNull(),
+	contaId: uuid("conta_id"),
+	alvo: text().notNull(),
+	categoria: text().notNull(),
+	relato: text(),
+	prejuizoCent: integer("prejuizo_cent"),
+	status: statusDenuncia().default('nova').notNull(),
+	analisadaPor: uuid("analisada_por"),
+	analisadaEm: timestamp("analisada_em", { withTimezone: true, mode: 'date' }),
+	criadaEm: timestamp("criada_em", { withTimezone: true, mode: 'date' }).defaultNow().notNull(),
+	golpeNovo: boolean("golpe_novo").default(false).notNull(),
+	descricaoNovo: text("descricao_novo"),
+	golpeId: uuid("golpe_id"),
+	boAnexado: boolean("bo_anexado").default(false).notNull(),
+	codigo: text(),
+	sePassou: text("se_passou"),
+	ocorridoEm: date("ocorrido_em"),
+	// TODO: failed to parse database type 'citext'
+	emailAviso: citext("email_aviso"),
+	visibilidade: text().default('anonima').notNull(),
+}, (table) => [
+	index("idx_denuncias_alvo").using("btree", table.alvo.asc().nullsLast().op("text_ops")),
+	index("idx_denuncias_codigo").using("btree", table.codigo.asc().nullsLast().op("text_ops")),
+	index("idx_denuncias_novo").using("btree", table.criadaEm.desc().nullsFirst().op("timestamptz_ops")).where(sql`(golpe_novo AND (status = ANY (ARRAY['nova'::status_denuncia, 'em_analise'::status_denuncia])))`),
+	index("idx_denuncias_se_passou").using("btree", sql`lower(se_passou)`, sql`criada_em`).where(sql`(se_passou IS NOT NULL)`),
+	index("idx_denuncias_status").using("btree", table.status.asc().nullsLast().op("enum_ops"), table.criadaEm.desc().nullsFirst().op("timestamptz_ops")),
+	foreignKey({
+			columns: [table.analisadaPor],
+			foreignColumns: [contas.id],
+			name: "denuncias_analisada_por_fkey"
+		}),
+	foreignKey({
+			columns: [table.contaId],
+			foreignColumns: [contas.id],
+			name: "denuncias_conta_id_fkey"
+		}).onDelete("set null"),
+	foreignKey({
+			columns: [table.golpeId],
+			foreignColumns: [golpesConhecidos.id],
+			name: "fk_denuncia_golpe"
+		}).onDelete("set null"),
+	unique("denuncias_codigo_key").on(table.codigo),
+	check("denuncias_ocorrido_no_passado", sql`(ocorrido_em IS NULL) OR (ocorrido_em <= CURRENT_DATE)`),
+	check("denuncias_visibilidade_valida", sql`visibilidade = ANY (ARRAY['anonima'::text, 'apelido'::text])`),
 ]);
 
 export const usoMensal = pgTable("uso_mensal", {

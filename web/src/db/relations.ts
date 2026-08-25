@@ -2,7 +2,7 @@
    Descreve como as tabelas se ligam, para consulta com join. */
 
 import { relations } from "drizzle-orm/relations";
-import { contas, sessoes, tokens, assinaturas, pagamentos, membros, verificacoes, verificacaoItens, denuncias, golpesConhecidos, monitoramentos, apiChaves, webhooks, tickets, ticketMensagens, emails, pedidosLgpd, campanhasGolpe, telefones, auditoria, logsExternos, empresas, alvos, alvoHistorico, empresaDocumentos, contestacoes, empresaEventos, contestacaoAnexos, telefoneRelatos, admins, empresaDominios, contestacaoMensagens, imagens, denunciaProvas, planos, codigosReserva, usoMensal } from "./schema";
+import { contas, sessoes, tokens, assinaturas, pagamentos, membros, verificacoes, verificacaoItens, monitoramentos, apiChaves, webhooks, tickets, ticketMensagens, emails, pedidosLgpd, campanhasGolpe, telefones, auditoria, logsExternos, empresas, alvos, alvoHistorico, empresaDocumentos, contestacoes, empresaEventos, contestacaoAnexos, telefoneRelatos, admins, empresaDominios, contestacaoMensagens, imagens, denuncias, denunciaProvas, planos, codigosReserva, golpesConhecidos, usoMensal } from "./schema";
 
 export const sessoesRelations = relations(sessoes, ({one}) => ({
 	conta: one(contas, {
@@ -25,12 +25,6 @@ export const contasRelations = relations(contas, ({many}) => ({
 	}),
 	verificacoes_revisadoPor: many(verificacoes, {
 		relationName: "verificacoes_revisadoPor_contas_id"
-	}),
-	denuncias_analisadaPor: many(denuncias, {
-		relationName: "denuncias_analisadaPor_contas_id"
-	}),
-	denuncias_contaId: many(denuncias, {
-		relationName: "denuncias_contaId_contas_id"
 	}),
 	monitoramentos: many(monitoramentos),
 	apiChaves: many(apiChaves),
@@ -59,6 +53,12 @@ export const contasRelations = relations(contas, ({many}) => ({
 	contestacaoMensagens: many(contestacaoMensagens),
 	assinaturas: many(assinaturas),
 	codigosReservas: many(codigosReserva),
+	denuncias_analisadaPor: many(denuncias, {
+		relationName: "denuncias_analisadaPor_contas_id"
+	}),
+	denuncias_contaId: many(denuncias, {
+		relationName: "denuncias_contaId_contas_id"
+	}),
 	usoMensals: many(usoMensal),
 }));
 
@@ -123,28 +123,6 @@ export const verificacaoItensRelations = relations(verificacaoItens, ({one}) => 
 		fields: [verificacaoItens.verificacaoId],
 		references: [verificacoes.id]
 	}),
-}));
-
-export const denunciasRelations = relations(denuncias, ({one, many}) => ({
-	conta_analisadaPor: one(contas, {
-		fields: [denuncias.analisadaPor],
-		references: [contas.id],
-		relationName: "denuncias_analisadaPor_contas_id"
-	}),
-	conta_contaId: one(contas, {
-		fields: [denuncias.contaId],
-		references: [contas.id],
-		relationName: "denuncias_contaId_contas_id"
-	}),
-	golpesConhecido: one(golpesConhecidos, {
-		fields: [denuncias.golpeId],
-		references: [golpesConhecidos.id]
-	}),
-	denunciaProvas: many(denunciaProvas),
-}));
-
-export const golpesConhecidosRelations = relations(golpesConhecidos, ({many}) => ({
-	denuncias: many(denuncias),
 }));
 
 export const monitoramentosRelations = relations(monitoramentos, ({one}) => ({
@@ -362,6 +340,24 @@ export const denunciaProvasRelations = relations(denunciaProvas, ({one}) => ({
 	}),
 }));
 
+export const denunciasRelations = relations(denuncias, ({one, many}) => ({
+	denunciaProvas: many(denunciaProvas),
+	conta_analisadaPor: one(contas, {
+		fields: [denuncias.analisadaPor],
+		references: [contas.id],
+		relationName: "denuncias_analisadaPor_contas_id"
+	}),
+	conta_contaId: one(contas, {
+		fields: [denuncias.contaId],
+		references: [contas.id],
+		relationName: "denuncias_contaId_contas_id"
+	}),
+	golpesConhecido: one(golpesConhecidos, {
+		fields: [denuncias.golpeId],
+		references: [golpesConhecidos.id]
+	}),
+}));
+
 export const planosRelations = relations(planos, ({many}) => ({
 	assinaturas: many(assinaturas),
 }));
@@ -371,6 +367,10 @@ export const codigosReservaRelations = relations(codigosReserva, ({one}) => ({
 		fields: [codigosReserva.contaId],
 		references: [contas.id]
 	}),
+}));
+
+export const golpesConhecidosRelations = relations(golpesConhecidos, ({many}) => ({
+	denuncias: many(denuncias),
 }));
 
 export const usoMensalRelations = relations(usoMensal, ({one}) => ({
