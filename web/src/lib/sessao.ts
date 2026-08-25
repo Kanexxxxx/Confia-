@@ -111,8 +111,39 @@ export type Logado = {
 };
 
 /** Quem está logado agora, ou null. Pode ser chamada de qualquer
- *  lugar do servidor. Não escreve cookie. */
+ *  lugar do servidor. Não escreve cookie.
+ *
+ *  ────────────────────────────────────────────────────────────
+ *  SE O BANCO CAIR, ELA DEVOLVE `null` — NÃO DERRUBA A PÁGINA
+ *
+ *  O cabeçalho do site chama esta função em TODAS as páginas,
+ *  inclusive nas públicas. Antes, uma falha de conexão com o
+ *  banco subia como exceção e a home, os planos e os documentos
+ *  legais respondiam 500 — páginas que nem precisam de conta.
+ *
+ *  Agora a falha vira `null`, que significa "ninguém logado". O
+ *  site continua de pé mostrando "Entrar", e quem estava logado
+ *  vê o cabeçalho de visitante até o banco voltar. Degradado,
+ *  mas no ar.
+ *
+ *  ISTO NUNCA CONCEDE ACESSO. `null` é a resposta mais restritiva
+ *  possível: `exigeLogin()` manda para a tela de entrar e
+ *  `exigeAdmin()` devolve 404. Falhar para o lado seguro é o que
+ *  torna esta escolha aceitável — se o erro pudesse virar "sim",
+ *  não daria para fazer isso.
+ *  ──────────────────────────────────────────────────────────── */
 export async function sessaoAtual(): Promise<Logado | null> {
+  try {
+    return await leSessao();
+  } catch (e) {
+    /* Sem `console.error` a falha some e ninguém descobre por que
+       o site "esqueceu" que a pessoa estava logada. */
+    console.error('[sessao] banco indisponível ao ler a sessão:', e);
+    return null;
+  }
+}
+
+async function leSessao(): Promise<Logado | null> {
   const caixa = await cookies();
   const token = caixa.get(NOME_COOKIE)?.value;
   if (!token) return null;
