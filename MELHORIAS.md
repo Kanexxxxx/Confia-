@@ -84,7 +84,10 @@ e eu não vou dizer que existe.
       para acompanhar, limite de 5 por hora por IP (senão dá para derrubar a nota de
       um concorrente honesto), e anônima por padrão. Migração `014` acrescentou as
       quatro colunas que faltavam.
-- [ ] `/resultado`
+- [x] `/resultado` — a tela de veredito, como DEMONSTRAÇÃO. Faixa vermelha fixa no
+      topo dizendo que os endereços são inventados, `noindex`, e três exemplos para
+      trocar. Ela existe para o desenho estar resolvido antes do motor chegar, e
+      para dar para mostrar numa apresentação sem mentir sobre o que existe.
 - [ ] Histórico de consultas
 
 ## E · Documentos legais

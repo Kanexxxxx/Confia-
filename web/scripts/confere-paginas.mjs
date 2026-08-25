@@ -35,6 +35,9 @@ const PAGINAS = [
   '/', '/planos', '/denunciar', '/registrar-loja',
   '/termos', '/privacidade', '/cookies', '/reembolso',
   '/entrar', '/criar-conta', '/esqueci-senha',
+  /* Demonstração, e fora do Google de propósito — mas o HTML dela
+     tem que passar pelas mesmas conferências. */
+  '/resultado',
 ];
 
 const achados = [];
