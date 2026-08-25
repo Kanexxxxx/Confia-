@@ -1,135 +1,162 @@
 /* =============================================================
-   confiia.com.br — a conta da pessoa
+   confiia.com.br — visão geral da conta
 
-   Primeira tela de quem entrou. Por enquanto mostra os dados e os
-   aparelhos conectados; ganha histórico de consultas e cobrança
-   nas Etapas 6 e 9.
+   A porta de entrada do painel. NÃO repete o conteúdo das outras
+   abas: mostra só o que precisa de atenção agora e o resumo de
+   uso. Quem quer detalhe clica na aba.
 
-   O QUE JÁ IMPORTA AQUI:
-   A lista de aparelhos conectados não é enfeite. É como a pessoa
-   descobre que alguém entrou na conta dela — e como ela expulsa
-   essa pessoa sem depender da gente.
+   A regra que guia esta página: se um cartão daqui não leva a
+   uma decisão ou a uma ação, ele não deveria estar aqui.
    ============================================================= */
 
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { eq } from 'drizzle-orm';
+import { db } from '@/db';
+import { contas } from '@/db/schema';
 import { sessaoAtual, aparelhosConectados } from '@/lib/sessao';
-import { sair } from '@/lib/acoes-conta';
 
 export const metadata: Metadata = { title: 'Minha conta' };
 export const dynamic = 'force-dynamic';
 
-function quando(d: Date) {
-  return new Intl.DateTimeFormat('pt-BR', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  }).format(d);
-}
-
-export default async function Conta() {
+export default async function VisaoGeral() {
   const quem = await sessaoAtual();
   if (!quem) redirect('/entrar?destino=/conta');
 
+  const [perfil] = await db
+    .select({
+      totpAtivadoEm: contas.totpAtivadoEm,
+      telefone: contas.telefone,
+      criadaEm: contas.criadaEm,
+    })
+    .from(contas)
+    .where(eq(contas.id, quem.id))
+    .limit(1);
+
   const aparelhos = await aparelhosConectados(quem.id);
 
+  /* PENDÊNCIAS — só entram aqui as que a pessoa RESOLVE hoje.
+     Aviso que ela não pode resolver vira ruído, e depois de duas
+     visitas ela para de ler o painel inteiro. */
+  const pendencias: { texto: string; onde: string; acao: string; grave: boolean }[] = [];
+
+  if (!quem.emailVerificado) {
+    pendencias.push({
+      texto: 'Seu e-mail ainda não foi confirmado. Sem isso não dá para recuperar a senha.',
+      onde: '/conta/perfil',
+      acao: 'Confirmar e-mail',
+      grave: true,
+    });
+  }
+  if (!perfil?.totpAtivadoEm) {
+    pendencias.push({
+      texto: 'O segundo fator está desligado. É o que impede alguém de entrar só com a sua senha.',
+      onde: '/conta/seguranca',
+      acao: 'Ligar agora',
+      grave: false,
+    });
+  }
+  if (!perfil?.telefone) {
+    pendencias.push({
+      texto: 'Você ainda não cadastrou telefone. Ele é uma segunda porta se você perder o e-mail.',
+      onde: '/conta/perfil',
+      acao: 'Cadastrar',
+      grave: false,
+    });
+  }
+
+  const desde = perfil?.criadaEm
+    ? new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(perfil.criadaEm)
+    : '—';
+
   return (
-    <main className="folha-conta" id="conteudo">
-      <header className="cabeca-conta">
-        <div>
-          <h1>Olá, {quem.nome.split(' ')[0]}</h1>
-          <p>Sua conta no confia?</p>
-        </div>
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <Link className="btn btn--calmo btn--linha" href="/conta/seguranca">
-            <i className="bi bi-shield-lock" aria-hidden="true" /> Segurança
-          </Link>
-          <form action={sair}>
-            <button className="btn btn--calmo btn--linha" type="submit">
-              <i className="bi bi-box-arrow-right" aria-hidden="true" /> Sair
-            </button>
-          </form>
-        </div>
-      </header>
+    <>
+      <div className="painel-titulo">
+        <h1>Olá, {quem.nome.split(' ')[0]}</h1>
+        <p>Aqui você vê o que precisa de atenção e o quanto já usou este mês.</p>
+      </div>
 
-      <section className="bloco">
-        <h2>Seus dados</h2>
-        <div className="linha">
-          <span className="rot">Nome</span>
-          <span className="val">{quem.nome}</span>
-        </div>
-        <div className="linha">
-          <span className="rot">E-mail</span>
-          <span className="val">{quem.email}</span>
-        </div>
-        <div className="linha">
-          <span className="rot">E-mail confirmado</span>
-          <span className="val">
-            {quem.emailVerificado ? (
-              <span className="selo selo--ok">
-                <i className="bi bi-check-circle-fill" aria-hidden="true" /> sim
-              </span>
-            ) : (
-              <span className="selo selo--aviso">
-                <i className="bi bi-exclamation-triangle-fill" aria-hidden="true" /> falta confirmar
-              </span>
-            )}
-          </span>
-        </div>
-        <div className="linha">
-          <span className="rot">Plano</span>
-          <span className="val">Grátis · 5 verificações por mês</span>
-        </div>
-      </section>
-
-      <section className="bloco">
-        <h2>Aparelhos conectados</h2>
-        {aparelhos.map((a, i) => (
-          <div className="aparelho" key={a.id}>
-            <i
-              className={`bi ${
-                /iPhone|Android/.test(a.navegador ?? '') ? 'bi-phone' : 'bi-laptop'
-              }`}
-              aria-hidden="true"
-              style={{ fontSize: 18, color: 'rgba(234,241,253,.5)' }}
-            />
-            <span>
-              <b>{a.navegador ?? 'Aparelho desconhecido'}</b>
-              <span> · entrou em {quando(a.criadaEm)}</span>
-            </span>
-            {i === 0 && <span className="agora">este aqui</span>}
+      {pendencias.length > 0 && (
+        <section className="cartao" aria-labelledby="t-pendencias">
+          <div className="cartao-topo">
+            <div>
+              <h2 id="t-pendencias">Precisa da sua atenção</h2>
+              <p>
+                {pendencias.length === 1
+                  ? 'Um item para resolver.'
+                  : `${pendencias.length} itens para resolver.`}
+              </p>
+            </div>
           </div>
-        ))}
-        <p style={{ margin: '14px 0 0', fontSize: 12.5, lineHeight: 1.65, color: 'rgba(234,241,253,.5)' }}>
-          Não reconhece algum? Troque sua senha — isso desconecta todos de uma vez.{' '}
-          <Link href="/esqueci-senha" style={{ color: 'var(--sky-soft)' }}>Trocar senha</Link>
-        </p>
-      </section>
 
-      <section className="bloco">
-        <h2>Privacidade</h2>
-        <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.7, color: 'rgba(234,241,253,.74)' }}>
-          Guardamos seu nome, seu e-mail e o que você verificou. Imagem enviada é apagada
-          assim que a análise termina — fica o resultado, não a foto.
-        </p>
-        <p style={{ margin: '12px 0 0', fontSize: 13.5, color: 'rgba(234,241,253,.55)' }}>
-          Exportar ou apagar seus dados: escreva para{' '}
-          <a href="mailto:privacidade@confiia.com.br" style={{ color: 'var(--sky-soft)' }}>
-            privacidade@confiia.com.br
-          </a>
-          . Respondemos em até 15 dias.
-        </p>
+          <ul className="pendencias">
+            {pendencias.map((p) => (
+              <li key={p.onde + p.acao} className={p.grave ? 'pendencia pendencia--grave' : 'pendencia'}>
+                <i
+                  className={`bi ${p.grave ? 'bi-exclamation-octagon-fill' : 'bi-shield-exclamation'}`}
+                  aria-hidden="true"
+                />
+                <span>{p.texto}</span>
+                <Link className="pendencia-acao" href={p.onde}>{p.acao}</Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* RESUMO DE USO.
+          Os números de verificação ainda não existem: o motor entra
+          na Etapa 8. Mostrar "0" daria a impressão de que a pessoa
+          não usou, quando na verdade o recurso não existe. Por isso
+          o cartão diz o que é, em vez de fingir um número. */}
+      <section className="cartao" aria-labelledby="t-uso">
+        <div className="cartao-topo">
+          <div>
+            <h2 id="t-uso">Seu plano</h2>
+            <p>Grátis · 5 verificações por mês</p>
+          </div>
+          <Link className="btn btn--calmo btn--linha" href="/conta/plano">Ver detalhes</Link>
+        </div>
+
+        <div className="dados">
+          <div className="dado">
+            <span className="dado-rot">Verificações usadas este mês</span>
+            <span className="dado-val">
+              <span className="selo selo--aviso">
+                <i className="bi bi-cone-striped" aria-hidden="true" /> a partir da Etapa 8
+              </span>
+            </span>
+          </div>
+          <div className="dado">
+            <span className="dado-rot">Aparelhos conectados</span>
+            <span className="dado-val">
+              {aparelhos.length}{' '}
+              <Link href="/conta/aparelhos" className="dado-link">ver</Link>
+            </span>
+          </div>
+          <div className="dado">
+            <span className="dado-rot">Conta criada em</span>
+            <span className="dado-val">{desde}</span>
+          </div>
+        </div>
       </section>
 
       {quem.ehAdmin && (
-        <section className="bloco" style={{ borderColor: 'rgba(255,198,92,.3)' }}>
-          <h2>Administração</h2>
-          <p style={{ margin: 0, fontSize: 13.5, color: 'rgba(234,241,253,.74)' }}>
-            Sua conta tem acesso ao painel. Ele ainda não exige segundo fator —
-            isso entra na Etapa 5, e até lá o painel não vai para produção.
-          </p>
+        <section className="cartao cartao--admin" aria-labelledby="t-admin">
+          <div className="cartao-topo">
+            <div>
+              <h2 id="t-admin">
+                <i className="bi bi-key-fill" aria-hidden="true" /> Administração
+              </h2>
+              <p>
+                Sua conta tem acesso ao painel interno. O endereço dele não fica no menu
+                de propósito — quem não sabe o caminho recebe 404, não uma tela de login.
+              </p>
+            </div>
+          </div>
         </section>
       )}
-    </main>
+    </>
   );
 }

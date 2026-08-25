@@ -23,10 +23,15 @@ export type Acao =
   /* conta */
   | 'conta.criar' | 'conta.entrar' | 'conta.sair' | 'conta.entrar_negado'
   | 'conta.email_confirmado' | 'conta.senha_trocada' | 'conta.senha_esquecida'
+  | 'conta.perfil_atualizado'
   | 'conta.suspender' | 'conta.reativar' | 'conta.excluir'
   /* admin */
   | 'dado.revelar' | 'plano.alterar'
-  | 'contestacao.decidir' | 'denuncia.decidir' | 'empresa.decidir';
+  | 'contestacao.decidir' | 'denuncia.decidir' | 'empresa.decidir'
+  /* denúncia recebida pelo site, ainda sem moderação */
+  | 'denuncia.receber'
+  /* loja pedindo cadastro pelo site, ainda sem análise */
+  | 'empresa.cadastrar';
 
 type Registro = {
   ator?: string | null;      // conta que fez (nulo = anônimo ou sistema)

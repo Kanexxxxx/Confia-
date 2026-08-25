@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { eq } from 'drizzle-orm';
 import { db } from '@/db';
 import { contas } from '@/db/schema';
@@ -27,16 +26,17 @@ export default async function Seguranca({
   const restam = ligado ? await quantosReservaRestam(quem.id) : 0;
 
   return (
-    <main className="folha-conta" id="conteudo">
-      <header className="cabeca-conta">
-        <div>
-          <h1>Segurança</h1>
-          <p>Como a sua conta é protegida</p>
-        </div>
-        <Link className="btn btn--calmo btn--linha" href="/conta">
-          <i className="bi bi-arrow-left" aria-hidden="true" /> Voltar
-        </Link>
-      </header>
+    <>
+      {/* Sem <main> nem botão "voltar": os dois agora vêm do
+          layout do painel (src/app/conta/layout.tsx), que já traz
+          o cabeçalho do site e a barra lateral de navegação. */}
+      <div className="painel-titulo">
+        <h1>Segurança</h1>
+        <p>
+          Como a sua conta é protegida, e o que você pode ligar para deixá-la mais
+          difícil de invadir.
+        </p>
+      </div>
 
       {q.ligou === '1' && (
         <Recado tipo="ok">
@@ -52,23 +52,28 @@ export default async function Seguranca({
 
       <PainelSeguranca ligado={ligado} restam={restam} ehAdmin={quem.ehAdmin} />
 
-      <section className="bloco">
-        <h2>Por que isso importa</h2>
-        <p style={{ margin: 0, fontSize: 13.5, lineHeight: 1.75, color: 'rgba(234,241,253,.74)' }}>
+      <section className="cartao" aria-labelledby="t-porque">
+        <div className="cartao-topo">
+          <div>
+            <h2 id="t-porque">Por que isso importa</h2>
+          </div>
+        </div>
+
+        <p className="cartao-texto">
           Sua senha, sozinha, é uma coisa que você <b>sabe</b>. Se ela vazar no
-          vazamento de outro site — e vazam o tempo todo — quem tiver a lista entra
-          na sua conta aqui.
+          vazamento de outro site — e vazam o tempo todo — quem tiver a lista entra na
+          sua conta aqui.
         </p>
-        <p style={{ margin: '12px 0 0', fontSize: 13.5, lineHeight: 1.75, color: 'rgba(234,241,253,.74)' }}>
+        <p className="cartao-texto">
           O segundo fator acrescenta uma coisa que você <b>tem</b>: o celular na sua
           mão. Saber a senha deixa de bastar.
         </p>
-        <p style={{ margin: '12px 0 0', fontSize: 13, lineHeight: 1.7, color: 'rgba(234,241,253,.55)' }}>
+        <p className="cartao-texto cartao-texto--fraco">
           Usamos o aplicativo autenticador, e não SMS, de propósito: o código nasce
           dentro do seu celular e não passa pela operadora. Não existe golpe do chip
           clonado contra ele — e esse é justamente um dos golpes que o confia? combate.
         </p>
       </section>
-    </main>
+    </>
   );
 }

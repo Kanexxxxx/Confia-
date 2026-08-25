@@ -370,6 +370,56 @@ ok "backup todo dia às 3:30"
 /usr/local/bin/confia-backup && ok "primeiro backup feito agora"
 
 # =============================================================
+# FAXINA DO RASTRO DE LOGIN
+#
+# A tabela `sessoes` guarda IP e navegador de cada entrada. Isso
+# serve para a pessoa reconhecer uma invasao — e para nada alem
+# disso. Guardar para sempre transformaria o banco no historico
+# de onde cada pessoa esteve, sem utilidade nenhuma para ela.
+#
+# A promessa esta ESCRITA na tela, em /conta/aparelhos e em
+# /conta/privacidade: apagado em 15 dias. Este timer e o que
+# cumpre a promessa.
+#
+# A funcao `faxina_sessoes()` vem da migracao 013. Ela tenta se
+# agendar sozinha pelo pg_cron; como o pg_cron nao vem no
+# Postgres padrao do Ubuntu, quem agenda de verdade e isto aqui.
+#
+# CUIDADO AO MEXER: mudar o prazo exige mudar em TRES lugares —
+# a funcao SQL, o texto de /conta/aparelhos e o de
+# /conta/privacidade. Promessa escrita e codigo divergentes e o
+# tipo de coisa que so aparece numa fiscalizacao.
+# =============================================================
+
+cat > /etc/systemd/system/confia-faxina.service <<'EOF'
+[Unit]
+Description=Faxina do rastro de login do confia? (LGPD, 15 dias)
+After=postgresql.service
+
+[Service]
+Type=oneshot
+User=postgres
+ExecStart=/usr/bin/psql -d confia -c "SELECT faxina_sessoes()"
+EOF
+
+cat > /etc/systemd/system/confia-faxina.timer <<'EOF'
+[Unit]
+Description=Faxina diaria do rastro de login
+
+[Timer]
+OnCalendar=*-*-* 04:17:00
+Persistent=true
+RandomizedDelaySec=600
+
+[Install]
+WantedBy=timers.target
+EOF
+
+systemctl daemon-reload
+systemctl enable --now confia-faxina.timer >/dev/null
+ok "faxina do rastro de login todo dia as 4:17 (apaga o que tem mais de 15 dias)"
+
+# =============================================================
 # CONFERÊNCIA
 # =============================================================
 azul "Conferindo"
