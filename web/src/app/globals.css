@@ -698,7 +698,7 @@ footer{margin-top:80px;border-top:1px solid rgba(255,255,255,.08)}
 
 
 /* =============================================================
-   O CENÁRIO — quatro camadas, e a terceira é a que importa
+   O CENÁRIO — três camadas, e nenhuma delas é desenho
 
    Aqui havia três esferas de gradiente à deriva com
    `filter: blur(60px)`. Elas saíram, e o motivo é técnico antes
@@ -712,25 +712,36 @@ footer{margin-top:80px;border-top:1px solid rgba(255,255,255,.08)}
    nítida e detalhe fino. O efeito não vem do blur; vem do que
    existe embaixo dele.
 
-   No lugar entrou GUILHOCHÊ: a gravura de segurança da cédula.
-   Linha finíssima cruzada — alta frequência pura, que é
-   exatamente o que o vidro precisa para escorrer e virar vidro.
-   Gerada por `scripts/ferramentas/guilhoche.mjs`.
+   Entrou então uma textura de guilhochê — a gravura da cédula —
+   e ela TAMBÉM saiu. Dois motivos, nesta ordem:
 
-   E ela é do assunto, não enfeite: este site existe para o
-   segundo em que a pessoa levanta a nota contra a luz procurando
-   a marca d'água.
+     1. A conta do ladrilho estava errada e a emenda aparecia ao
+        dar zoom: as linhas não continuavam de um ladrilho para o
+        outro.
+     2. Mesmo com a conta certa, o desenho ficou estranho na tela.
+        Textura que se repete tende a virar papel de parede, e
+        papel de parede compete com o texto.
+
+   Sobrou LUZ E GRÃO. Nenhum desenho.
 
    ─────────────────────────────────────────────────────────────
+   ⚠  O PREÇO DISSO, PARA QUEM VIER DEPOIS
+
+   Sem detalhe fino atrás, o vidro tem pouco o que refratar. Ele
+   ainda funciona pela LUZ (a variação de claro para escuro que
+   ele dobra) e pela BORDA (o relevo do `.lg-shine`), mas não
+   chega ao efeito do iPhone — lá o vidro fica sobre foto, que é
+   detalhe puro.
+
+   Se o vidro voltar a parecer chapado, a causa está aqui, e a
+   solução NÃO é aumentar o blur: é dar a ele algo com detalhe
+   para deformar.
+
    CUIDADO AO MEXER:
-     - `background-size` da gravura tem que bater com `LADRILHO`
-       no gerador (320px). Diferente, a emenda aparece como uma
-       grade fantasma atravessando a tela.
      - NÃO ponha `filter: blur()` em nenhuma destas camadas. Foi
        exatamente isso que matou o vidro da primeira vez.
-     - A luz (.cena-luz) não é decoração: é ela que dá ao vidro
-       uma variação de claro para escuro para dobrar. Sem fonte de
-       luz, vidro sobre fundo chapado não tem como aparecer.
+     - A luz não é decoração: é o que sobrou para o vidro dobrar.
+       Achatar o gradiente apaga o efeito junto.
    ============================================================= */
 
 .cena{position:fixed;inset:0;z-index:-3;pointer-events:none;overflow:hidden}
@@ -747,26 +758,19 @@ footer{margin-top:80px;border-top:1px solid rgba(255,255,255,.08)}
       A cor é âmbar de propósito: luz de sol atravessando papel é
       quente. Luz azul aqui deixaria tudo com aparência de tela de
       computador, que é o oposto do gesto. */
+/* Com a textura fora, a luz é a ÚNICA coisa que o vidro tem para
+   dobrar. Por isso ela é mais marcada do que era: são fontes de
+   luz com posição definida, não uma névoa uniforme. Gradiente
+   chapado aqui = vidro chapado lá em cima. */
 .cena-luz{
   background:
-    radial-gradient(58% 42% at 62% 6%,  rgba(255,206,138,.16) 0%, transparent 68%),
-    radial-gradient(46% 38% at 18% 24%, rgba(77,159,255,.16) 0%, transparent 70%),
-    radial-gradient(70% 50% at 50% 108%, rgba(26,77,128,.32) 0%, transparent 66%);
+    radial-gradient(56% 40% at 66% 2%,   rgba(255,206,138,.22) 0%, transparent 64%),
+    radial-gradient(44% 36% at 14% 20%,  rgba(77,159,255,.22) 0%, transparent 66%),
+    radial-gradient(38% 30% at 88% 48%,  rgba(49,215,245,.10) 0%, transparent 70%),
+    radial-gradient(75% 52% at 50% 106%, rgba(26,77,128,.38) 0%, transparent 64%);
 }
 
-/* 3. a gravura — o que o vidro refrata
-      `opacity` baixa de propósito: de longe é textura, de perto é
-      linha. Forte demais vira papel de parede e come o texto. */
-.cena-gravura{
-  background-image:url("/assets/guilhoche.svg");
-  background-size:320px 320px;
-  background-repeat:repeat;
-  opacity:.22;
-  -webkit-mask-image:radial-gradient(120% 90% at 50% 12%, #000 0%, rgba(0,0,0,.35) 62%, transparent 92%);
-  mask-image:radial-gradient(120% 90% at 50% 12%, #000 0%, rgba(0,0,0,.35) 62%, transparent 92%);
-}
-
-/* 4. o grão do papel — tira o liso digital
+/* 3. o grão do papel — tira o liso digital
       `overlay` para escurecer e clarear ao mesmo tempo, como grão
       de filme; `multiply` só sujaria. */
 .cena-grao{

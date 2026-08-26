@@ -154,19 +154,21 @@ export default function RootLayout({
                cinza. Era essa a diferença para o iPhone: lá o vidro
                fica sobre FOTO — contraste, borda, alta frequência.
 
-            No lugar entrou o guilhochê: a gravura de segurança da
-            cédula de dinheiro. Linha finíssima cruzada, que é
-            exatamente o tipo de detalhe que o vidro precisa para
-            escorrer e virar vidro de verdade.
+            No lugar entrou uma textura de guilhochê — a gravura da
+            cédula. Ela também saiu: a emenda do ladrilho aparecia
+            no zoom e o desenho ficou estranho na tela.
 
-            E é do assunto: este site existe para o segundo em que
-            a pessoa levanta a nota contra a luz procurando a marca
-            d'água.
+            O cenário hoje é só LUZ E GRÃO, sem desenho nenhum:
 
-               .cena-fundo     o breu
-               .cena-luz       a luz quente vinda de trás
-               .cena-gravura   o guilhochê (o que o vidro refrata)
-               .cena-grao      o grão do papel
+               .cena-fundo   o breu
+               .cena-luz     a luz quente vinda de trás
+               .cena-grao    o grão do papel
+
+            ⚠  ISSO TEM UM PREÇO, E ELE É CONHECIDO: sem detalhe
+            fino atrás, o vidro tem pouco o que refratar. O efeito
+            existe pela luz e pela borda, mas não chega ao que se
+            vê no iPhone — lá o vidro fica sobre foto. Se um dia o
+            vidro voltar a parecer chapado, é daqui que vem.
 
             Tudo `fixed`, z-index negativo, `aria-hidden`: não entra
             no fluxo, não recebe clique, não existe para leitor de
@@ -174,7 +176,6 @@ export default function RootLayout({
         <div className="cena" aria-hidden="true">
           <div className="cena-fundo" />
           <div className="cena-luz" />
-          <div className="cena-gravura" />
           <div className="cena-grao" />
         </div>
 
