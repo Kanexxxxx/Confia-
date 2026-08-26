@@ -32,7 +32,7 @@
 
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
-import { Inter, Poppins } from 'next/font/google';
+import { Instrument_Sans, Fraunces } from 'next/font/google';
 
 import { FiltrosVidro } from '@/components/filtros-vidro';
 import { Revelacao } from '@/components/revelacao';
@@ -43,17 +43,59 @@ import { AvisoCookies } from '@/components/aviso-cookies';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './globals.css';
 
-const inter = Inter({
+/* =============================================================
+   AS DUAS FONTES
+
+   Aqui havia Inter + Poppins. As duas saíram, e o motivo não é
+   gosto: são as duas famílias mais usadas em interface gerada
+   automaticamente hoje. Um site inteiro em Poppins não parece
+   de ninguém — parece de todo mundo. Boa parte da sensação de
+   "cara de IA" mora aí, antes de qualquer cor ou espaçamento.
+
+   ─────────────────────────────────────────────────────────────
+   INSTRUMENT SANS — o texto
+
+   Altura de x grande e letra aberta: é o que faz um parágrafo de
+   14px continuar legível para quem tem 70 anos e está lendo no
+   celular com pressa. Esse é o público inteiro deste site.
+
+   FRAUNCES — os títulos, e SÓ eles
+
+   Serifa com eixo óptico (`opsz`): o desenho MUDA conforme o
+   tamanho. Em 48px ela abre, ganha contraste e vira manchete; a
+   mesma fonte em 16px seria outra coisa. Fonte comum é esticada
+   igual em qualquer tamanho — esta é desenhada para cada um.
+
+   Por que serifa num site escuro e moderno: serifa é a letra do
+   documento, do contrato, do jornal. Ela diz "isto foi escrito
+   por alguém que assina embaixo". O mundo do golpe é todo sem
+   serifa, apressado, WhatsApp. O contraste é de propósito.
+
+   ─────────────────────────────────────────────────────────────
+   CUIDADO AO MEXER:
+     - A Fraunces vem VARIÁVEL, sem lista de pesos. Não é descuido:
+       `axes` e `weight` fixo não convivem — o Next recusa a
+       compilar. E é a versão variável que traz o eixo óptico, que
+       é o motivo de ela estar aqui. Pedir peso fixo economizaria
+       download e jogaria fora justamente o que a torna melhor que
+       qualquer serifa comum.
+     - `axes: ['SOFT']` traz o eixo de suavidade da ponta. Sem ele
+       a Fraunces vem com o bico duro do padrão, que endurece
+       demais o título.
+     - NÃO ligue o eixo `WONK` (a versão torta das letras). Ele é
+       divertido e errado aqui: este site fala com quem acabou de
+       perder dinheiro.
+   ============================================================= */
+
+const instrument = Instrument_Sans({
   subsets: ['latin'],
   variable: '--fonte-texto',
   display: 'swap',
 });
 
-/* Poppins só nos títulos, e só nos pesos que usamos: cada peso a
-   mais é um arquivo a mais para o celular baixar. */
-const poppins = Poppins({
+const fraunces = Fraunces({
   subsets: ['latin'],
-  weight: ['600'],
+  axes: ['SOFT'],
   variable: '--fonte-titulo',
   display: 'swap',
 });
@@ -78,7 +120,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} ${poppins.variable}`}>
+    <html lang="pt-BR" className={`${instrument.variable} ${fraunces.variable}`}>
       <head>
         {/* Vem depois do globals.css DE PROPÓSITO: as regras de
             acessibilidade precisam vencer as do desenho, e a ordem
@@ -94,23 +136,47 @@ export default function RootLayout({
       <body>
         <a className="pular" href="#conteudo">Pular para o conteúdo</a>
 
-        {/* CENÁRIO DO SITE — fica no layout, não em cada página.
-            Antes vivia só na home; como o cabeçalho de vidro passou
-            a valer em todo lugar, o fundo tem que valer também: o
-            vidro refrata o que está ATRÁS dele. Sem esferas atrás,
-            o efeito não tem o que distorcer e vira um retângulo
-            fosco.
+        {/* =====================================================
+            O CENÁRIO — quatro camadas, de trás para frente
 
-            Os três blocos são puramente decorativos e `position:
-            fixed` com z-index negativo — não entram no fluxo, não
-            recebem clique, não aparecem para leitor de tela. */}
-        <div className="bg" />
-        <div className="orbs" aria-hidden="true">
-          <div className="orb orb--1" />
-          <div className="orb orb--2" />
-          <div className="orb orb--3" />
+            Aqui havia três esferas de gradiente à deriva. Saíram
+            por dois motivos:
+
+            1. Você as descreveu como "uma bola andando", e estava
+               certo: mancha colorida flutuando é o fundo padrão de
+               interface gerada por máquina. Aparece igual em
+               qualquer site, sobre qualquer assunto.
+
+            2. Elas ESTRAGAVAM o efeito de vidro. Vinham com
+               `filter: blur(60px)`, então o `backdrop-filter` do
+               vidro tentava borrar o que já era borrão. Não sobrava
+               detalhe para deformar, e o vidro virava retângulo
+               cinza. Era essa a diferença para o iPhone: lá o vidro
+               fica sobre FOTO — contraste, borda, alta frequência.
+
+            No lugar entrou o guilhochê: a gravura de segurança da
+            cédula de dinheiro. Linha finíssima cruzada, que é
+            exatamente o tipo de detalhe que o vidro precisa para
+            escorrer e virar vidro de verdade.
+
+            E é do assunto: este site existe para o segundo em que
+            a pessoa levanta a nota contra a luz procurando a marca
+            d'água.
+
+               .cena-fundo     o breu
+               .cena-luz       a luz quente vinda de trás
+               .cena-gravura   o guilhochê (o que o vidro refrata)
+               .cena-grao      o grão do papel
+
+            Tudo `fixed`, z-index negativo, `aria-hidden`: não entra
+            no fluxo, não recebe clique, não existe para leitor de
+            tela. ===================================================== */}
+        <div className="cena" aria-hidden="true">
+          <div className="cena-fundo" />
+          <div className="cena-luz" />
+          <div className="cena-gravura" />
+          <div className="cena-grao" />
         </div>
-        <div className="grain" />
 
         {/* Definições SVG dos filtros de vidro. Ver filtros-vidro.tsx:
             o CSS chama #warp-pill e #warp-card, e eles precisam
