@@ -185,7 +185,20 @@ body{
 .caixa-senha button:focus-visible{background:var(--paper-2)}
 
 /* ---------- botões ---------- */
+/* =============================================================
+   `appearance:none` em todo botão estilizado
+
+   Um <button> vem com aparência NATIVA do sistema. Enquanto ela
+   estiver ligada, parte do desenho é do Windows/macOS e não do
+   CSS — e o resultado muda de máquina para máquina, principalmente
+   em `height`, `font` e no foco.
+
+   Desligar é o padrão em qualquer botão que a gente desenha.
+   Prefixo primeiro, padrão por último: ver o aviso no topo do
+   arquivo sobre o lightningcss.
+   ============================================================= */
 .btn{
+  -webkit-appearance:none;appearance:none;
   display:inline-flex;align-items:center;justify-content:center;gap:9px;
   width:100%;height:52px;padding:0 22px;border:none;border-radius:12px;cursor:pointer;
   font-family:inherit;font-size:15.5px;font-weight:600;text-decoration:none;
@@ -1171,6 +1184,7 @@ form{margin:44px 0 0;text-align:left}
 .field.has-error input{border-color:#e0523f;box-shadow:0 0 0 4px rgba(224,82,63,.12)}
 .field-tools{position:absolute;right:7px;top:50%;transform:translateY(-50%);display:flex;gap:2px}
 .icon-btn{
+  -webkit-appearance:none;appearance:none;
   width:40px;height:40px;display:grid;place-items:center;border:none;border-radius:10px;
   background:transparent;color:var(--ink-3);cursor:pointer;font-size:17px;
   transition:background .2s var(--ease), color .2s var(--ease);
@@ -2078,7 +2092,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 /* alternador */
 .ciclo{display:inline-flex;align-items:center;gap:4px;margin:30px 0 0;padding:5px;border-radius:999px;
   background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
-.ciclo button{padding:10px 20px;border:none;border-radius:999px;cursor:pointer;background:transparent;
+.ciclo button{-webkit-appearance:none;appearance:none;padding:10px 20px;border:none;border-radius:999px;cursor:pointer;background:transparent;
   color:var(--on-dark-2);font-family:inherit;font-size:14px;font-weight:600;
   transition:background .25s var(--ease),color .25s var(--ease)}
 .ciclo button[aria-pressed="true"]{background:#fff;color:var(--navy-800)}
@@ -2086,7 +2100,32 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
   color:#8fe8c8;font-size:11px;font-weight:700}
 
 /* ---------- cards ---------- */
-.grade{width:var(--shell);margin:44px auto 0;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;align-items:start}
+/* =============================================================
+   ⚠  `text-align:center` DO HERÓI ESCORRIA ATÉ AQUI
+
+   `.topo` é centralizado, e com razão: título e subtítulo de
+   abertura pedem isso. Só que a herança descia até dentro dos
+   cartões, e cada explicação de item — três linhas de texto —
+   ficava centralizada.
+
+   Texto de várias linhas centralizado não tem borda de apoio em
+   lado nenhum: o olho perde onde a próxima linha começa e volta
+   tateando. Era boa parte do "nada alinhado".
+
+   Alinhar à esquerda é o que cria a régua vertical do cartão: o
+   tique, o termo e a explicação passam a partir do mesmo ponto,
+   e a coluna fica com uma borda visível de cima a baixo.
+
+   CUIDADO AO MEXER: o preço fica centralizado de propósito (é
+   número curto, e centrado ele ganha peso). Só o texto corrido é
+   que vem para a esquerda.
+   ============================================================= */
+.grade{
+  width:var(--shell);margin:44px auto 0;display:grid;
+  grid-template-columns:repeat(4,1fr);gap:16px;align-items:start;
+  text-align:left;
+}
+.qual-voce{text-align:left}
 .plano{
   position:relative;display:flex;flex-direction:column;padding:28px 24px 26px;border-radius:var(--r-xl);
   background:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.028));
@@ -2106,8 +2145,12 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 .preco .moeda{font-size:15px;font-weight:600;color:var(--on-dark-2)}
 .preco .valor{font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;font-size:36px;font-weight:700;color:#fff;letter-spacing:-.02em}
 .preco .ciclo-txt{font-size:13px;color:var(--on-dark-3)}
-.preco-nota{min-height:18px;font-size:12px;color:var(--sky-soft)}
+/* À esquerda como o resto do cartão: o preço acima já está na
+   régua da esquerda, e a nota centralizada abaixo dele quebrava a
+   linha vertical logo no primeiro item. */
+.preco-nota{min-height:18px;font-size:12px;color:var(--sky-soft);text-align:left}
 .cta{
+  -webkit-appearance:none;appearance:none;
   display:inline-flex;align-items:center;justify-content:center;gap:8px;height:46px;margin:18px 0 20px;
   border-radius:12px;text-decoration:none;font-size:14px;font-weight:600;cursor:pointer;border:none;
   font-family:inherit;transition:background .2s var(--ease),border-color .2s var(--ease),color .2s var(--ease);
@@ -2116,12 +2159,172 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 .cta--forte:hover{background:#6fb0ff}
 .cta--calma{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.16)}
 .cta--calma:hover{background:rgba(255,255,255,.14)}
-.plano ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
-.plano li{display:flex;gap:9px;font-size:13px;line-height:1.5;color:var(--on-dark-2)}
-.plano li .bi{flex:none;font-size:14px;line-height:1.35;color:var(--safe)}
-.plano li.na{color:var(--on-dark-3)}
-.plano li.na .bi{color:rgba(234,241,253,.28)}
-.plano li b{color:#fff;font-weight:600}
+/* =============================================================
+   OS ITENS DO PLANO — termo em cima, o que faz embaixo
+
+   Antes era um tick e um rótulo: "Detecta se a foto foi feita por
+   IA". Isso não significa nada para quem tem 62 anos e caiu num
+   perfil falso. O tick dizia que existe; não dizia o que é.
+
+   Agora cada item tem duas linhas. A de cima é o que a pessoa
+   procura; a de baixo é o que aquilo faz na vida dela — sempre
+   visível, nunca atrás de clique ou de passar o mouse. Este site
+   fala com gente que não vai caçar informação escondida, e no
+   celular não existe passar o mouse.
+
+   CUIDADO AO MEXER: o cartão fica mais alto, e tudo bem. A lista
+   completa item por item continua na tabela comparativa, para
+   quem quiser cruzar. Voltar a esconder a explicação é desfazer
+   o conserto.
+   ============================================================= */
+.plano-itens{list-style:none;margin:0;padding:0;display:grid;gap:16px}
+.plano-itens li{display:flex;gap:10px;align-items:flex-start}
+.plano-itens li > .bi{flex:none;margin-top:3px;font-size:14px;line-height:1;color:var(--safe)}
+.plano-itens li > div{display:grid;gap:3px}
+.plano-itens li b{font-size:13.5px;font-weight:600;line-height:1.4;color:#fff}
+.plano-itens li span{font-size:12.5px;line-height:1.6;color:var(--on-dark-3)}
+.plano-itens li.na b{color:var(--on-dark-2);font-weight:500}
+.plano-itens li.na > .bi{color:rgba(234,241,253,.28)}
+.plano-itens li.na span{color:rgba(234,241,253,.42)}
+
+/* =============================================================
+   "QUAL DESSES É VOCÊ?" — a entrada da página
+
+   Vem ANTES de qualquer preço, e é a coisa mais importante daqui.
+   Quem chega não está comparando recursos: está tentando
+   descobrir qual caixa é a dele. Quatro frases na primeira
+   pessoa respondem isso em três segundos; quarenta linhas de
+   tick não respondem nunca.
+
+   CUIDADO AO MEXER: são BOTÕES, não links. Eles rolam até o
+   cartão, não navegam. Link que não navega confunde o leitor de
+   tela e quebra o "abrir em nova aba".
+   ============================================================= */
+.qual-voce{width:var(--shell);margin:52px auto 0}
+.qual-voce h2{
+  margin:0;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;
+  font-size:clamp(24px,3vw,34px);font-weight:600;letter-spacing:-.02em;color:#fff;
+}
+.qual-voce-nota{margin:8px 0 0;font-size:14px;line-height:1.6;color:var(--on-dark-3)}
+.qual-voce-grade{
+  margin-top:22px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px;
+}
+.qual-voce-op{
+  -webkit-appearance:none;appearance:none;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:20px 22px;border-radius:var(--r-lg);cursor:pointer;text-align:left;
+  font-family:inherit;
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.1);
+  transition:background .2s var(--ease),border-color .2s var(--ease),transform .16s var(--ease);
+}
+.qual-voce-op:hover{background:rgba(255,255,255,.08);border-color:rgba(77,159,255,.45);transform:translateY(-2px)}
+.qual-voce-op:focus-visible{outline:2px solid var(--sky);outline-offset:3px}
+.qual-voce-frase{font-size:15.5px;line-height:1.5;color:var(--on-dark)}
+.qual-voce-leva{
+  flex:none;display:inline-flex;align-items:center;gap:7px;
+  font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--sky-soft);
+}
+
+/* O cartão acende por um instante ao vir de lá. Marca permanente
+   na tela vira sujeira; um piscar diz "é este" e some. */
+.plano--aceso{
+  border-color:rgba(77,159,255,.75);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3), 0 0 0 3px rgba(77,159,255,.22),
+    0 30px 60px -30px rgba(77,159,255,.5);
+}
+
+/* =============================================================
+   ANTES DE ASSINAR — a caixa que abre no clique
+
+   `<dialog>` de verdade: o navegador cuida de Esc, de prender o
+   foco dentro e de esconder o resto da página do leitor de tela.
+   Refazer isso à mão com div e z-index dá errado de formas que
+   só aparecem com teclado ou leitor de tela.
+   ============================================================= */
+.antes{
+  width:min(560px, 100% - 32px);padding:0;border:none;border-radius:var(--r-xl);
+  color:var(--on-dark);
+  background:linear-gradient(180deg,#102a4a,#0a1c33);
+  box-shadow:0 40px 90px -30px rgba(2,10,24,.85);
+  /* `.topo` é centralizado e a herança chegava até aqui dentro,
+     deixando quatro parágrafos de explicação centralizados. Ver o
+     comentário em `.grade`: é o mesmo defeito, no mesmo dia. */
+  text-align:left;
+}
+.antes::backdrop{background:rgba(3,10,20,.72);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.antes-topo{position:relative;padding:26px 26px 18px;border-bottom:1px solid rgba(255,255,255,.09)}
+.antes-olho{
+  margin:0 0 6px;font-size:11.5px;font-weight:700;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--sky-soft);
+}
+.antes-topo h2{
+  margin:0;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;
+  font-size:26px;font-weight:600;letter-spacing:-.02em;color:#fff;
+}
+.antes-fechar{
+  -webkit-appearance:none;appearance:none;
+  position:absolute;top:20px;right:20px;width:36px;height:36px;display:grid;place-items:center;
+  border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);
+  color:var(--on-dark-2);cursor:pointer;font-size:14px;
+}
+.antes-fechar:hover{background:rgba(255,255,255,.1);color:#fff}
+.antes-lista{list-style:none;margin:0;padding:20px 26px;display:grid;gap:18px}
+.antes-lista li{display:flex;gap:13px;align-items:flex-start}
+.antes-lista li .bi{flex:none;margin-top:2px;font-size:17px;color:var(--sky)}
+.antes-lista li div{display:grid;gap:4px}
+.antes-lista li b{font-size:14.5px;color:#fff}
+.antes-lista li span{font-size:13px;line-height:1.65;color:var(--on-dark-3)}
+.antes-real{
+  display:flex;gap:11px;margin:0 26px;padding:15px 17px;border-radius:12px;
+  background:rgba(255,198,92,.1);border:1px solid rgba(255,198,92,.28);
+}
+.antes-real .bi{flex:none;margin-top:2px;color:var(--warn)}
+.antes-real p{margin:0;font-size:13px;line-height:1.65;color:var(--on-dark-2)}
+.antes-real b{color:#fff}
+/* =============================================================
+   OS BOTÕES DA CAIXA ESCURA — classe própria, de propósito
+
+   Eles NÃO usam `.btn--calmo` / `.btn--forte`. Aquelas duas foram
+   desenhadas para viver sobre o cartão BRANCO do verificador:
+   `.btn--calmo` é branco com borda cinza, e ali ele é o discreto
+   da dupla.
+
+   Sobre fundo escuro o branco vira a coisa mais forte da tela. A
+   hierarquia inverte: a saída grita e a ação principal recua.
+
+   Sobre escuro, o discreto é o transparente com borda fina, e o
+   forte é o azul da marca. Mesma intenção, cores trocadas porque
+   o fundo é outro.
+
+   CUIDADO AO MEXER: a tentação é reaproveitar `.btn` aqui e
+   "só sobrescrever a cor". Foi o que eu tentei primeiro, e o
+   resultado foi uma briga de cascata difícil de enxergar. Classe
+   separada custa dez linhas e não custa mais nada nunca.
+   ============================================================= */
+.antes-acoes{display:flex;gap:12px;padding:22px 26px 26px}
+.antes-btn{
+  -webkit-appearance:none;appearance:none;
+  flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  height:50px;padding:0 20px;border-radius:12px;cursor:pointer;
+  font-family:inherit;font-size:15px;font-weight:600;text-decoration:none;
+  transition:background .2s var(--ease),border-color .2s var(--ease),color .2s var(--ease);
+}
+.antes-btn:focus-visible{outline:2px solid var(--sky);outline-offset:3px}
+.antes-btn--sai{
+  background:transparent;color:var(--on-dark-2);
+  border:1px solid rgba(255,255,255,.2);
+}
+.antes-btn--sai:hover{background:rgba(255,255,255,.07);color:#fff;border-color:rgba(255,255,255,.36)}
+.antes-btn--vai{background:var(--sky);color:#04101f;border:1px solid var(--sky)}
+.antes-btn--vai:hover{background:#6fb1ff;border-color:#6fb1ff}
+
+@media (max-width:720px){
+  .qual-voce-grade{grid-template-columns:1fr}
+  .qual-voce-op{padding:17px 18px}
+  .antes-acoes{flex-direction:column-reverse}
+}
 
 /* ---------- comparativo ---------- */
 .comparativo{width:var(--shell);margin:70px auto 0}
@@ -2144,20 +2347,15 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 .comparativo .nao{color:rgba(234,241,253,.25);font-size:15px}
 .comparativo tbody tr:hover td, .comparativo tbody tr:hover th{background:rgba(255,255,255,.03)}
 
-/* ---------- dúvidas ---------- */
-.duvidas{width:var(--shell);margin:70px auto 0;display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.duvidas h2{grid-column:1/-1;margin:0 0 8px;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;
-  font-size:clamp(22px,2.4vw,28px);font-weight:600;letter-spacing:-.02em;color:#fff}
-.duvida{padding:22px 24px;border-radius:var(--r-lg);
-  background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.025));
-  border:1px solid rgba(255,255,255,.1)}
-.duvida b{display:block;margin-bottom:7px;font-size:15px;color:#fff}
-.duvida p{margin:0;font-size:13.5px;line-height:1.65;color:var(--on-dark-3)}
+/* As regras de `.duvidas` / `.duvida` saíram junto com a seção.
+   Ninguém mais usa a marcação: aquelas seis caixas soltas no fim
+   de /planos viraram a `.antes`, que abre no clique de assinar.
+   CSS de classe que não existe mais é peso morto e engana quem
+   for procurar depois. */
 
 @media (max-width:1080px){
   :root{--shell:min(760px,100% - 40px)}
   .grade{grid-template-columns:1fr 1fr}
-  .duvidas{grid-template-columns:1fr}
 }
 @media (max-width:640px){
   :root{--shell:min(560px,100% - 32px)}
@@ -2484,7 +2682,6 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 
 @media (max-width:1080px){
   .grade{grid-template-columns:1fr 1fr}
-  .duvidas{grid-template-columns:1fr}
 }
 @media (max-width:640px){
   .topo{padding-top:132px}

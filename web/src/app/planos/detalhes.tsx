@@ -24,9 +24,22 @@
        inteira de rolar de lado no celular. Não tire.
    ============================================================= */
 
+/* ─────────────────────────────────────────────────────────────
+   "ANTES DE ASSINAR" SAIU DESTE ARQUIVO
+
+   Eram seis caixas soltas no fim da página, entre outras caixas.
+   Ninguém lê aviso antes de ter a pergunta — e a pergunta "posso
+   cancelar?" só existe na cabeça de quem está com o dedo no botão
+   de assinar. Agora ela abre ali, no clique: ver `AntesDeAssinar`
+   em `cartoes.tsx`.
+
+   As duas que ficaram de fora (o que acontece ao bater o limite;
+   se precisa de cartão para o grátis) viraram a explicação do
+   próprio item dentro do cartão, que é onde a dúvida nasce.
+   ───────────────────────────────────────────────────────────── */
+
 export function DetalhesPlanos() {
   return (
-    <>
     <section className="comparativo">
       <h2>Comparando item por item</h2>
       <p>Sem letra miúda. O que cada plano faz, do jeito que funciona de verdade.</p>
@@ -88,36 +101,5 @@ export function DetalhesPlanos() {
         </table>
       </div>
     </section>
-
-    <section className="duvidas">
-      <h2>Antes de assinar</h2>
-
-      <div className="duvida">
-        <b>Posso cancelar quando quiser?</b>
-        <p>Pode, direto na sua conta, sem ligar pra ninguém. O plano segue valendo até o fim do período já pago.</p>
-      </div>
-      <div className="duvida">
-        <b>E se eu me arrepender?</b>
-        <p>Você tem 7 dias para desistir e receber tudo de volta, como manda o Código de Defesa do Consumidor.</p>
-      </div>
-      <div className="duvida">
-        <b>O que acontece se eu bater o limite?</b>
-        <p>A gente avisa antes de acabar. Chegando no fim, você escolhe: espera virar o mês ou muda de plano na hora.</p>
-      </div>
-      <div className="duvida">
-        <b>Vocês guardam meus prints?</b>
-        <p>A imagem é apagada assim que a análise termina. Fica só o resultado no seu histórico — nunca a foto.</p>
-      </div>
-      <div className="duvida">
-        <b>O confia? garante que não vou cair em golpe?</b>
-        <p>Não. Nenhuma ferramenta honesta garante isso. A gente investiga o que dá pra investigar, mostra o motivo
-        de cada conclusão e te dá a informação pra decidir. A decisão continua sendo sua.</p>
-      </div>
-      <div className="duvida">
-        <b>Preciso de cartão pra usar de graça?</b>
-        <p>Não. O plano grátis é grátis mesmo, sem cartão cadastrado e sem virar cobrança depois.</p>
-      </div>
-    </section>
-    </>
   );
 }
