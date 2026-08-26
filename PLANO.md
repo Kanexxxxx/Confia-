@@ -271,11 +271,13 @@ Nenhum dava erro no console nem quebrava o build. Estão documentados em
 ### Falta
 
 - [x] `planos` — com seletor mensal/anual e a tabela comparativa
-- [ ] `resultado`
+- [x] `resultado` — como DEMONSTRAÇÃO, com faixa vermelha e `noindex`
 - [x] `denunciar` — grava no banco, com protocolo e limite por IP
 - [x] `registrar-loja` — grava no banco; a conferência na Receita entra na análise
-- [ ] Histórico de consultas
-- [ ] Apagar a pasta `prototipo/` quando tudo tiver migrado
+- [ ] Histórico de consultas — **depende da Etapa 8**: sem motor de verificação
+      não existe consulta para listar. Fica para depois dela, não para agora.
+- [ ] Apagar a pasta `prototipo/` — falta só `admin.html`, que é a Etapa 10.
+      As outras nove já viraram rota.
 
 **Prova até aqui:** as quatro páginas legais abrem em `/termos`, `/privacidade`,
 `/reembolso`, `/cookies`, com Lighthouse **100** em acessibilidade no celular.
