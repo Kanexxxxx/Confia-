@@ -37,6 +37,7 @@ import { denuncias } from '@/db/schema';
 import { sessaoAtual } from '@/lib/sessao';
 import { confereLimite } from '@/lib/limite';
 import { registra } from '@/lib/auditoria';
+import { pareceRobo } from '@/lib/armadilha';
 
 export type EstadoDenuncia = {
   erro?: string;
@@ -136,6 +137,14 @@ export async function enviarDenuncia(
   /* ---------- limite ----------
      Ver o comentário longo no topo: sem isto, derrubar a nota de
      um concorrente honesto custa cem cliques. */
+  /* ---------- armadilha para robô ----------
+     Ver lib/armadilha.ts. A resposta é um SUCESSO FALSO de
+     propósito: dizer "você caiu na armadilha" ensinaria o autor
+     do script a consertá-lo. Nada é gravado. */
+  if (pareceRobo(form)) {
+    return { ok: 'Denúncia registrada.', protocolo: 'D-XXXXXXXX' };
+  }
+
   const limite = await confereLimite('denuncia');
   if (!limite.pode) {
     return { erro: limite.recado, campo: 'geral' };

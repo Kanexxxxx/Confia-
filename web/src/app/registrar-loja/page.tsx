@@ -23,6 +23,7 @@ import type { Metadata } from 'next';
 import { Cabecalho, Rodape } from '@/components/moldura';
 import { EMAIL_CONTATO } from '@/lib/contato';
 import { FormaLoja } from './forma';
+import { carimboDeAgora } from '@/lib/armadilha';
 
 export const metadata: Metadata = {
   title: 'Cadastrar minha loja',
@@ -148,7 +149,7 @@ export default function RegistrarLoja() {
               <i>3</i> <span>Provar que é sua</span>
             </div>
 
-            <FormaLoja />
+            <FormaLoja carimbo={carimboDeAgora()} />
           </div>
         </div>
       </main>

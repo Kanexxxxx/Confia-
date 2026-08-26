@@ -28,6 +28,7 @@
 
 import { useActionState, useState } from 'react';
 import Link from 'next/link';
+import { CamposArmadilha } from '@/components/campos-armadilha';
 import { cadastrarLoja } from '@/lib/acoes-loja';
 import { EMAIL_CONTATO } from '@/lib/contato';
 
@@ -52,7 +53,7 @@ function mascara(v: string) {
   return `${n.slice(0, 2)}.${n.slice(2, 5)}.${n.slice(5, 8)}/${n.slice(8, 12)}-${n.slice(12)}`;
 }
 
-export function FormaLoja() {
+export function FormaLoja({ carimbo }: { carimbo: string }) {
   const [estado, acao, enviando] = useActionState(cadastrarLoja, null);
   const [cnpj, setCnpj] = useState('');
 
@@ -101,6 +102,8 @@ export function FormaLoja() {
 
   return (
     <form action={acao} noValidate>
+      <CamposArmadilha carimbo={carimbo} />
+
       <h2 className="forma-secao">Dados da empresa</h2>
       <p className="forma-secao-nota">
         A conferência na Receita Federal acontece na análise. Aqui a gente só confere se

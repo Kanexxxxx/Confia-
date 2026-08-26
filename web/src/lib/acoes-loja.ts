@@ -47,6 +47,7 @@ import { sessaoAtual } from '@/lib/sessao';
 import { confereLimite } from '@/lib/limite';
 import { registra } from '@/lib/auditoria';
 import { cnpjValido, soNumeros } from '@/lib/documento';
+import { pareceRobo } from '@/lib/armadilha';
 
 export type EstadoLoja = {
   erro?: string;
@@ -144,6 +145,14 @@ export async function cadastrarLoja(
       erro: 'Marque a declaração para continuar — ela é o que responsabiliza quem cadastra.',
       campo: 'aceite',
     };
+  }
+
+  /* ---------- armadilha para robô ----------
+     Ver lib/armadilha.ts. A resposta é um SUCESSO FALSO de
+     propósito: dizer "você caiu na armadilha" ensinaria o autor
+     do script a consertá-lo. Nada é gravado. */
+  if (pareceRobo(form)) {
+    return { ok: 'Cadastro recebido.', protocolo: 'L-XXXXXXXX' };
   }
 
   const limite = await confereLimite('loja');

@@ -33,6 +33,7 @@
 
 import { useActionState, useState } from 'react';
 import Link from 'next/link';
+import { CamposArmadilha } from '@/components/campos-armadilha';
 import { enviarDenuncia } from '@/lib/acoes-denuncia';
 
 const TIPOS = [
@@ -47,7 +48,7 @@ const TIPOS = [
   { v: 'outro',        i: 'bi-three-dots',            t: 'Outro' },
 ];
 
-export function FormaDenuncia() {
+export function FormaDenuncia({ carimbo }: { carimbo: string }) {
   const [estado, acao, enviando] = useActionState(enviarDenuncia, null);
   const [golpeNovo, setGolpeNovo] = useState(false);
 
@@ -81,6 +82,8 @@ export function FormaDenuncia() {
 
   return (
     <form action={acao} noValidate>
+      <CamposArmadilha carimbo={carimbo} />
+
       {/* ---------- que tipo ---------- */}
       <fieldset className="campo campo--grupo">
         <legend>Que tipo de golpe foi?</legend>

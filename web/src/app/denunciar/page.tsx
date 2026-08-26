@@ -20,6 +20,7 @@
 import type { Metadata } from 'next';
 import { Cabecalho, Rodape } from '@/components/moldura';
 import { FormaDenuncia } from './forma';
+import { carimboDeAgora } from '@/lib/armadilha';
 
 export const metadata: Metadata = {
   title: 'Denunciar golpe',
@@ -110,7 +111,7 @@ export default function Denunciar() {
               <span>Leva uns 3 minutos. Só o essencial é obrigatório.</span>
             </div>
 
-            <FormaDenuncia />
+            <FormaDenuncia carimbo={carimboDeAgora()} />
           </div>
         </div>
       </main>
