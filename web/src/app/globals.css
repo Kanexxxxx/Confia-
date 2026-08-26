@@ -191,10 +191,11 @@ body{
   font-family:inherit;font-size:15.5px;font-weight:600;text-decoration:none;
   transition:background .2s var(--ease),transform .16s var(--ease);
 }
-.btn--forte{background:var(--navy-800);color:#fff}
-.btn--forte:hover{background:var(--navy-700)}
-.btn--calmo{background:#fff;color:var(--ink-2);border:1.5px solid var(--line)}
-.btn--calmo:hover{background:var(--paper-2);color:var(--navy-800)}
+/* As cores do botão vivem numa regra só, mais abaixo neste
+   arquivo. Havia DUAS cópias de `.btn--forte` e `.btn--calmo` —
+   uma daqui e outra do protótipo — e a segunda vencia por vir
+   depois. Quem editasse a de cima não veria mudança nenhuma na
+   tela e não teria erro nenhum para explicar. */
 .btn:active{transform:translateY(1px)}
 .btn[disabled]{opacity:.6;pointer-events:none}
 .btn[data-carregando]{color:transparent;position:relative;pointer-events:none}
@@ -2189,8 +2190,86 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 .passos i{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;
     background:var(--navy-800);color:#fff;font-style:normal;font-size:12px;font-weight:700}
 .divisor{height:1px;background:var(--line);margin:26px 0}
-.rodape-form{display:flex;gap:12px;margin-top:26px}
-.rodape-form .btn--forte{flex:1}
+/* =============================================================
+   CAMPO QUE APARECE — a resposta que puxa outra pergunta
+
+   Usado quando escolher uma opção abre um campo: "Outro" pede
+   qual, "com apelido" pede qual apelido.
+
+   Ele NÃO surge do nada. A barra azul à esquerda e o recuo dizem
+   "isto pertence ao que você acabou de escolher" — sem isso, um
+   campo que aparece no meio da página parece erro de tela.
+
+   CUIDADO AO MEXER:
+     - A animação é curta e só de opacidade e altura. Campo que
+       entra saltando faz a página pular embaixo do dedo de quem
+       está preenchendo.
+     - Respeita `prefers-reduced-motion` pela regra geral no fim
+       do arquivo, que zera toda duração.
+     - Quem revela também dá `autoFocus`: o cursor já vai para o
+       campo novo. Sem isso a pessoa precisa achar e clicar num
+       campo que ela não pediu.
+   ============================================================= */
+.campo--revelado{
+  position:relative;margin-left:14px;padding-left:18px;
+  border-left:2px solid var(--sky);
+  animation:campo-abre .28s var(--ease) both;
+}
+.campo--revelado::before{
+  content:"";position:absolute;left:-5px;top:14px;width:8px;height:8px;
+  border-radius:50%;background:var(--sky);
+}
+@keyframes campo-abre{
+  from{opacity:0;transform:translateY(-6px)}
+  to{opacity:1;transform:none}
+}
+@media (max-width:560px){
+  .campo--revelado{margin-left:6px;padding-left:14px}
+}
+
+/* =============================================================
+   O PÉ DO FORMULÁRIO — a dupla que estava torta
+
+   Antes: `display:flex` com `.btn--forte{flex:1}`. O enviar
+   crescia e o cancelar não, então sobrava um par desigual sem
+   nenhuma razão — um grande, um pequeno, os dois com cara de
+   botão.
+
+   A correção não é igualar os dois. É reconhecer que eles NÃO
+   têm o mesmo peso: enviar é a ação da página; cancelar é a
+   porta de saída. Dar aparência de botão à saída é dar a ela um
+   destaque que ela não merece, e é o que criava o desconforto.
+
+   Agora: enviar é botão, com largura própria e à direita, onde a
+   mão vai. Cancelar é link discreto à esquerda. A hierarquia
+   passa a ser visível em vez de acidental.
+
+   CUIDADO AO MEXER:
+     - No celular a ordem VIRA: o enviar sobe para cima, no
+       alcance do polegar, e o cancelar desce. `column-reverse`
+       faz isso sem mexer no HTML — a ordem de leitura e a do
+       teclado continuam as mesmas.
+     - `.btn` tem `width:100%` na base. O `width:auto` aqui é o
+       que impede o enviar de atravessar a tela no computador.
+   ============================================================= */
+.rodape-form{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:14px;margin-top:30px;padding-top:22px;
+  border-top:1px solid var(--line);
+}
+.rodape-form .btn--forte{width:auto;min-width:210px}
+.rodape-form .btn--calmo{
+  width:auto;height:auto;padding:8px 2px;background:none;border:none;
+  font-size:14.5px;font-weight:500;color:var(--ink-3);
+  text-decoration:underline;text-underline-offset:3px;
+  text-decoration-color:rgba(98,115,139,.35);
+}
+.rodape-form .btn--calmo:hover{background:none;color:var(--ink);text-decoration-color:currentColor}
+@media (max-width:560px){
+  .rodape-form{flex-direction:column-reverse;align-items:stretch}
+  .rodape-form .btn--forte{width:100%;min-width:0}
+  .rodape-form .btn--calmo{text-align:center}
+}
 .novo{display:flex;gap:13px;padding:18px 20px;margin-bottom:18px;border-radius:14px;cursor:pointer;
     border:1.5px solid #f0d68a;background:#fff8e6;
     transition:border-color .2s var(--ease),background .2s var(--ease)}

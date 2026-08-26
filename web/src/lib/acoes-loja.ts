@@ -51,7 +51,7 @@ import { pareceRobo } from '@/lib/armadilha';
 
 export type EstadoLoja = {
   erro?: string;
-  campo?: 'cnpj' | 'fantasia' | 'categoria' | 'site' | 'email' | 'aceite' | 'geral';
+  campo?: 'cnpj' | 'fantasia' | 'categoria' | 'categoria_outro' | 'site' | 'email' | 'aceite' | 'geral';
   ok?: string;
   protocolo?: string;
   precisaProvar?: boolean;
@@ -93,6 +93,9 @@ export async function cadastrarLoja(
   const cnpj = soNumeros(String(form.get('cnpj') ?? ''));
   const fantasia = String(form.get('fantasia') ?? '').trim();
   const categoria = String(form.get('categoria') ?? '').trim();
+  /* Perguntado desde sempre, gravado desde a migração 017. Antes,
+     escolher "Outro" gravava a palavra "outro" e nada mais. */
+  const categoriaOutro = String(form.get('categoria_outro') ?? '').trim();
   const siteBruto = String(form.get('site') ?? '').trim();
   const instagram = String(form.get('instagram') ?? '').trim().replace(/^@/, '');
   const whatsapp = soNumeros(String(form.get('whatsapp') ?? ''));
@@ -121,6 +124,9 @@ export async function cadastrarLoja(
   }
   if (!CATEGORIAS.has(categoria)) {
     return { erro: 'Escolha o que a loja faz.', campo: 'categoria' };
+  }
+  if (categoria === 'outro' && (categoriaOutro.length < 3 || categoriaOutro.length > 80)) {
+    return { erro: 'Escreva em poucas palavras o que a loja vende ou faz.', campo: 'categoria_outro' };
   }
 
   /* ---------- site ---------- */
@@ -208,6 +214,7 @@ export async function cadastrarLoja(
           cnpj,
           nomeFantasia: fantasia,
           categoria,
+          categoriaOutro: categoria === 'outro' ? categoriaOutro : null,
           emailContato: email,
           telefoneContato: whatsapp || null,
           /* 'em_analise', nunca 'aprovada'. Ver o comentário do

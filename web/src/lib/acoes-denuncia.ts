@@ -41,7 +41,7 @@ import { pareceRobo } from '@/lib/armadilha';
 
 export type EstadoDenuncia = {
   erro?: string;
-  campo?: 'categoria' | 'alvo' | 'relato' | 'email' | 'geral';
+  campo?: 'categoria' | 'categoria_outro' | 'alvo' | 'relato' | 'email' | 'apelido' | 'geral';
   ok?: string;
   protocolo?: string;
 } | null;
@@ -90,6 +90,10 @@ export async function enviarDenuncia(
   const visibilidade = String(form.get('visibilidade') ?? 'anonima').trim();
   const golpeNovo = form.get('golpe_novo') === 'on';
   const descricaoNovo = String(form.get('descricao_novo') ?? '').trim();
+  /* Os dois campos que a tela perguntava e o servidor jogava fora
+     antes da migração 017. Ver o comentário na validação abaixo. */
+  const categoriaOutro = String(form.get('categoria_outro') ?? '').trim();
+  const apelido = String(form.get('apelido') ?? '').trim();
 
   /* ---------- o que a tela já exige, conferido de novo aqui ----------
      A validação do navegador é conveniência. Esta é a que vale:
@@ -117,6 +121,31 @@ export async function enviarDenuncia(
   }
   if (visibilidade !== 'anonima' && visibilidade !== 'apelido') {
     return { erro: 'Escolha como a denúncia aparece.', campo: 'geral' };
+  }
+
+  /* ---------- duas perguntas que eram feitas e ignoradas ----------
+
+     "Com apelido" aparecia na lista e não abria campo nenhum: a
+     pessoa pedia para aparecer com apelido e nunca era perguntado
+     qual. A denúncia saía anônima do mesmo jeito.
+
+     "Outro" gravava a palavra "outro" e mais nada — justamente a
+     denúncia mais valiosa, a que não cabe em nenhuma gaveta que a
+     gente já conhece, era a que chegava vazia.
+
+     Nenhuma das duas dava erro: o formulário dizia "recebido" e a
+     resposta era descartada no caminho. */
+  if (visibilidade === 'apelido' && (apelido.length < 2 || apelido.length > 60)) {
+    return {
+      erro: 'Escreva o apelido que você quer que apareça — ou escolha anônima.',
+      campo: 'apelido',
+    };
+  }
+  if (categoria === 'outro' && (categoriaOutro.length < 3 || categoriaOutro.length > 80)) {
+    return {
+      erro: 'Em poucas palavras, que tipo de golpe foi?',
+      campo: 'categoria_outro',
+    };
   }
 
   /* ---------- data ----------
@@ -158,11 +187,15 @@ export async function enviarDenuncia(
       contaId: quem?.id ?? null,
       alvo,
       categoria,
+      categoriaOutro: categoria === 'outro' ? categoriaOutro : null,
       relato,
       sePassou: sePassou || null,
       ocorridoEm,
       emailAviso: email || null,
       visibilidade,
+      /* null quando é anônima: o banco recusa apelido sem a
+         visibilidade que o pede (constraint da migração 017). */
+      apelido: visibilidade === 'apelido' ? apelido : null,
       prejuizoCent: paraCentavos(String(form.get('prejuizo') ?? '')),
       golpeNovo,
       descricaoNovo: golpeNovo ? (descricaoNovo || null) : null,

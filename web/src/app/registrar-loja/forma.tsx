@@ -56,6 +56,9 @@ function mascara(v: string) {
 export function FormaLoja({ carimbo }: { carimbo: string }) {
   const [estado, acao, enviando] = useActionState(cadastrarLoja, null);
   const [cnpj, setCnpj] = useState('');
+  /* Só para revelar o campo do "Outro". A pergunta era feita e a
+     resposta descartada — ver lib/acoes-loja.ts. */
+  const [categoria, setCategoria] = useState('');
 
   if (estado?.protocolo) {
     return (
@@ -122,9 +125,6 @@ export function FormaLoja({ carimbo }: { carimbo: string }) {
           placeholder="00.000.000/0000-00"
           autoComplete="off"
         />
-        <span className="dica">
-          MEI também vale. É de graça e sai no mesmo dia, pelo Portal do Empreendedor.
-        </span>
       </div>
 
       <div className="campo">
@@ -143,13 +143,38 @@ export function FormaLoja({ carimbo }: { carimbo: string }) {
 
       <div className="campo">
         <label htmlFor="categoria">O que vocês fazem</label>
-        <select id="categoria" name="categoria" defaultValue="">
+        <select
+          id="categoria"
+          name="categoria"
+          value={categoria}
+          onChange={(e) => setCategoria(e.target.value)}
+        >
           <option value="" disabled>Escolha…</option>
           {CATEGORIAS.map((c) => (
             <option value={c.v} key={c.v}>{c.t}</option>
           ))}
         </select>
       </div>
+
+      {/* "Outro" gravava a palavra "outro" e nada mais. Quem não
+          cabe em nenhuma das oito é justamente quem mais precisa
+          explicar o que vende. */}
+      {categoria === 'outro' && (
+        <div className="campo campo--revelado">
+          <label htmlFor="categoria_outro">O que vocês vendem ou fazem?</label>
+          <input
+            id="categoria_outro"
+            name="categoria_outro"
+            type="text"
+            maxLength={80}
+            autoFocus
+            placeholder="Ex.: aluguel de equipamento para festa"
+          />
+          <span className="dica">
+            É o que aparece para o cliente quando ele verificar sua loja.
+          </span>
+        </div>
+      )}
 
       <div className="divisor" />
 
@@ -206,15 +231,6 @@ export function FormaLoja({ carimbo }: { carimbo: string }) {
       </div>
 
       <div className="divisor" />
-
-      <div className="recado recado--info" style={{ marginBottom: 20 }}>
-        <i className="bi bi-info-circle-fill" aria-hidden="true" />
-        <p>
-          <b>O cadastro não custa nada e não vira assinatura.</b> Ele existe porque
-          separar loja honesta de loja falsa é bom para você e é bom para quem compra.
-          Você pode sair quando quiser, por e-mail, sem justificar.
-        </p>
-      </div>
 
       <label className="opcao opcao--bloco">
         <input type="checkbox" name="aceite" />

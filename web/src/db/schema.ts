@@ -516,6 +516,10 @@ export const empresas = pgTable("empresas", {
 	logoUrl: text("logo_url"),
 	descricao: text(),
 	categoria: text(),
+	/* O que a loja escreveu ao escolher "Outro" em categoria.
+	   Antes da migração 017 a pergunta era feita e a resposta
+	   descartada: gravava-se "outro" e nada mais. */
+	categoriaOutro: text("categoria_outro"),
 	aprovadaEm: timestamp("aprovada_em", { withTimezone: true, mode: 'date' }),
 	aprovadaPor: uuid("aprovada_por"),
 	suspensaEm: timestamp("suspensa_em", { withTimezone: true, mode: 'date' }),
@@ -968,6 +972,15 @@ export const denuncias = pgTable("denuncias", {
 	// TODO: failed to parse database type 'citext'
 	emailAviso: citext("email_aviso"),
 	visibilidade: text().default('anonima').notNull(),
+	/* Como a pessoa quer ser chamada quando visibilidade='apelido'.
+	   É o ÚNICO campo desta tabela que aparece em público.
+	   O banco recusa apelido sem a visibilidade que o pede, e
+	   vice-versa (constraint denuncia_apelido_coerente, na 017). */
+	apelido: text(),
+	/* O que a pessoa escreveu ao marcar "Outro" como tipo de golpe.
+	   Diferente de descricaoNovo, que é sobre o roteiro ser inédito:
+	   uma denúncia pode ser as duas coisas, ou só uma. */
+	categoriaOutro: text("categoria_outro"),
 }, (table) => [
 	index("idx_denuncias_alvo").using("btree", table.alvo.asc().nullsLast().op("text_ops")),
 	index("idx_denuncias_codigo").using("btree", table.codigo.asc().nullsLast().op("text_ops")),

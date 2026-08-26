@@ -51,6 +51,11 @@ const TIPOS = [
 export function FormaDenuncia({ carimbo }: { carimbo: string }) {
   const [estado, acao, enviando] = useActionState(enviarDenuncia, null);
   const [golpeNovo, setGolpeNovo] = useState(false);
+  /* Estes dois existem só para revelar campo. Antes a tela
+     perguntava e não tinha onde a resposta cair — ver o comentário
+     em lib/acoes-denuncia.ts. */
+  const [categoria, setCategoria] = useState('');
+  const [visibilidade, setVisibilidade] = useState('anonima');
 
   /* Deu certo: o formulário sai da tela e fica só o protocolo.
      Mostrar o formulário preenchido junto com "enviado" faz a
@@ -90,7 +95,13 @@ export function FormaDenuncia({ carimbo }: { carimbo: string }) {
         <div className="opcoes">
           {TIPOS.map((o) => (
             <label className="opcao" key={o.v}>
-              <input type="radio" name="categoria" value={o.v} />
+              <input
+                type="radio"
+                name="categoria"
+                value={o.v}
+                checked={categoria === o.v}
+                onChange={() => setCategoria(o.v)}
+              />
               <span>
                 <i className={`bi ${o.i}`} aria-hidden="true" /> {o.t}
               </span>
@@ -98,6 +109,27 @@ export function FormaDenuncia({ carimbo }: { carimbo: string }) {
           ))}
         </div>
       </fieldset>
+
+      {/* "Outro" gravava a palavra "outro" e mais nada — e é
+          justamente a denúncia mais valiosa: a que não cabe em
+          nenhuma gaveta que a gente já conhece. */}
+      {categoria === 'outro' && (
+        <div className="campo campo--revelado">
+          <label htmlFor="categoria_outro">Que tipo de golpe foi?</label>
+          <input
+            id="categoria_outro"
+            name="categoria_outro"
+            type="text"
+            maxLength={80}
+            autoFocus
+            placeholder="Ex.: cobrança de dívida que eu não tinha"
+          />
+          <span className="dica">
+            Poucas palavras bastam. É assim que a gente descobre um tipo que ainda não
+            está na lista.
+          </span>
+        </div>
+      )}
 
       {/* Golpe inédito passa na frente da fila: ninguém está
           protegido dele ainda, nem tem aviso na base. */}
@@ -217,12 +249,38 @@ export function FormaDenuncia({ carimbo }: { carimbo: string }) {
         </div>
         <div className="campo">
           <label htmlFor="visibilidade">Como sua denúncia aparece</label>
-          <select id="visibilidade" name="visibilidade" defaultValue="anonima">
+          <select
+            id="visibilidade"
+            name="visibilidade"
+            value={visibilidade}
+            onChange={(e) => setVisibilidade(e.target.value)}
+          >
             <option value="anonima">Anônima — ninguém vê quem denunciou</option>
-            <option value="apelido">Com apelido</option>
+            <option value="apelido">Com um apelido meu</option>
           </select>
         </div>
       </div>
+
+      {/* Escolher "com apelido" não abria campo nenhum: a pessoa
+          pedia para aparecer com apelido e nunca era perguntado
+          qual. A denúncia saía anônima do mesmo jeito. */}
+      {visibilidade === 'apelido' && (
+        <div className="campo campo--revelado">
+          <label htmlFor="apelido">Que apelido deve aparecer?</label>
+          <input
+            id="apelido"
+            name="apelido"
+            type="text"
+            maxLength={60}
+            autoFocus
+            placeholder="Ex.: Vizinha do 302"
+          />
+          <span className="dica">
+            <b>Não use seu nome verdadeiro.</b> Este é o único dado desta página que
+            aparece para estranhos — o resto nunca sai daqui.
+          </span>
+        </div>
+      )}
 
       <div className="recado recado--info">
         <i className="bi bi-shield-lock" aria-hidden="true" />
