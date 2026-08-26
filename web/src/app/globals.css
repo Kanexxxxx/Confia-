@@ -497,7 +497,7 @@ body{
    .eyebrow de verdade lá embaixo: o fundo, a borda e o padding da
    pílula grudavam no traço+rótulo da home, e o resultado era uma
    pílula esticada de ponta a ponta da seção. Removido. */
-.capa h1{margin:0;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;font-weight:600;
+.capa h1{margin:0;font-family:var(--fonte-titulo),sans-serif;font-weight:600;
   font-size:clamp(28px,3.6vw,42px);line-height:1.15;letter-spacing:-.03em;color:#fff}
 .capa .lead{margin:16px 0 0;max-width:620px;font-size:16px;line-height:1.65;color:var(--on-dark-3)}
 
@@ -632,7 +632,7 @@ footer{margin-top:80px;border-top:1px solid rgba(255,255,255,.08)}
    ============================================================= */
 .doc{width:min(820px,100% - 48px);margin:0 auto;padding:130px 0 0}
 .doc-capa{margin-bottom:34px}
-.doc-capa h1{margin:0;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;font-weight:600;
+.doc-capa h1{margin:0;font-family:var(--fonte-titulo),sans-serif;font-weight:600;
   font-size:clamp(28px,3.4vw,40px);line-height:1.15;letter-spacing:-.03em;color:#fff}
 .doc-meta{display:flex;flex-wrap:wrap;gap:16px;margin-top:14px;font-size:13px;color:var(--on-dark-3)}
 .doc-meta b{color:var(--on-dark-2);font-weight:600}
@@ -645,7 +645,7 @@ footer{margin-top:80px;border-top:1px solid rgba(255,255,255,.08)}
 .sumario a:hover{color:#fff;text-decoration:underline}
 
 .doc-corpo{padding:38px 40px 34px}
-.doc-corpo h2{margin:38px 0 12px;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;font-size:19px;font-weight:600;
+.doc-corpo h2{margin:38px 0 12px;font-family:var(--fonte-titulo),sans-serif;font-size:19px;font-weight:600;
   letter-spacing:-.01em;color:var(--ink);scroll-margin-top:100px}
 .doc-corpo h2:first-child{margin-top:0}
 .doc-corpo h3{margin:22px 0 8px;font-size:15.5px;font-weight:600;color:var(--ink)}
@@ -1048,7 +1048,7 @@ footer{margin-top:80px;border-top:1px solid rgba(255,255,255,.08)}
 .kicker .bi{font-size:13px;color:var(--safe)}
 
 .pitch h1{
-  margin:0;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;font-weight:600;
+  margin:0;font-family:var(--fonte-titulo),sans-serif;font-weight:600;
   font-size:clamp(34px,4.4vw,54px);line-height:1.1;letter-spacing:-.03em;color:#fff;
 }
 .pitch h1 em{font-style:normal;color:var(--sky-soft)}
@@ -1062,10 +1062,8 @@ footer{margin-top:80px;border-top:1px solid rgba(255,255,255,.08)}
    por isso são pequenas, densas, e quebram em duas ou três por
    linha em vez de virar uma coluna.
 
-   `position:relative` existe por causa da lupa logo abaixo.
    ============================================================== */
 .marks{
-  position:relative;
   display:flex;flex-wrap:wrap;gap:7px;margin-top:28px;max-width:520px;
 }
 .mark{
@@ -1079,64 +1077,25 @@ footer{margin-top:80px;border-top:1px solid rgba(255,255,255,.08)}
 .mark > .bi{font-size:14px;line-height:1;opacity:.75}
 
 /* ==============================================================
-   A LUPA QUE PASSA — a assinatura desta página
+   AQUI PASSAVA UMA LUZ SOBRE OS CHIPS — REMOVIDA
 
-   Uma luz ovalada atravessa a nuvem de dúvidas devagar, da
-   esquerda para a direita, e some. É a lupa da marca — a mesma
-   que está dentro do "O" de Confia? — passando por cima das
+   Era um brilho ovalado atravessando a nuvem de dúvidas a cada 11
+   segundos. A ideia era a lupa da marca passando por cima das
    dúvidas da pessoa.
 
-   POR QUE ISTO E NÃO UM BRILHO GENÉRICO:
-   Brilho passando em tudo é o efeito que todo site com aparência
-   de gerado por máquina usa hoje. Este tem endereço: é o
-   instrumento do próprio produto, no lugar onde ele faria
-   sentido, e só ali. Passa uma vez a cada 11 segundos — raro o
-   bastante para ser notado sem incomodar.
+   Na tela virou outra coisa: uma bola clara andando sozinha pelo
+   fundo, sem explicação para quem está lendo. Efeito que precisa
+   ser explicado para fazer sentido não está funcionando.
 
-   CUIDADO AO MEXER:
-     - `pointer-events:none` é obrigatório: sem isso a camada
-       come o clique dos chips.
-     - `mix-blend-mode:plus-lighter` só CLAREIA. Um gradiente
-       normal por cima escureceria o texto na passagem.
-     - Fica desligada em prefers-reduced-motion.
+   Saíram junto: `@keyframes lupa-passa`, `@property --lupa` e o
+   `position:relative` que existia só para ancorar o pseudo.
+
+   CUIDADO AO MEXER: se alguém quiser tentar de novo, o problema
+   não é a animação — é que movimento no FUNDO compete com o
+   texto. Movimento que serve é o que responde a uma ação da
+   pessoa, não o que acontece sozinho.
    ============================================================== */
-@media (scripting: enabled){
-  .marks::after{
-    content:"";position:absolute;
-    /* SEM SANGRIA HORIZONTAL. Estava `-14px -30px`, e os 30px de
-       cada lado passavam da largura da página num celular — a
-       página inteira ganhava 15px de rolagem lateral por causa de
-       um efeito decorativo. A entrada e a saída suaves já vêm do
-       `--lupa`, que vai de -20% a 120%; a sangria não fazia falta.
-       A vertical fica, porque não empurra nada. */
-    inset:-14px 0;pointer-events:none;
-    border-radius:inherit;
-    background:radial-gradient(
-      130px 70px at var(--lupa, -20%) 50%,
-      rgba(169,205,255,.30),
-      rgba(169,205,255,.10) 45%,
-      transparent 72%
-    );
-    mix-blend-mode:plus-lighter;
-    animation:lupa-passa 11s var(--ease) infinite;
-  }
-}
-@keyframes lupa-passa{
-  /* Fica parada a maior parte do ciclo. A travessia leva ~2,5s
-     dos 11 — é uma aparição, não um efeito ligado o tempo todo. */
-  0%, 62%   { --lupa:-20%; opacity:0 }
-  66%       { opacity:1 }
-  84%       { opacity:1 }
-  88%, 100% { --lupa:120%; opacity:0 }
-}
 
-/* `--lupa` só anima se o navegador souber que ela é uma
-   porcentagem. Sem esta declaração, a transição vira um salto. */
-@property --lupa{
-  syntax: '<percentage>';
-  inherits: false;
-  initial-value: -20%;
-}
 
 @media (prefers-reduced-motion: reduce){
   .marks::after{animation:none;opacity:0}
@@ -1290,7 +1249,7 @@ body > section, main > section{width:var(--shell);margin:0 auto}
 .eyebrow{display:flex;align-items:center;gap:9px;margin:0 0 12px;
   font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--sky-soft)}
 .eyebrow::before{content:"";width:26px;height:1px;background:currentColor;opacity:.5}
-.sec-head h2{margin:0;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;font-weight:600;
+.sec-head h2{margin:0;font-family:var(--fonte-titulo),sans-serif;font-weight:600;
   font-size:clamp(24px,2.6vw,32px);line-height:1.25;letter-spacing:-.02em;color:#fff}
 .sec-head p{margin:12px 0 0;font-size:15.5px;line-height:1.65;color:var(--on-dark-3)}
 
@@ -1364,7 +1323,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 .numero{padding:26px 24px;border-radius:var(--r-xl);
   background:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.028));
   border:1px solid rgba(255,255,255,.1)}
-.numero b{display:block;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;font-size:clamp(26px,3vw,34px);
+.numero b{display:block;font-family:var(--fonte-titulo),sans-serif;font-size:clamp(26px,3vw,34px);
   font-weight:700;letter-spacing:-.02em;color:#fff;line-height:1.1}
 .numero span{display:block;margin-top:8px;font-size:13px;line-height:1.55;color:var(--on-dark-3)}
 .fonte{margin:16px 0 0;font-size:12px;color:rgba(234,241,253,.55)}
@@ -1400,7 +1359,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
   padding:44px 44px;border-radius:var(--r-xl);
   background:linear-gradient(140deg,rgba(77,159,255,.12),rgba(255,255,255,.03));
   border:1px solid rgba(255,255,255,.12)}
-.historia h2{margin:0 0 16px;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;font-weight:600;
+.historia h2{margin:0 0 16px;font-family:var(--fonte-titulo),sans-serif;font-weight:600;
   font-size:clamp(22px,2.6vw,30px);line-height:1.25;letter-spacing:-.02em;color:#fff}
 .historia p{margin:0 0 14px;font-size:15.5px;line-height:1.75;color:var(--on-dark-2)}
 .historia p:last-child{margin-bottom:0}
@@ -1449,7 +1408,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 .convite i.ico{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;
   margin-bottom:18px;font-size:21px;
   background:rgba(77,159,255,.16);border:1px solid rgba(255,255,255,.12);color:#cfe2ff}
-.convite h3{margin:0 0 8px;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;font-size:19px;font-weight:600;color:#fff}
+.convite h3{margin:0 0 8px;font-family:var(--fonte-titulo),sans-serif;font-size:19px;font-weight:600;color:#fff}
 .convite p{margin:0;font-size:14px;line-height:1.7;color:var(--on-dark-3);flex:1}
 .convite em{display:flex;align-items:center;gap:7px;margin-top:20px;font-style:normal;
   font-size:13.5px;font-weight:600;color:var(--sky-soft)}
@@ -1615,7 +1574,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
   flex:none;width:44px;height:44px;display:grid;place-items:center;border-radius:13px;
   background:rgba(255,122,107,.16);color:var(--risk);font-size:21px;
 }
-.limite-topo b{display:block;margin-bottom:5px;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;
+.limite-topo b{display:block;margin-bottom:5px;font-family:var(--fonte-titulo),sans-serif;
   font-size:19px;font-weight:600;letter-spacing:-.01em;color:#fff}
 .limite-topo span{display:block;font-size:14.5px;line-height:1.55;color:var(--on-dark-2)}
 
@@ -1723,7 +1682,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 
 .cookies-titulo{
   display:flex;align-items:center;gap:9px;
-  margin:0 0 8px;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;
+  margin:0 0 8px;font-family:var(--fonte-titulo),sans-serif;
   font-size:16px;font-weight:600;letter-spacing:-.01em;color:#fff;
 }
 .cookies-titulo > .bi{color:var(--warn);font-size:19px;line-height:1}
@@ -1797,7 +1756,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
    longo estica a barra inteira e quebra o layout. */
 .painel-quem-texto{min-width:0;display:flex;flex-direction:column;gap:2px}
 .painel-quem-texto b{
-  font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;font-size:16px;font-weight:600;
+  font-family:var(--fonte-titulo),sans-serif;font-size:16px;font-weight:600;
   letter-spacing:-.01em;color:#fff;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
@@ -1843,7 +1802,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 
 .painel-titulo{margin:0 0 4px}
 .painel-titulo h1{
-  margin:0;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;font-weight:600;
+  margin:0;font-family:var(--fonte-titulo),sans-serif;font-weight:600;
   font-size:clamp(24px,2.6vw,31px);line-height:1.2;letter-spacing:-.025em;color:#fff;
 }
 .painel-titulo p{margin:7px 0 0;font-size:14.5px;line-height:1.6;color:var(--on-dark-2)}
@@ -1858,7 +1817,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 .cartao-topo{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
   margin-bottom:18px}
 .cartao h2{
-  margin:0;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;font-size:17px;font-weight:600;
+  margin:0;font-family:var(--fonte-titulo),sans-serif;font-size:17px;font-weight:600;
   letter-spacing:-.01em;color:#fff;
 }
 .cartao-topo p{margin:5px 0 0;font-size:13.5px;line-height:1.6;color:var(--on-dark-3)}
@@ -2000,8 +1959,8 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 }
 .conta-plano--atual{background:rgba(77,159,255,.1);border-color:rgba(77,159,255,.3)}
 .conta-plano-topo{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.conta-plano-topo b{font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;font-size:16px;font-weight:600;color:#fff}
-.conta-plano-preco{margin:0;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;font-size:26px;font-weight:700;
+.conta-plano-topo b{font-family:var(--fonte-titulo),sans-serif;font-size:16px;font-weight:600;color:#fff}
+.conta-plano-preco{margin:0;font-family:var(--fonte-titulo),sans-serif;font-size:26px;font-weight:700;
   letter-spacing:-.02em;color:#fff;line-height:1}
 .conta-plano-preco span{display:block;margin-top:5px;font-family:Inter,sans-serif;
   font-size:12.5px;font-weight:400;letter-spacing:0;color:var(--on-dark-3)}
@@ -2089,7 +2048,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 
 /* ---------- cabeçalho ---------- */
 .topo{width:var(--shell);margin:0 auto;padding:140px 0 0;text-align:center}
-.topo h1{margin:0;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;font-weight:600;
+.topo h1{margin:0;font-family:var(--fonte-titulo),sans-serif;font-weight:600;
   font-size:clamp(30px,4vw,46px);line-height:1.15;letter-spacing:-.03em;color:#fff}
 .topo p{margin:16px auto 0;max-width:600px;font-size:16.5px;line-height:1.65;color:var(--on-dark-3)}
 
@@ -2143,11 +2102,11 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 }
 .fita{position:absolute;top:-11px;left:24px;padding:5px 12px;border-radius:999px;
   background:var(--sky);color:#04101f;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
-.plano h2{margin:0;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;font-size:19px;font-weight:600;color:#fff}
+.plano h2{margin:0;font-family:var(--fonte-titulo),sans-serif;font-size:19px;font-weight:600;color:#fff}
 .plano .pra{margin:6px 0 0;font-size:13px;line-height:1.55;color:var(--on-dark-3);min-height:40px}
 .preco{display:flex;align-items:baseline;gap:4px;margin:18px 0 2px}
 .preco .moeda{font-size:15px;font-weight:600;color:var(--on-dark-2)}
-.preco .valor{font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;font-size:36px;font-weight:700;color:#fff;letter-spacing:-.02em}
+.preco .valor{font-family:var(--fonte-titulo),sans-serif;font-size:36px;font-weight:700;color:#fff;letter-spacing:-.02em}
 .preco .ciclo-txt{font-size:13px;color:var(--on-dark-3)}
 /* À esquerda como o resto do cartão: o preço acima já está na
    régua da esquerda, e a nota centralizada abaixo dele quebrava a
@@ -2206,7 +2165,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
    ============================================================= */
 .qual-voce{width:var(--shell);margin:52px auto 0}
 .qual-voce h2{
-  margin:0;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;
+  margin:0;font-family:var(--fonte-titulo),sans-serif;
   font-size:clamp(24px,3vw,34px);font-weight:600;letter-spacing:-.02em;color:#fff;
 }
 .qual-voce-nota{margin:8px 0 0;font-size:14px;line-height:1.6;color:var(--on-dark-3)}
@@ -2264,7 +2223,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
   text-transform:uppercase;color:var(--sky-soft);
 }
 .antes-topo h2{
-  margin:0;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;
+  margin:0;font-family:var(--fonte-titulo),sans-serif;
   font-size:26px;font-weight:600;letter-spacing:-.02em;color:#fff;
 }
 .antes-fechar{
@@ -2332,7 +2291,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 
 /* ---------- comparativo ---------- */
 .comparativo{width:var(--shell);margin:70px auto 0}
-.comparativo h2{margin:0 0 6px;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;font-size:clamp(22px,2.4vw,28px);
+.comparativo h2{margin:0 0 6px;font-family:var(--fonte-titulo),sans-serif;font-size:clamp(22px,2.4vw,28px);
   font-weight:600;letter-spacing:-.02em;color:#fff}
 .comparativo > p{margin:0 0 26px;font-size:15px;color:var(--on-dark-3)}
 .rolagem{overflow-x:auto;border-radius:var(--r-xl);border:1px solid rgba(255,255,255,.1);
@@ -2345,7 +2304,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 .comparativo tbody th{font-weight:500;color:var(--on-dark-2)}
 .comparativo td{color:var(--on-dark-2)}
 .comparativo td b{color:#fff;font-weight:600}
-.comparativo .grupo th{background:rgba(255,255,255,.05);font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;font-size:11.5px;font-weight:600;
+.comparativo .grupo th{background:rgba(255,255,255,.05);font-family:var(--fonte-titulo),sans-serif;font-size:11.5px;font-weight:600;
   letter-spacing:.12em;text-transform:uppercase;color:var(--sky-soft)}
 .comparativo .sim{color:var(--safe);font-size:15px}
 .comparativo .nao{color:rgba(234,241,253,.25);font-size:15px}
@@ -2527,7 +2486,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 .denuncia-pronta{text-align:center;padding:12px 4px 4px}
 .denuncia-pronta > .bi{font-size:46px;color:var(--safe);line-height:1}
 .denuncia-pronta h2{
-  margin:14px 0 8px;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;font-size:22px;
+  margin:14px 0 8px;font-family:var(--fonte-titulo),sans-serif;font-size:22px;
   font-weight:600;letter-spacing:-.02em;color:var(--ink);
 }
 .denuncia-pronta > p{margin:0 auto;max-width:46ch;font-size:14.5px;
@@ -2624,7 +2583,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 
 /* ---------- títulos de seção dentro do formulário ---------- */
 .forma-secao{
-  margin:0 0 4px;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;
+  margin:0 0 4px;font-family:var(--fonte-titulo),sans-serif;
   font-size:18px;font-weight:600;letter-spacing:-.01em;color:var(--ink);
 }
 .forma-secao-nota{margin:0 0 20px;font-size:13.5px;line-height:1.6;color:var(--ink-3)}
@@ -2815,7 +2774,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
   padding:16px 18px;border-radius:var(--r-md);margin-bottom:20px;
 }
 .veredito i.sinal{font-size:34px;line-height:1;flex:none}
-.veredito h1{margin:0;font-family:var(--fonte-titulo),Georgia,'Times New Roman',serif;font-size:23px;font-weight:700;letter-spacing:-.01em}
+.veredito h1{margin:0;font-family:var(--fonte-titulo),sans-serif;font-size:23px;font-weight:700;letter-spacing:-.01em}
 .veredito .alvo{
   display:block;margin-top:2px;font-size:12.5px;font-weight:500;
   word-break:break-all;opacity:.82;
