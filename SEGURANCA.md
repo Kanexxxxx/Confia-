@@ -199,12 +199,13 @@ Esta lista existe porque esconder buraco não tapa buraco.
 
 | Falta | Risco | Quando |
 |---|---|---|
-| **HTTPS** | Hoje o beta é HTTP. Senha trafega em claro numa rede aberta. | Etapa 7 |
+| **HTTPS** | A configuração está escrita (`servidor/03-publica.sh`: porta 80 só redireciona, HSTS de 2 anos), mas **ainda não roda em servidor nenhum**. Enquanto o beta não subir, não existe HTTPS. | Etapa 7 |
 | ~~CSP~~ | ~~Sem ela, um script injetado teria menos barreira.~~ | ✅ **feito** (`web/src/proxy.ts`, nonce por requisição) |
 | ~~2FA no admin~~ | ~~Saber a senha do admin hoje basta.~~ | ✅ **feito** |
 | **Limite compartilhado** | O contador vive na memória de um servidor. Com dois, o limite real triplica. | Etapa 10 |
 | **Backup fora** | Existe cópia local, mas sem automação rodando. | você |
 | **DMARC firme** | Está em `p=none`. Dá para falsificar e-mail em nome do confia?. | Etapa 7 |
+| **Envio de imagem** | Hoje o anexo **não sai do navegador** — não existe rota de upload. Quando existir (Etapa 8), tipo, tamanho e conteúdo precisam ser conferidos **no servidor**: `accept="image/*"` e o limite de 10 MB da tela são só sugestão para quem é honesto. | Etapa 8 |
 | **Teste de invasão** | Nada disso foi testado por alguém de fora. | depois da 10 |
 | **CNPJ** | Sem empresa, você responde com **CPF e patrimônio pessoal**. | você |
 | **`'unsafe-inline'` no CSP** | O React escreve `style="..."` em dezenas de lugares. Enquanto isso existir, a CSP protege contra script injetado, não contra estilo injetado. | Etapa 10 |
