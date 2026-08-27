@@ -1718,12 +1718,56 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 .limite-lista{list-style:none;margin:0;padding:0;
   display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .limite-lista li{display:grid;grid-template-columns:auto 1fr;
-  grid-template-rows:auto auto;column-gap:11px;row-gap:3px;align-items:start}
-.limite-lista li > i{grid-row:1 / span 2;
+  /* auto / 1fr / auto: a descricao do meio ESTICA, e com isso as
+     caixas "Quem resolve" dos tres itens ficam na mesma altura.
+     Com tres `auto` cada uma comecava onde o texto dela acabava,
+     e as tres se desalinhavam. */
+  grid-template-rows:auto 1fr auto;column-gap:11px;row-gap:3px;align-items:start}
+.limite-lista li > i{grid-row:1 / -1;
   width:32px;height:32px;display:grid;place-items:center;border-radius:9px;
   background:rgba(255,255,255,.06);color:var(--risk);font-size:15px}
 .limite-lista b{font-size:14.5px;font-weight:600;color:#fff}
 .limite-lista span{font-size:13px;line-height:1.5;color:var(--on-dark-3)}
+
+/* "Quem resolve": cada limite termina num caminho concreto, com o
+   canal e o prazo. Sem isto o bloco só dizia o que a gente NÃO faz
+   e deixava a pessoa parada no meio do problema.
+   ⚠ NÃO troque para flex: o ícone é irmão de texto solto e de <b>
+     dentro do mesmo <p>. Em flex, cada <b> vira um item separado e
+     a frase se parte em pedaços. Por isso o ícone é absoluto.
+   ⚠ Este <p> é a 3ª linha da grade do <li>. Se tirar, volte
+     grid-template-rows para dois `auto`. */
+.limite-lista .saida{position:relative;grid-column:2;
+  margin:10px 0 0;padding:10px 12px 10px 33px;border-radius:10px;
+  background:rgba(77,159,255,.09);border:1px solid rgba(77,159,255,.2);
+  font-size:12.5px;line-height:1.55;color:var(--on-dark-2)}
+.limite-lista .saida > i{position:absolute;left:12px;top:11px;
+  color:var(--sky);font-size:13px}
+.limite-lista .saida b{font-size:inherit;font-weight:600;color:#fff}
+/* O do Pix tem prazo correndo. A cor avisa antes de a pessoa ler. */
+.limite-lista .saida--urgente{background:rgba(255,198,92,.09);
+  border-color:rgba(255,198,92,.24)}
+.limite-lista .saida--urgente > i{color:var(--warn)}
+
+/* ---------- as quatro perguntas francas ----------
+   A seção se chamava "Transparência é parte do serviço" e mostrava
+   quatro links para políticas. Prometer transparência não é ser
+   transparente. Agora a pergunta vem na voz de quem pergunta e a
+   resposta começa pela palavra que decide — Não / Vê / Só se você
+   quiser / A gente pode errar. Duas delas não pegam bem, e é
+   exatamente por isso que ficam antes dos links. */
+.francas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;margin-bottom:22px}
+.franca{padding:18px 20px;border-radius:var(--r-lg);
+  background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08)}
+.franca-p{margin:0 0 9px;font-family:var(--fonte-titulo),sans-serif;
+  font-size:15px;font-weight:600;line-height:1.4;color:var(--sky-soft)}
+.franca-r{margin:0;font-size:14px;line-height:1.62;color:var(--on-dark-2)}
+.franca-r b{color:#fff;font-weight:600}
+@media (max-width:760px){
+  .francas{grid-template-columns:1fr;gap:12px}
+  .franca{padding:16px}
+}
 
 @media (max-width:1080px){
   .limite-lista{grid-template-columns:1fr 1fr}

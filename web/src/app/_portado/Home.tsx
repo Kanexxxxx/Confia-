@@ -422,8 +422,9 @@ export function Home() {
             <i className="bi bi-hand-thumbs-down" aria-hidden="true"></i>
             <div>
               <b>O que a gente ainda NÃO consegue verificar</b>
-              <span>Se o seu caso for um destes, a nossa resposta não serve — procure seu
-              banco e registre boletim de ocorrência.</span>
+              <span>Se o seu caso for um destes, a nossa resposta não serve. Mas existe
+              quem resolva — e, no caso do Pix, existe prazo correndo. Está escrito em cada
+              um, aqui embaixo.</span>
             </div>
           </div>
           <ul className="limite-lista">
@@ -433,18 +434,36 @@ export function Home() {
               <span>Quando a pesquisa pergunta às pessoas, é o golpe mais citado do país
               (Observatório Febraban/IPESPE, junho de 2025). Depende de dado que só o seu
               banco enxerga — a gente nem tenta adivinhar.</span>
+              <p className="saida">
+                <i className="bi bi-arrow-return-right" aria-hidden="true"></i>
+                <b>Quem resolve:</b> conteste a compra pelo aplicativo do banco, na própria
+                fatura, e registre boletim de ocorrência. É o BO que sustenta a contestação.
+              </p>
             </li>
             <li>
               <i className="bi bi-qr-code" aria-hidden="true"></i>
               <b>Chave Pix, boleto e comprovante</b>
               <span>Precisa de acesso ao sistema bancário. Estamos atrás disso — e responder
               errado sobre dinheiro é pior do que não responder.</span>
+              <p className="saida saida--urgente">
+                <i className="bi bi-stopwatch" aria-hidden="true"></i>
+                <b>Quem resolve, e tem prazo:</b> o <b>MED</b>, Mecanismo Especial de Devolução
+                do Banco Central. São <b>80 dias corridos</b> para contestar, no seu próprio
+                aplicativo, dentro do extrato do Pix. Mas pedir <b>no mesmo dia</b> muda muito a
+                chance de o dinheiro voltar — o golpista ainda não tirou da conta.
+              </p>
             </li>
             <li>
               <i className="bi bi-telephone-x" aria-hidden="true"></i>
               <b>Ligação telefônica</b>
               <span>A gente confere link, site, perfil e print. Chamada de voz não deixa
               rastro que dê para conferir.</span>
+              <p className="saida">
+                <i className="bi bi-arrow-return-right" aria-hidden="true"></i>
+                <b>Quem resolve:</b> desligue e ligue <b>você</b> para o número do verso do seu
+                cartão. Nenhum banco se ofende com isso. Se já saiu dinheiro, MED primeiro,
+                boletim de ocorrência depois.
+              </p>
             </li>
           </ul>
         </div>
@@ -597,14 +616,48 @@ export function Home() {
         <div className="sec-head">
           <p className="eyebrow">Ajuda e políticas</p>
           <h2>Transparência é parte do serviço</h2>
-          <p>Um site que pede confiança precisa explicar direitinho o que faz com o que você envia.</p>
+          <p>Um site que pede confiança devia começar respondendo o que ninguém gosta de
+          perguntar. Aqui estão as respostas curtas. As longas estão nas políticas — e dizem
+          exatamente a mesma coisa.</p>
+        </div>
+
+        {/* As quatro perguntas que a pessoa faz de verdade, com a
+            resposta começando pela palavra que decide: Não / Vê /
+            Só se você quiser / A gente pode errar. Duas delas não
+            pegam bem, e é justamente por isso que estão aqui.
+            ⚠ Toda resposta aqui é o que a política de privacidade já
+              diz. Mudou lá, muda aqui. */}
+        <div className="francas">
+          <div className="franca">
+            <p className="franca-p">&ldquo;O print que eu mandar fica guardado?&rdquo;</p>
+            <p className="franca-r"><b>Não.</b> Imagem e print são apagados assim que a análise
+            termina. Fica só o resultado — sem a imagem.</p>
+          </div>
+          <div className="franca">
+            <p className="franca-p">&ldquo;Alguém de fora vê o que eu envio?&rdquo;</p>
+            <p className="franca-r"><b>Vê.</b> Para ler o conteúdo a gente usa a OpenAI, e para
+            saber se uma imagem foi feita por inteligência artificial, a Hive AI. As duas ficam
+            nos Estados Unidos. A política tem a tabela do que cada uma recebe.</p>
+          </div>
+          <div className="franca">
+            <p className="franca-p">&ldquo;Se eu denunciar, aparece meu nome?&rdquo;</p>
+            <p className="franca-r"><b>Só se você quiser</b> — e mesmo assim com um apelido que
+            você escolhe, nunca com o seu nome. A denúncia fica guardada por tempo
+            indeterminado, já desligada de quem denunciou.</p>
+          </div>
+          <div className="franca">
+            <p className="franca-p">&ldquo;E se vocês errarem?&rdquo;</p>
+            <p className="franca-r"><b>A gente pode errar.</b> Não somos o seu banco nem a
+            polícia, e a nossa resposta não substitui nenhum dos dois. Se a análise estiver
+            errada, escreve pra gente: respondemos em até 7 dias, ou 15 se for pedido da LGPD.</p>
+          </div>
         </div>
 
         <div className="grid-pol">
           <Link className="pol pane" href="/privacidade">
             <i className="ico bi bi-shield-lock" aria-hidden="true"></i>
             <b>Privacidade</b>
-            <span>O que guardamos, por quanto tempo e o que nunca sai daqui. Prints são apagados após a análise.</span>
+            <span>A tabela inteira: cada dado, o prazo dele e o motivo de existir. Mais os seus direitos e como usá-los.</span>
             <em>Ler a política <i className="bi bi-arrow-right" aria-hidden="true"></i></em>
           </Link>
           <Link className="pol pane" href="/termos">

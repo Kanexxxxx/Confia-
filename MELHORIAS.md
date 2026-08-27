@@ -168,11 +168,27 @@ se você abrir uma conversa nova, é por aqui que se retoma.
       que pergunta às pessoas, e falso no ranking de ocorrências no banco. Agora
       a frase diz qual das duas medidas está falando.
       ⚠ As reproduções não citam banco nem loja real, de propósito.
+- [x] **"O que a gente ainda NÃO consegue verificar" agora diz quem resolve.**
+      Antes listava três coisas que a gente não faz e parava ali, deixando a
+      pessoa parada no meio do problema. Cada limite terminou virando um caminho
+      concreto: contestar pelo app e registrar BO; ligar **você** para o número do
+      verso do cartão; e o principal — o **MED** do Banco Central, que dá **80 dias
+      corridos** para contestar um Pix, no próprio extrato do aplicativo, com a
+      observação de que pedir no mesmo dia muda muito a chance. Essa é informação
+      que salva dinheiro e faltava numa página sobre golpe.
+- [x] **"Transparência é parte do serviço" passou a ser transparente.** Era um
+      título prometendo transparência em cima de quatro links para políticas.
+      Agora responde antes as quatro perguntas incômodas — "o print fica
+      guardado?", "alguém de fora vê?", "aparece meu nome?", "e se vocês
+      errarem?" — e a resposta começa pela palavra que decide: Não / Vê / Só se
+      você quiser / **A gente pode errar**. Duas delas não pegam bem, e é por isso
+      que ficam antes dos links.
+      ⚠ Cada resposta é cópia do que a política de privacidade já diz. **Mudou a
+      política, muda este bloco** — senão a home promete uma coisa e o documento
+      vale outra, que é o defeito que o bloco existe para não ter.
 
 ### Falta — o que você pediu e ainda não fiz
 
-- [ ] **"O que a gente ainda NÃO consegue verificar"** — ainda básico.
-- [ ] **"Transparência é parte do serviço"** — ainda básico.
 - [ ] **Criar conta: na HORIZONTAL no computador.** Hoje é uma coluna comprida
       e a pessoa arrasta o mouse à toa. Comprido só no celular.
 - [ ] **A lateral de /denunciar** ("Perdeu dinheiro agora?", "O que acontece
