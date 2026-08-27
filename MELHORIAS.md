@@ -1,6 +1,6 @@
 # Rodada de acabamento — tudo que você apontou
 
-**Aberta em:** 24/08/2026
+**Aberta em:** 24/08/2026 · **última revisão:** 26/08/2026
 **Regra desta rodada:** estética e experiência primeiro. Motor de análise,
 pagamento e app ficam para depois.
 
@@ -113,6 +113,62 @@ e eu não vou dizer que existe.
 
 - [ ] PWA — o site instala como aplicativo, com convite para instalar.
       Você quer que os avaliadores do SENAC instalem na apresentação.
+
+---
+
+## I · Terceira rodada — 26/08/2026
+
+O que você apontou olhando o site pronto. **Esta seção é a lista viva:**
+se você abrir uma conversa nova, é por aqui que se retoma.
+
+### Feito nesta rodada
+
+- [x] **Os botões de cancelar e enviar** em /denunciar e /registrar-loja estavam
+      desiguais (`flex:1` só no enviar). Cancelar virou link discreto: ele é
+      saída, não ação de peso igual.
+- [x] **"Com apelido" não abria campo nenhum.** A pessoa pedia para aparecer com
+      apelido e nunca era perguntado qual — a denúncia saía anônima. Mesmo
+      defeito no "Outro" dos dois formulários: gravava a palavra "outro" e mais
+      nada. Migração `017` criou as três colunas.
+- [x] **Fora a dica "MEI também vale"** embaixo do CNPJ e o aviso "o cadastro
+      não custa nada" no fim — a página já diz isso antes.
+- [x] **/planos refeita.** Era corrida de checkmark: quatro colunas de ticks e
+      quarenta linhas. Agora abre com **"Qual desses é você?"** em primeira
+      pessoa, antes de qualquer preço, e cada item diz **o que faz**, não só o
+      nome. "Antes de assinar" saiu do fim da página e abre no clique de
+      assinar, que é quando a pergunta existe.
+- [x] **O alinhamento.** A causa era `.topo{text-align:center}` do herói
+      escorrendo por herança até dentro dos cartões.
+- [x] **A "bola branca" que passava** era a animação `lupa-passa` sobre os
+      chips. Removida.
+- [x] **A textura de fundo** (guilhochê) foi tentada, tinha erro de emenda no
+      ladrilho, foi consertada e mesmo assim **você mandou tirar**. Está fora.
+      ⚠ Consequência anotada em `globals.css`: sem detalhe fino atrás, o vidro
+      tem pouco o que refratar.
+- [x] **A fonte** foi trocada (Instrument Sans + Fraunces) e **você mandou
+      voltar**. Voltou para Inter + Poppins.
+      ⚠ **Não troque a fonte de novo sem perguntar.**
+
+### Falta — o que você pediu e ainda não fiz
+
+- [ ] **Tipos de golpe (a lista com 34%, 31%…).** Você disse: "não especificou,
+      não exemplos, não pegou fontes reais, não pegou as evidências". Precisa de
+      exemplo concreto por tipo e a fonte de cada número.
+- [ ] **"O que a gente ainda NÃO consegue verificar"** — ainda básico.
+- [ ] **"Transparência é parte do serviço"** — ainda básico.
+- [ ] **Criar conta: na HORIZONTAL no computador.** Hoje é uma coluna comprida
+      e a pessoa arrasta o mouse à toa. Comprido só no celular.
+- [ ] **A lateral de /denunciar** ("Perdeu dinheiro agora?", "O que acontece
+      depois", "Tem print da conversa?") — informação demais, junto.
+- [ ] **Perfil e empresa** — melhorar.
+- [ ] **Painel do admin** — você ainda não viu nem o protótipo.
+
+### Regras suas que valem daqui para a frente
+
+- **Subir o site é a ÚLTIMA coisa.** Tem muita coisa para testar antes.
+- **Não deixar com cara de inteligência artificial.** Bonito, agradável, com
+  algo em movimento — mas movimento que serve, não que aparece sozinho.
+- **Acessibilidade no celular sempre**, em toda tela.
 
 ---
 
