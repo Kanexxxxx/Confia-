@@ -15,11 +15,15 @@ import { useState } from 'react';
 import { Avatar, AVATARES, type NomeAvatar } from './avatar';
 
 export function EscolheAvatar({
-  nome, inicial = 'inicial', campo = 'avatar',
+  nome, inicial = 'inicial', campo = 'avatar', tamanho = 44,
 }: {
   nome: string;
   inicial?: string;
   campo?: string;
+  /* Tamanho do circulo, em px. O <Avatar> escreve isso no atributo
+     `style`, entao CSS de fora NAO consegue mudar -- estilo inline
+     ganha de classe. Se precisar de figura maior ou menor, e por aqui. */
+  tamanho?: number;
 }) {
   const [escolhido, setEscolhido] = useState<string>(inicial);
 
@@ -49,7 +53,7 @@ export function EscolheAvatar({
               onChange={() => setEscolhido(o.id)}
             />
             <span>
-              <Avatar nome={nome || 'confia'} avatar={o.id} tamanho={44} />
+              <Avatar nome={nome || 'confia'} avatar={o.id} tamanho={tamanho} />
               <span className="sr">Avatar {o.rotulo}</span>
             </span>
           </label>

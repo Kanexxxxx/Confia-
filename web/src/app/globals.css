@@ -152,6 +152,47 @@ body{
 }
 .cartao-conta .lead{margin:0 0 24px;font-size:14.5px;line-height:1.65;color:var(--ink-2)}
 
+/* ---------- criar conta: na horizontal no computador ----------
+
+   Voce disse: "para computador, a aba de criar conta voce vai deixar
+   ela na horizontal... a pessoa nao tem que ficar arrastando pra
+   baixo, o scroll do mouse". Estava certo -- eram nove blocos
+   empilhados dentro de um cartao de 420px: sobrava tela dos dois
+   lados e faltava embaixo.
+
+   De 900px para cima o cartao abre para 780px e os campos correm em
+   DUAS colunas. No celular continua uma coluna so, que la e a forma
+   certa -- e e por isso que isto e `min-width` e nao `max-width`.
+
+   ⚠ A ordem visual e a ordem do HTML. Nada foi movido com `order:`,
+     porque o leitor de tela segue o HTML e as duas iriam divergir.
+     Precisa mudar a sequencia? Mude no JSX.
+
+   ⚠ Atravessam as duas colunas: a escolha pessoa/empresa (decide o
+     resto do formulario), os avatares (ja sao uma fileira), o aceite
+     e o botao.
+
+   ⚠ So vale com `.porta--larga`. /entrar compartilha `.porta` e tem
+     dois campos. */
+@media (min-width:900px){
+  .porta--larga .cartao-conta{max-width:780px;padding:36px 38px 30px}
+  .porta--larga .cartao-conta form{
+    display:grid;grid-template-columns:1fr 1fr;
+    column-gap:24px;align-items:start}
+  .porta--larga .cartao-conta form > .escolha-tipo,
+  .porta--larga .cartao-conta form > .aceite,
+  .porta--larga .cartao-conta form > .btn{grid-column:1 / -1}
+  /* A figura NAO atravessa as duas colunas: ela cai na coluna que
+     sobrava ao lado da senha, que era o maior vazio da tela.
+     ⚠ Nao adianta encolher os circulos por CSS aqui: o <Avatar> escreve
+       width/height no atributo style, e estilo inline ganha de classe.
+       Para mudar o tamanho, mude o prop `tamanho` em escolhe-avatar.tsx. */
+  .porta--larga .grade-avatar{gap:7px}
+  /* Botao do tamanho do que ele faz, nao do tamanho da tela. */
+  .porta--larga .cartao-conta form > .btn{
+    justify-self:start;width:auto;min-width:250px}
+}
+
 /* ---------- campos ---------- */
 .campo{display:block;margin-bottom:18px}
 .campo > label{display:block;margin-bottom:7px;font-size:13.5px;font-weight:600;color:var(--ink)}

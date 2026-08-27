@@ -189,12 +189,23 @@ se você abrir uma conversa nova, é por aqui que se retoma.
 
 ### Falta — o que você pediu e ainda não fiz
 
-- [ ] **Criar conta: na HORIZONTAL no computador.** Hoje é uma coluna comprida
-      e a pessoa arrasta o mouse à toa. Comprido só no celular.
 - [ ] **A lateral de /denunciar** ("Perdeu dinheiro agora?", "O que acontece
       depois", "Tem print da conversa?") — informação demais, junto.
 - [ ] **Perfil e empresa** — melhorar.
 - [ ] **Painel do admin** — você ainda não viu nem o protótipo.
+- [x] **Criar conta ficou horizontal no computador.** Eram nove blocos
+      empilhados num cartão de 420px: sobrava tela dos dois lados e faltava
+      embaixo. De 900px para cima o cartão abre para 780px e os campos correm em
+      duas colunas — nome | apelido, e-mail | telefone, senha | sua figura. No
+      celular continua uma coluna só, que lá é a forma certa.
+      A página caiu de ~1.900px para 1.235px de altura.
+      ⚠ Só vale com a classe `porta--larga`, que está apenas nesta página.
+      `/entrar` usa o mesmo `.porta` e tem dois campos — alargar lá deixaria
+      dois campos perdidos dentro de um cartão grande.
+      ⚠ O bloco das figuras sozinho ocupava 316px, mais que nome, apelido,
+      e-mail e telefone somados. Os círculos foram para 36px **por prop**, não
+      por CSS: o `<Avatar>` escreve o tamanho no atributo `style`, e estilo
+      inline ganha de classe. No celular o alvo de toque continua 56px.
 
 ### Regras suas que valem daqui para a frente
 

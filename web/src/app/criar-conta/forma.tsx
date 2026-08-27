@@ -175,7 +175,10 @@ export function FormaCriarConta() {
           erro={estado?.campo === 'senha'}
         />
 
-        <EscolheAvatar nome={nome || 'confia'} />
+        {/* 36 em vez de 44: no computador este bloco divide a linha com a
+            senha, e a 44 ele sozinho ocupava 316px -- mais que os campos de
+            nome, apelido, e-mail e telefone somados. */}
+        <EscolheAvatar nome={nome || 'confia'} tamanho={36} />
 
         <label className="aceite">
           <input type="checkbox" name="aceite" required />
