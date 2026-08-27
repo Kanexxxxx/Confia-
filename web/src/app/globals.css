@@ -1329,25 +1329,165 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 .fonte{margin:16px 0 0;font-size:12px;color:rgba(234,241,253,.55)}
 .fonte a{color:rgba(234,241,253,.55)}
 
-/* ---------- ranking ---------- */
-.ranking{display:grid;gap:10px;margin-bottom:16px}
-.rank{display:flex;align-items:center;gap:16px;padding:16px 20px;border-radius:var(--r-lg);
-  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.025));
+/* ---------- dossiês de golpe ----------
+
+   Substituiu o ranking de barras (.ranking/.rank/.pos/.barra/.pct).
+   Aquilo era um gráfico: quatro barras e quatro porcentagens. Diz o
+   tamanho e não diz mais nada — nem o que o golpe é, nem por que
+   funciona, nem o que a gente consegue conferir.
+
+   Cada dossiê tem duas colunas. À esquerda, a PROVA: a reprodução do
+   que a vítima viu, desenhada para parecer a tela de onde aquilo
+   chega — anúncio, ligação, conversa. À direita, a LEITURA: por que
+   funciona e o que entrega.
+
+   A prova é clara (fundo --paper-2) no meio de uma página escura, de
+   propósito. É a única coisa do site com essa cor, e é ela que faz o
+   bloco parecer evidência colada num dossiê em vez de mais um cartão.
+   ⚠ Se você escurecer a prova para "combinar", ela some no fundo e o
+     bloco vira o ranking de novo, só que com mais texto.
+
+   ⚠ .leitura-bloco b é RÓTULO (bloco, caixa alta, pequeno). Dentro do
+     <p> tem <b> de ÊNFASE, que precisa desmontar tudo isso — daí a
+     regra .leitura-bloco p b logo abaixo. Se mexer numa, olhe a outra.
+*/
+/* ⚠ NÃO renomeie de volta para .prova: esse nome já é do cartão da
+   tela de verificação de selo (procure por ".prova .codigo" mais
+   abaixo). Ele vem depois no arquivo e ganharia desta regra. */
+.dossies{display:grid;gap:16px}
+
+.dossie{
+  padding:22px 24px 18px;
+  border-radius:var(--r-xl);
+  background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.022));
   border:1px solid rgba(255,255,255,.09)}
-.rank .pos{font-family:var(--fonte-texto),system-ui,sans-serif;font-size:13px;font-weight:700;color:var(--sky-soft);
-  width:22px;flex:none}
-.rank .nome{flex:1;min-width:0}
-.rank .nome b{display:block;font-size:15px;font-weight:600;color:#fff;margin-bottom:2px}
-.rank .nome span{display:block;font-size:12.5px;color:var(--on-dark-3)}
-.rank .barra{width:140px;flex:none;height:6px;border-radius:999px;background:rgba(255,255,255,.1);
-  overflow:hidden}
-.rank .barra i{display:block;height:100%;border-radius:999px;
-  background:linear-gradient(90deg,var(--risk),var(--warn))}
-.rank .pct{width:46px;flex:none;text-align:right;font-family:var(--fonte-texto),system-ui,sans-serif;
-  font-size:15px;font-weight:600;color:#fff}
-.rank .marca{width:118px;flex:none;text-align:right;font-size:11.5px;font-weight:600}
-.marca--sim{color:var(--safe)}
-.marca--nao{color:rgba(234,241,253,.34)}
+
+.dossie-cabeca{
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding-bottom:15px;margin-bottom:18px;
+  border-bottom:1px solid rgba(255,255,255,.08)}
+.dossie-pos{
+  font-family:var(--fonte-texto),system-ui,sans-serif;
+  font-size:12px;font-weight:700;letter-spacing:.12em;
+  font-variant-numeric:tabular-nums;
+  color:var(--sky-soft);opacity:.65}
+.dossie-nome{
+  margin:0;flex:1 1 200px;min-width:0;
+  font-family:var(--fonte-titulo),sans-serif;
+  font-size:clamp(17px,2vw,20px);font-weight:600;
+  letter-spacing:-.01em;color:#fff}
+.dossie-casos{margin-left:auto;font-size:13px;color:var(--on-dark-3)}
+.dossie-casos b{font-size:17px;font-weight:600;color:#fff;font-variant-numeric:tabular-nums}
+
+/* Subir é ruim, cair é bom — a cor diz isso antes da seta. */
+.dossie-tend{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:999px;
+  font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums}
+.dossie-tend i{font-size:11px}
+.dossie-tend--sobe{color:var(--risk);background:rgba(255,122,107,.12);
+  border:1px solid rgba(255,122,107,.24)}
+.dossie-tend--cai{color:var(--safe);background:rgba(47,211,155,.1);
+  border:1px solid rgba(47,211,155,.22)}
+
+.dossie-corpo{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);
+  gap:26px;align-items:start}
+
+/* ----- a prova ----- */
+.reproducao{display:grid;gap:8px}
+.reproducao-selo{
+  font-size:10.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
+  color:rgba(234,241,253,.42)}
+
+/* Material comum das três telas. */
+.anuncio,.chamada,.conversa{
+  background:var(--paper-2);color:var(--ink);
+  border-radius:16px;border:1px solid rgba(11,36,67,.1);
+  box-shadow:0 14px 34px rgba(2,8,20,.42)}
+
+.anuncio{display:grid;grid-template-columns:80px minmax(0,1fr);gap:14px;padding:14px}
+.anuncio-foto{display:grid;place-items:center;border-radius:11px;font-size:26px;
+  /* Quadrado e preso no topo: 80x169 esticado lia como imagem que
+     nao carregou. Anuncio de verdade tem miniatura quadrada. */
+  aspect-ratio:1;align-self:start;
+  background:linear-gradient(160deg,#dde6f4,#c3d3ea);color:#8496af}
+.anuncio-dados{display:grid;gap:6px;align-content:start;min-width:0}
+.anuncio-dados b{font-size:12.5px;font-weight:600;line-height:1.35;color:var(--ink)}
+.anuncio-preco{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.anuncio-preco s{font-size:11.5px;color:var(--ink-3)}
+.anuncio-preco em{font-style:normal;font-size:19px;font-weight:700;color:#c62f1f;
+  font-variant-numeric:tabular-nums}
+.anuncio-pressa{display:inline-flex;align-items:center;gap:5px;width:fit-content;
+  padding:3px 8px;border-radius:6px;background:#ffe6e1;color:#c62f1f;
+  font-size:11px;font-weight:600}
+.anuncio-loja{font-size:11px;color:var(--ink-3)}
+
+.chamada{display:grid;gap:6px;padding:16px}
+.chamada-etiqueta{display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:600;color:var(--ink-3)}
+.chamada-quem{font-size:14.5px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.chamada-num{font-size:11px;color:var(--ink-3)}
+.chamada-fala{margin:9px 0 0;padding:11px 13px;border-radius:12px;
+  background:#fff;border:1px solid var(--line);border-left:3px solid var(--warn);
+  font-size:12.5px;line-height:1.55;color:var(--ink-2)}
+.chamada-fala b{color:#c62f1f;font-weight:700}
+
+.conversa{display:grid;gap:8px;padding:14px}
+.conversa-quem{display:inline-flex;align-items:center;gap:6px;
+  padding-bottom:9px;border-bottom:1px solid var(--line);
+  font-size:11.5px;font-weight:600;color:var(--ink-3)}
+.balao{margin:0;justify-self:start;max-width:93%;
+  padding:9px 12px;border-radius:14px 14px 14px 4px;
+  background:#fff;border:1px solid var(--line);
+  font-size:12.5px;line-height:1.5;color:var(--ink)}
+
+/* ----- a leitura ----- */
+.leitura{display:grid;gap:15px;align-content:start}
+.leitura-bloco b{display:block;margin-bottom:5px;
+  font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--sky-soft);opacity:.75}
+.leitura-bloco p{margin:0;font-size:14px;line-height:1.62;color:var(--on-dark-2)}
+/* ⚠ desmonta o rótulo acima: aqui <b> é ênfase dentro da frase. */
+.leitura-bloco p b{display:inline;margin:0;font-size:inherit;letter-spacing:0;
+  text-transform:none;color:#fff;opacity:1;font-weight:600}
+
+.escopo{display:flex;align-items:flex-start;gap:8px;
+  margin:1px 0 0;padding:10px 12px;border-radius:12px;
+  font-size:12.5px;line-height:1.5;color:rgba(234,241,253,.86)}
+.escopo i{flex:none;margin-top:1px;font-size:14px}
+.escopo--sim{background:rgba(47,211,155,.09);border:1px solid rgba(47,211,155,.2)}
+.escopo--sim i{color:var(--safe)}
+.escopo--meio{background:rgba(255,198,92,.08);border:1px solid rgba(255,198,92,.2)}
+.escopo--meio i{color:var(--warn)}
+
+/* Fonte em CADA cartão, não uma nota só no fim da seção: número sem
+   período colado nele é número que envelhece sem avisar. */
+.dossie-fonte{margin:18px 0 0;padding-top:13px;
+  border-top:1px solid rgba(255,255,255,.07);
+  font-size:11.5px;line-height:1.55;color:rgba(234,241,253,.45)}
+.dossie-fonte b{color:rgba(234,241,253,.72);font-weight:600}
+
+.resto{margin:16px 0 0;padding:16px 18px;border-radius:var(--r-lg);
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+  font-size:13.5px;line-height:1.6;color:var(--on-dark-2)}
+.resto b{color:#fff;font-weight:600}
+.resto span{display:block;margin-top:7px;font-size:12.5px;color:rgba(234,241,253,.5)}
+
+@media (max-width:900px){
+  .dossie-corpo{grid-template-columns:1fr;gap:18px}
+  .reproducao{max-width:420px}
+}
+@media (max-width:560px){
+  .dossie{padding:18px 16px 14px}
+  .dossie-nome{flex:1 1 100%;order:-1}
+  .dossie-casos{margin-left:0}
+  .reproducao{max-width:none}
+}
+@media (min-width:901px){
+  .leitura{grid-template-columns:1fr 1fr;gap:16px 26px}
+  .escopo{grid-column:1 / -1}
+}
+
 
 /* ---------- história ---------- */
 #historia{padding:0 0 90px}
@@ -1422,9 +1562,6 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 }
 @media (max-width:760px){
   .numeros{grid-template-columns:1fr}
-  .rank{flex-wrap:wrap;gap:10px}
-  .rank .barra{width:100%;order:3}
-  .rank .marca{width:auto;text-align:left;order:4}
   #numeros,#historia,#convites{padding-bottom:60px}
 }
 

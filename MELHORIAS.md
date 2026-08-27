@@ -148,12 +148,29 @@ se você abrir uma conversa nova, é por aqui que se retoma.
 - [x] **A fonte** foi trocada (Instrument Sans + Fraunces) e **você mandou
       voltar**. Voltou para Inter + Poppins.
       ⚠ **Não troque a fonte de novo sem perguntar.**
+- [x] **Tipos de golpe, refeito do zero.** Você disse: "não especificou, não
+      exemplos, não pegou fontes reais, não pegou as evidências". As quatro
+      barras com 34%/31%/13%/10% saíram inteiras. No lugar entraram três
+      **dossiês**, com dado que dá para conferir: ocorrências relatadas pelos
+      clientes aos bancos da Febraban no 1º semestre de 2025 — falsa venda
+      (174 mil, +314%), falsa central (139 mil, +195,7%) e WhatsApp (73 mil,
+      −9,9%). Cada dossiê traz a **reprodução** do que a vítima viu (o anúncio,
+      a ligação, a conversa), **por que funciona** e **o que entrega**. A fonte
+      está em cada cartão, não numa nota só no fim.
+      Dois efeitos que não estavam previstos:
+      • o dado real **reordena a lista sozinho** — a troca de cartão, justamente
+        o golpe que a gente não verifica, cai para 7º e sai do topo sem precisar
+        filtrar nada à mão, que era o remendo anterior;
+      • do 4º ao 10º a Febraban publicou a ordem mas não o número de casos, e
+        está escrito na página que por isso a gente não inventou nenhum.
+      ⚠ Consertei junto uma contradição que isso criou: o bloco de limites dizia
+      que cartão clonado é "o golpe mais relatado do país". É verdade na pesquisa
+      que pergunta às pessoas, e falso no ranking de ocorrências no banco. Agora
+      a frase diz qual das duas medidas está falando.
+      ⚠ As reproduções não citam banco nem loja real, de propósito.
 
 ### Falta — o que você pediu e ainda não fiz
 
-- [ ] **Tipos de golpe (a lista com 34%, 31%…).** Você disse: "não especificou,
-      não exemplos, não pegou fontes reais, não pegou as evidências". Precisa de
-      exemplo concreto por tipo e a fonte de cada número.
 - [ ] **"O que a gente ainda NÃO consegue verificar"** — ainda básico.
 - [ ] **"Transparência é parte do serviço"** — ainda básico.
 - [ ] **Criar conta: na HORIZONTAL no computador.** Hoje é uma coluna comprida

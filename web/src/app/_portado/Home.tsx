@@ -205,49 +205,208 @@ export function Home() {
       <section id="checagens">
         <div className="sec-head">
           <p className="eyebrow">Tipos de golpe</p>
-          <h2>Não é só link falso</h2>
-          <p>Golpe bom é o que parece normal. A gente estuda o roteiro de cada tipo — o que
-          eles falam, como cobram e onde escorregam — pra reconhecer o padrão antes de
-          você pagar.</p>
+          <h2>Os três que mais chegaram aos bancos em 2025</h2>
+          <p>Não é opinião nossa. São ocorrências que clientes relataram aos bancos
+          associados da Febraban no primeiro semestre de 2025. Cada um está aqui com a
+          mensagem que a vítima recebeu, o motivo de aquilo funcionar, e o detalhe que
+          entrega o golpe.</p>
         </div>
 
-        {/* RANKING — só o que a gente verifica DE VERDADE hoje.
+        {/* ─────────────────────────────────────────────────────────
+            OS TRÊS DOSSIÊS
 
-            Antes esta lista trazia os seis golpes mais relatados do
-            país, e os dois primeiros vinham marcados "ainda não
-            cobrimos". Ou seja: o topo da nossa própria lista
-            anunciava o que a gente não faz. O que a gente não faz
-            tem lugar próprio, logo abaixo, e bem visível. */}
-        <div className="ranking">
-          <div className="rank">
-            <span className="pos">1</span>
-            <span className="nome"><b>Golpe do WhatsApp</b><span>Número clonado ou perfil copiado pedindo dinheiro a conhecidos</span></span>
-            <span className="barra"><i style={{ width: '100%' }}></i></span>
-            <span className="pct">34%</span>
-          </div>
-          <div className="rank">
-            <span className="pos">2</span>
-            <span className="nome"><b>Falsa central do banco</b><span>Mensagem dizendo que sua conta foi invadida, pedindo transferência para uma “conta segura”</span></span>
-            <span className="barra"><i style={{ width: '91%' }}></i></span>
-            <span className="pct">31%</span>
-          </div>
-          <div className="rank">
-            <span className="pos">3</span>
-            <span className="nome"><b>CPF usado por SMS</b><span>Mensagem com link que rouba seus dados para abrir conta no seu nome</span></span>
-            <span className="barra"><i style={{ width: '38%' }}></i></span>
-            <span className="pct">13%</span>
-          </div>
-          <div className="rank">
-            <span className="pos">4</span>
-            <span className="nome"><b>Leilão ou loja falsa</b><span>Site que não entrega, preço fora da realidade, loja criada semana passada</span></span>
-            <span className="barra"><i style={{ width: '29%' }}></i></span>
-            <span className="pct">10%</span>
-          </div>
+            Aqui havia um ranking de barras — 34%, 31%, 13%, 10% — e
+            uma nota de rodapé genérica no fim. Três defeitos, todos
+            apontados de uma vez: número sem fonte própria, nome de
+            golpe sem um exemplo sequer, e nenhuma evidência de POR QUE
+            a pessoa cai.
+
+            Trocado por dado real: ocorrências relatadas aos bancos
+            associados da Febraban no 1º semestre de 2025, publicadas
+            em 11/11/2025. Três coisas mudaram junto com a fonte:
+
+              1. A ORDEM. No dado real a falsa venda é a primeira, não
+                 o WhatsApp. E a troca de cartão — justamente o golpe
+                 que a gente NÃO verifica — cai para sétimo sozinho.
+                 Antes a lista era filtrada à mão para o topo não
+                 anunciar o que não fazemos. Com o dado real não
+                 precisa filtrar: ele já põe no topo o que a gente faz.
+
+              2. A UNIDADE. Percentual de pesquisa virou contagem de
+                 ocorrência. "174 mil casos" alguém confere. "34%" de
+                 uma pesquisa sem link, ninguém conferia.
+
+              3. A TENDÊNCIA. Duas subiram muito e uma caiu. Isso é
+                 achado, não enfeite: o crime migrou do WhatsApp para
+                 a loja falsa, e a seta mostra isso sem precisar dizer.
+
+            ⚠ SE FOR ATUALIZAR OS NÚMEROS: cada um é de UM semestre
+              específico, e o período está escrito embaixo do cartão.
+              Trocar o número sem trocar o período transforma dado em
+              mentira. Os dois andam juntos, sempre.
+
+            ⚠ AS REPRODUÇÕES não citam banco nem loja de verdade, de
+              propósito. Marca real numa tela de exemplo vira acusação
+              contra quem não fez nada — e o crime aqui é de quem
+              imita a marca, não da marca.
+            ───────────────────────────────────────────────────────── */}
+        <div className="dossies">
+
+          <article className="dossie">
+            <header className="dossie-cabeca">
+              <span className="dossie-pos">01</span>
+              <h3 className="dossie-nome">Golpe da falsa venda</h3>
+              <span className="dossie-casos"><b>174 mil</b> casos</span>
+              <span className="dossie-tend dossie-tend--sobe">
+                <i className="bi bi-arrow-up-right" aria-hidden="true"></i> 314%
+              </span>
+            </header>
+
+            <div className="dossie-corpo">
+              <div className="reproducao">
+                <span className="reproducao-selo">Reprodução · não é anúncio real</span>
+                <div className="anuncio">
+                  <div className="anuncio-foto"><i className="bi bi-phone" aria-hidden="true"></i></div>
+                  <div className="anuncio-dados">
+                    <b>Celular 256&nbsp;GB, lacrado, com nota fiscal</b>
+                    <span className="anuncio-preco"><s>R$ 3.499</s> <em>R$ 899</em></span>
+                    <span className="anuncio-pressa">
+                      <i className="bi bi-clock-history" aria-hidden="true"></i> Última unidade — acaba hoje
+                    </span>
+                    <span className="anuncio-loja">Perfil criado há 6 dias · só Pix</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="leitura">
+                <div className="leitura-bloco">
+                  <b>Por que funciona</b>
+                  <p>O desconto faz a conta pela pessoa. Quando o preço é bom demais, o medo
+                  de perder a oferta chega antes da vontade de conferir — e o vendedor sabe
+                  disso. É por isso que sempre existe um &ldquo;só hoje&rdquo;.</p>
+                </div>
+                <div className="leitura-bloco">
+                  <b>O que entrega</b>
+                  <p>Loja tem idade. Domínio registrado semana passada, nenhum CNPJ na
+                  página, pagamento só por Pix de pessoa física. Isso está no link — e é
+                  o que a gente lê.</p>
+                </div>
+                <p className="escopo escopo--sim">
+                  <i className="bi bi-check2-circle" aria-hidden="true"></i>
+                  Cole o link ou o perfil da loja: este a gente verifica hoje.
+                </p>
+              </div>
+            </div>
+
+            <p className="dossie-fonte">Febraban · ocorrências relatadas por clientes no 1º semestre de 2025</p>
+          </article>
+
+          <article className="dossie">
+            <header className="dossie-cabeca">
+              <span className="dossie-pos">02</span>
+              <h3 className="dossie-nome">Falsa central do banco</h3>
+              <span className="dossie-casos"><b>139 mil</b> casos</span>
+              <span className="dossie-tend dossie-tend--sobe">
+                <i className="bi bi-arrow-up-right" aria-hidden="true"></i> 195,7%
+              </span>
+            </header>
+
+            <div className="dossie-corpo">
+              <div className="reproducao">
+                <span className="reproducao-selo">Reprodução · banco genérico</span>
+                <div className="chamada">
+                  <span className="chamada-etiqueta">
+                    <i className="bi bi-telephone-inbound" aria-hidden="true"></i> Chamada recebida
+                  </span>
+                  <b className="chamada-quem">Banco · Central de Segurança</b>
+                  <span className="chamada-num">Um número que não está no verso do seu cartão</span>
+                  <p className="chamada-fala">&ldquo;Identificamos uma compra de R$ 2.870 no seu
+                  cartão, em outro estado. Não foi o senhor? Então eu vou te ajudar agora:
+                  transfira o saldo para a sua <b>conta segura</b>.&rdquo;</p>
+                </div>
+              </div>
+
+              <div className="leitura">
+                <div className="leitura-bloco">
+                  <b>Por que funciona</b>
+                  <p>Ele já sabe seu nome, os últimos dígitos do cartão e a compra que você
+                  não fez. A ligação não começa pedindo nada — começa avisando que você foi
+                  roubado. Quem fica com pressa é você.</p>
+                </div>
+                <div className="leitura-bloco">
+                  <b>O que entrega</b>
+                  <p><b>&ldquo;Conta segura&rdquo; não existe.</b> Em nenhum banco, em nenhuma
+                  situação. É uma frase inventada para o golpe. Ouvir ela já é a resposta.</p>
+                </div>
+                <p className="escopo escopo--meio">
+                  <i className="bi bi-exclamation-circle" aria-hidden="true"></i>
+                  A ligação em si a gente não checa. O link ou o site que vêm junto, sim.
+                </p>
+              </div>
+            </div>
+
+            <p className="dossie-fonte">Febraban · ocorrências relatadas por clientes no 1º semestre de 2025</p>
+          </article>
+
+          <article className="dossie">
+            <header className="dossie-cabeca">
+              <span className="dossie-pos">03</span>
+              <h3 className="dossie-nome">Golpe do WhatsApp</h3>
+              <span className="dossie-casos"><b>73 mil</b> casos</span>
+              <span className="dossie-tend dossie-tend--cai">
+                <i className="bi bi-arrow-down-right" aria-hidden="true"></i> 9,9%
+              </span>
+            </header>
+
+            <div className="dossie-corpo">
+              <div className="reproducao">
+                <span className="reproducao-selo">Reprodução · mensagem típica</span>
+                <div className="conversa">
+                  <span className="conversa-quem">
+                    <i className="bi bi-person-circle" aria-hidden="true"></i> Número desconhecido
+                  </span>
+                  <p className="balao">Oi mãe, troquei de número, salva aqui</p>
+                  <p className="balao">Tô num aperto pra pagar um boleto hoje. Consegue fazer
+                  um Pix pra mim? Amanhã eu te devolvo</p>
+                </div>
+              </div>
+
+              <div className="leitura">
+                <div className="leitura-bloco">
+                  <b>Por que funciona</b>
+                  <p>Não pede dinheiro a um estranho. Pede à sua mãe, usando a sua foto. O
+                  medo de negar ajuda a alguém que você ama é mais forte que a desconfiança —
+                  e é sobre isso que o golpe é construído.</p>
+                </div>
+                <div className="leitura-bloco">
+                  <b>O que entrega</b>
+                  <p>Foto de perfil roubada de outra conta, número de um DDD que não é o da
+                  pessoa, conta aberta há poucos dias. Uma chamada de vídeo de cinco segundos
+                  derruba o golpe inteiro.</p>
+                </div>
+                <p className="escopo escopo--sim">
+                  <i className="bi bi-check2-circle" aria-hidden="true"></i>
+                  Manda o print ou o número: a gente confere a foto e o perfil.
+                </p>
+              </div>
+            </div>
+
+            <p className="dossie-fonte">Febraban · 1º semestre de 2025 — <b>o único dos três que
+            caiu.</b> O crime não sumiu: migrou para a falsa venda, que subiu 314% no mesmo período.</p>
+          </article>
+
         </div>
 
-        <p className="fonte">Ranking do Observatório Febraban, pesquisa IPESPE. O percentual
-        indica quantas pessoas entrevistadas relataram ter sofrido cada tipo. Estão aqui
-        só os que a gente já verifica hoje.</p>
+        <p className="resto">
+          <b>Do 4º ao 10º lugar,</b> na mesma lista: falso investimento, phishing, falso
+          boleto, troca de cartão, devolução de empréstimo, mão fantasma e golpe do delivery.
+          <span>A Febraban divulgou a ordem desses sete, mas não o número de casos de cada
+          um. Então não inventamos nenhum aqui.</span>
+        </p>
+
+        <p className="fonte">Fonte dos três cartões acima: Federação Brasileira de Bancos
+        (Febraban), balanço divulgado em 11 de novembro de 2025, referente às ocorrências
+        relatadas por clientes aos bancos associados no 1º semestre de 2025.</p>
 
         {/* ─────────────────────────────────────────────────────────
             O QUE A GENTE NÃO FAZ — EM DESTAQUE, NÃO EM NOTA DE RODAPÉ
@@ -271,8 +430,9 @@ export function Home() {
             <li>
               <i className="bi bi-credit-card-2-front" aria-hidden="true"></i>
               <b>Cartão clonado ou trocado</b>
-              <span>É o golpe mais relatado do país, e depende de dados que só o banco tem.
-              A gente nem tenta adivinhar.</span>
+              <span>Quando a pesquisa pergunta às pessoas, é o golpe mais citado do país
+              (Observatório Febraban/IPESPE, junho de 2025). Depende de dado que só o seu
+              banco enxerga — a gente nem tenta adivinhar.</span>
             </li>
             <li>
               <i className="bi bi-qr-code" aria-hidden="true"></i>
