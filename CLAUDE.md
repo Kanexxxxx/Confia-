@@ -89,6 +89,7 @@ não é assim que vidro funciona.
 | Arquivo | O que tem dentro |
 |---|---|
 | **`MELHORIAS.md` § I** | **A LISTA VIVA.** Comece por aqui. É a última rodada de crítica: o que já foi feito e o que falta. |
+| `COMECAR-CHAT-NOVO.md` | O prompt que a dona do projeto cola ao abrir uma conversa nova. Se as regras mudarem, mudam lá também. |
 | `PLANO.md` | As etapas do projeto, 1 a 10. Onde estamos e o que vem. |
 | `PENDENCIAS.md` | O que depende de ação humana (MEI, advogado, chave do cofre). |
 | `SEGURANCA.md` | As 20 travas, como cada uma foi fechada, e como conferir. |
