@@ -8,7 +8,10 @@
 
 import Link from 'next/link';
 import { Verificador } from '@/components/verificador';
-import { ContadorGolpes } from '@/components/contador-golpes';
+import { Golpes } from '@/components/golpes';
+/* `ContadorGolpes` foi APAGADO em 27/08/2026, junto com a seção
+   "O tamanho do problema" e o CSS dele. Está no histórico do Git
+   se alguém quiser de volta. Ver MELHORIAS.md § II, etapa 3. */
 
 export function Home() {
   return (
@@ -36,10 +39,18 @@ export function Home() {
             <span className="ln"><span className="w" style={{ '--d': '.24s' } as React.CSSProperties}>é <em>golpe</em>?</span></span>
           </h1>
 
+          {/* "em português" saiu daqui em 27/08/2026, pelo mesmo
+              motivo que saiu do passo 3: o domínio é .com.br, a
+              gente só opera no Brasil, e prometer o óbvio gasta a
+              linha mais lida da página.
+
+              ⚠ Se você mexer nesta frase, leia o passo 3 do
+              `#como` antes. As duas dizem a mesma promessa — a
+              resposta vem com o MOTIVO — e não podem divergir. */}
           <p className="sub rv" style={{ '--d': '.36s' } as React.CSSProperties}>
             Cole o link, o @ do perfil ou o print da conversa. A gente abre num ambiente
-            isolado, longe do seu aparelho, e responde em segundos — em português, com o
-            motivo de cada conclusão.
+            isolado, longe do seu aparelho, e responde em segundos — com o motivo de cada
+            conclusão, para você poder discordar.
           </p>
 
           {/* A DÚVIDA, NA PRIMEIRA PESSOA.
@@ -59,6 +70,22 @@ export function Home() {
                  inteiro deste bloco: a pessoa precisa ver a
                  situação dela aqui e entender que o site é pra ela.
 
+              3. SÓ O QUE A GENTE FAZ — 27/08/2026. Eram dez, e
+                 quatro delas prometiam o que o verificador não
+                 verifica. "Central do banco" é ligação telefônica;
+                 "Empréstimo fácil demais", "Vaga boa demais" e
+                 "Skin muito barata" não chegam como link, @ ou
+                 print — chegam como conversa.
+
+                 A nuvem fica logo acima do campo onde a pessoa
+                 cola alguma coisa. Cada frase aqui é lida como
+                 "isto eu posso trazer". Prometer o que não se faz,
+                 a dois centímetros do campo, é o pior lugar
+                 possível para prometer errado.
+
+                 Sobraram seis, e todas cabem no que o campo
+                 aceita: link, endereço de site, @ e print.
+
               O movimento vem do CSS: a lupa da marca passa devagar
               por cima da nuvem. Ver `.marks::after` no globals. */}
           <div className="marks" id="marks">
@@ -66,11 +93,7 @@ export function Home() {
             <span className="mark"><i className="bi bi-shop" aria-hidden="true"></i> Loja que não conheço</span>
             <span className="mark"><i className="bi bi-at" aria-hidden="true"></i> Perfil que me chamou</span>
             <span className="mark"><i className="bi bi-tag" aria-hidden="true"></i> Preço bom demais</span>
-            <span className="mark"><i className="bi bi-bank" aria-hidden="true"></i> Central do banco</span>
-            <span className="mark"><i className="bi bi-cash-coin" aria-hidden="true"></i> Empréstimo fácil demais</span>
-            <span className="mark"><i className="bi bi-briefcase" aria-hidden="true"></i> Vaga boa demais</span>
             <span className="mark"><i className="bi bi-gift" aria-hidden="true"></i> Prêmio que não disputei</span>
-            <span className="mark"><i className="bi bi-controller" aria-hidden="true"></i> Skin muito barata</span>
             <span className="mark"><i className="bi bi-link-45deg" aria-hidden="true"></i> Site com letra trocada</span>
           </div>
         </section>
@@ -156,10 +179,22 @@ export function Home() {
             </ul>
           </article>
 
+          {/* "RESPOSTA EM PORTUGUÊS" SAIU DAQUI — 27/08/2026
+
+              O domínio é .com.br e a gente só opera no Brasil.
+              Prometer que a resposta vem em português é prometer o
+              óbvio — e o óbvio ocupou por meses o lugar da única
+              promessa que separa este site de um antivírus: a
+              resposta vem com o MOTIVO, e dá para discordar dele.
+
+              É a mesma ideia do bloco de limites e do "a gente
+              pode errar": o que sustenta confiança aqui não é
+              dizer que acerta, é mostrar como chegou. */}
           <article className="step pane">
             <p className="num"><i className="bi bi-patch-check" aria-hidden="true"></i> Passo 3</p>
-            <h3>Resposta em português</h3>
-            <p>Nada de relatório técnico. Você recebe uma resposta direta, o motivo dela e o que fazer agora.</p>
+            <h3>Você vê por que, não só o quê</h3>
+            <p>Nada de relatório técnico e nada de veredito seco. Vem a resposta, a lista do que
+            encontramos, e o que fazer agora — para você poder discordar da gente.</p>
             <ul>
               <li><i className="bi bi-check2" aria-hidden="true"></i> Pode confiar</li>
               <li><i className="bi bi-check2" aria-hidden="true"></i> Melhor desconfiar</li>
@@ -170,243 +205,85 @@ export function Home() {
       </section>
 
 
-      <section id="numeros">
-        <div className="sec-head">
-          <p className="eyebrow">O tamanho do problema</p>
-          <h2>Não é azar. É indústria.</h2>
-          <p>Golpe no Brasil deixou de ser caso isolado e virou operação organizada, com roteiro,
-          equipe e meta. Estes números são de instituições públicas e do setor bancário.</p>
-        </div>
+      {/* A SEÇÃO "O TAMANHO DO PROBLEMA" FOI REMOVIDA — 27/08/2026
 
-        <div className="numeros">
-          {/* O contador substitui o cartão "1 a cada 2,3s", que dizia
-              a mesma coisa parada. É a mesma fonte e o mesmo dado —
-              só que agora dá para VER acontecendo. */}
-          <ContadorGolpes />
+          Saíram juntos: o contador ao vivo, os três números
+          (24 milhoes / R$ 29 bi / +43%) e a nota de fonte da
+          Serasa. Decisao da dona do projeto: "nao gostei como
+          voce fez, voce vai remover ele".
 
-          <div className="numero">
-            <b>24 milhões</b>
-            <span>De brasileiros atingidos por golpes de Pix e boleto em 12 meses</span>
-          </div>
-          <div className="numero">
-            <b>R$ 29 bi</b>
-            <span>Perdidos nesse mesmo período</span>
-          </div>
-          <div className="numero">
-            <b>+43%</b>
-            <span>De aumento entre jovens de até 25 anos — hoje passam os idosos</span>
-          </div>
-        </div>
+          O componente `ContadorGolpes` e o CSS dele foram
+          apagados junto — ela nem lembrava que existiam, o que
+          responde bem se valia a pena guardar. Está tudo no
+          histórico do Git.
 
-        <p className="fonte">Fontes: Serasa Experian (1º semestre de 2025) e levantamento sobre golpes de
-        Pix e boleto entre julho de 2024 e junho de 2025.</p>
-      </section>
+          ⚠ Se voltar a existir uma secao de numeros aqui, a fonte
+          tem que voltar junto. Numero sem fonte neste site e o
+          defeito que ele aponta nos outros. */}
 
       <section id="checagens">
         <div className="sec-head">
           <p className="eyebrow">Tipos de golpe</p>
-          <h2>Os três que mais chegaram aos bancos em 2025</h2>
-          <p>Não é opinião nossa. São ocorrências que clientes relataram aos bancos
-          associados da Febraban no primeiro semestre de 2025. Cada um está aqui com a
-          mensagem que a vítima recebeu, o motivo de aquilo funcionar, e o detalhe que
-          entrega o golpe.</p>
+          <h2>O que a gente reconhece</h2>
+          <p>Estes são os golpes que dá para identificar a partir de um link, um @ ou um
+          print — que é exatamente o que o verificador aceita. Se o seu caso está aqui,
+          a gente consegue ajudar.</p>
         </div>
 
-        {/* ─────────────────────────────────────────────────────────
-            OS TRÊS DOSSIÊS
+        {/* OS TRÊS DOSSIÊS FORAM REMOVIDOS — 27/08/2026
 
-            Aqui havia um ranking de barras — 34%, 31%, 13%, 10% — e
-            uma nota de rodapé genérica no fim. Três defeitos, todos
-            apontados de uma vez: número sem fonte própria, nome de
-            golpe sem um exemplo sequer, e nenhuma evidência de POR QUE
-            a pessoa cai.
+            Saíram os cartões de falsa venda / falsa central /
+            WhatsApp, com os números da Febraban (174 mil, +314% e
+            companhia), o parágrafo do 4º ao 10º lugar e a nota de
+            fonte. Decisão da dona do projeto: "retire aquelas
+            porcentagens do lado, não faz sentido estar ali, só
+            deixa os exemplos".
 
-            Trocado por dado real: ocorrências relatadas aos bancos
-            associados da Febraban no 1º semestre de 2025, publicadas
-            em 11/11/2025. Três coisas mudaram junto com a fonte:
+            ⚠ O QUE SE PERDEU, PARA QUEM VIER DEPOIS: era o dado
+            real que ordenava a lista sozinho — a troca de cartão,
+            justamente o golpe que a gente NÃO verifica, caía para
+            sétimo sem ninguém filtrar nada à mão. Sem número, a
+            ordem da lista abaixo é escolha nossa, e o critério
+            passou a ser outro: ela lista o que o verificador
+            consegue reconhecer, e só isso.
 
-              1. A ORDEM. No dado real a falsa venda é a primeira, não
-                 o WhatsApp. E a troca de cartão — justamente o golpe
-                 que a gente NÃO verifica — cai para sétimo sozinho.
-                 Antes a lista era filtrada à mão para o topo não
-                 anunciar o que não fazemos. Com o dado real não
-                 precisa filtrar: ele já põe no topo o que a gente faz.
+            ⚠ Se um dia voltar número para esta seção, a fonte volta
+            junto e o PERÍODO junto com ela. Número sem período
+            vira mentira em seis meses. */}
 
-              2. A UNIDADE. Percentual de pesquisa virou contagem de
-                 ocorrência. "174 mil casos" alguém confere. "34%" de
-                 uma pesquisa sem link, ninguém conferia.
+        {/* A ORDEM DESTA SEÇÃO FOI INVERTIDA EM 27/08/2026
 
-              3. A TENDÊNCIA. Duas subiram muito e uma caiu. Isso é
-                 achado, não enfeite: o crime migrou do WhatsApp para
-                 a loja falsa, e a seta mostra isso sem precisar dizer.
+            Estava: título "O que a gente reconhece" → o bloco
+            vermelho do que a gente NÃO faz → só então os exemplos.
+            O título prometia uma coisa e a primeira coisa embaixo
+            dele era a contrária.
 
-            ⚠ SE FOR ATUALIZAR OS NÚMEROS: cada um é de UM semestre
-              específico, e o período está escrito embaixo do cartão.
-              Trocar o número sem trocar o período transforma dado em
-              mentira. Os dois andam juntos, sempre.
+            Agora vem o que a gente reconhece, e o limite depois —
+            que é a ordem em que a pessoa pergunta: primeiro "vocês
+            servem para o meu caso?", e só quem não se encontrou na
+            lista precisa do bloco vermelho.
 
-            ⚠ AS REPRODUÇÕES não citam banco nem loja de verdade, de
-              propósito. Marca real numa tela de exemplo vira acusação
-              contra quem não fez nada — e o crime aqui é de quem
-              imita a marca, não da marca.
-            ───────────────────────────────────────────────────────── */}
-        <div className="dossies">
+            ⚠ O limite continua ANTES do fim da página e em
+            vermelho de largura inteira, de propósito. Ele perdeu a
+            primeira posição, não o destaque. */}
 
-          <article className="dossie">
-            <header className="dossie-cabeca">
-              <span className="dossie-pos">01</span>
-              <h3 className="dossie-nome">Golpe da falsa venda</h3>
-              <span className="dossie-casos"><b>174 mil</b> casos</span>
-              <span className="dossie-tend dossie-tend--sobe">
-                <i className="bi bi-arrow-up-right" aria-hidden="true"></i> 314%
-              </span>
-            </header>
+        {/* OS DEZ GOLPES VIRARAM COMPONENTE — 27/08/2026
 
-            <div className="dossie-corpo">
-              <div className="reproducao">
-                <span className="reproducao-selo">Reprodução · não é anúncio real</span>
-                <div className="anuncio">
-                  <div className="anuncio-foto"><i className="bi bi-phone" aria-hidden="true"></i></div>
-                  <div className="anuncio-dados">
-                    <b>Celular 256&nbsp;GB, lacrado, com nota fiscal</b>
-                    <span className="anuncio-preco"><s>R$ 3.499</s> <em>R$ 899</em></span>
-                    <span className="anuncio-pressa">
-                      <i className="bi bi-clock-history" aria-hidden="true"></i> Última unidade — acaba hoje
-                    </span>
-                    <span className="anuncio-loja">Perfil criado há 6 dias · só Pix</span>
-                  </div>
-                </div>
-              </div>
+            Eram dez blocos de HTML escritos à mão aqui dentro.
+            Viraram `components/golpes.tsx` porque a dona do
+            projeto pediu um botão "saber mais" em cada um,
+            abrindo uma caixa que explica como o golpe funciona —
+            e isso precisa de JavaScript, que uma página de
+            servidor não tem.
 
-              <div className="leitura">
-                <div className="leitura-bloco">
-                  <b>Por que funciona</b>
-                  <p>O desconto faz a conta pela pessoa. Quando o preço é bom demais, o medo
-                  de perder a oferta chega antes da vontade de conferir — e o vendedor sabe
-                  disso. É por isso que sempre existe um &ldquo;só hoje&rdquo;.</p>
-                </div>
-                <div className="leitura-bloco">
-                  <b>O que entrega</b>
-                  <p>Loja tem idade. Domínio registrado semana passada, nenhum CNPJ na
-                  página, pagamento só por Pix de pessoa física. Isso está no link — e é
-                  o que a gente lê.</p>
-                </div>
-                <p className="escopo escopo--sim">
-                  <i className="bi bi-check2-circle" aria-hidden="true"></i>
-                  Cole o link ou o perfil da loja: este a gente verifica hoje.
-                </p>
-              </div>
-            </div>
+            ⚠ O texto de cada golpe, e principalmente A FONTE de
+            cada um, mora lá. Não escreva golpe novo aqui: golpe
+            sem fonte oficial é exatamente o que este site existe
+            para não fazer.
 
-            <p className="dossie-fonte">Febraban · ocorrências relatadas por clientes no 1º semestre de 2025</p>
-          </article>
-
-          <article className="dossie">
-            <header className="dossie-cabeca">
-              <span className="dossie-pos">02</span>
-              <h3 className="dossie-nome">Falsa central do banco</h3>
-              <span className="dossie-casos"><b>139 mil</b> casos</span>
-              <span className="dossie-tend dossie-tend--sobe">
-                <i className="bi bi-arrow-up-right" aria-hidden="true"></i> 195,7%
-              </span>
-            </header>
-
-            <div className="dossie-corpo">
-              <div className="reproducao">
-                <span className="reproducao-selo">Reprodução · banco genérico</span>
-                <div className="chamada">
-                  <span className="chamada-etiqueta">
-                    <i className="bi bi-telephone-inbound" aria-hidden="true"></i> Chamada recebida
-                  </span>
-                  <b className="chamada-quem">Banco · Central de Segurança</b>
-                  <span className="chamada-num">Um número que não está no verso do seu cartão</span>
-                  <p className="chamada-fala">&ldquo;Identificamos uma compra de R$ 2.870 no seu
-                  cartão, em outro estado. Não foi o senhor? Então eu vou te ajudar agora:
-                  transfira o saldo para a sua <b>conta segura</b>.&rdquo;</p>
-                </div>
-              </div>
-
-              <div className="leitura">
-                <div className="leitura-bloco">
-                  <b>Por que funciona</b>
-                  <p>Ele já sabe seu nome, os últimos dígitos do cartão e a compra que você
-                  não fez. A ligação não começa pedindo nada — começa avisando que você foi
-                  roubado. Quem fica com pressa é você.</p>
-                </div>
-                <div className="leitura-bloco">
-                  <b>O que entrega</b>
-                  <p><b>&ldquo;Conta segura&rdquo; não existe.</b> Em nenhum banco, em nenhuma
-                  situação. É uma frase inventada para o golpe. Ouvir ela já é a resposta.</p>
-                </div>
-                <p className="escopo escopo--meio">
-                  <i className="bi bi-exclamation-circle" aria-hidden="true"></i>
-                  A ligação em si a gente não checa. O link ou o site que vêm junto, sim.
-                </p>
-              </div>
-            </div>
-
-            <p className="dossie-fonte">Febraban · ocorrências relatadas por clientes no 1º semestre de 2025</p>
-          </article>
-
-          <article className="dossie">
-            <header className="dossie-cabeca">
-              <span className="dossie-pos">03</span>
-              <h3 className="dossie-nome">Golpe do WhatsApp</h3>
-              <span className="dossie-casos"><b>73 mil</b> casos</span>
-              <span className="dossie-tend dossie-tend--cai">
-                <i className="bi bi-arrow-down-right" aria-hidden="true"></i> 9,9%
-              </span>
-            </header>
-
-            <div className="dossie-corpo">
-              <div className="reproducao">
-                <span className="reproducao-selo">Reprodução · mensagem típica</span>
-                <div className="conversa">
-                  <span className="conversa-quem">
-                    <i className="bi bi-person-circle" aria-hidden="true"></i> Número desconhecido
-                  </span>
-                  <p className="balao">Oi mãe, troquei de número, salva aqui</p>
-                  <p className="balao">Tô num aperto pra pagar um boleto hoje. Consegue fazer
-                  um Pix pra mim? Amanhã eu te devolvo</p>
-                </div>
-              </div>
-
-              <div className="leitura">
-                <div className="leitura-bloco">
-                  <b>Por que funciona</b>
-                  <p>Não pede dinheiro a um estranho. Pede à sua mãe, usando a sua foto. O
-                  medo de negar ajuda a alguém que você ama é mais forte que a desconfiança —
-                  e é sobre isso que o golpe é construído.</p>
-                </div>
-                <div className="leitura-bloco">
-                  <b>O que entrega</b>
-                  <p>Foto de perfil roubada de outra conta, número de um DDD que não é o da
-                  pessoa, conta aberta há poucos dias. Uma chamada de vídeo de cinco segundos
-                  derruba o golpe inteiro.</p>
-                </div>
-                <p className="escopo escopo--sim">
-                  <i className="bi bi-check2-circle" aria-hidden="true"></i>
-                  Manda o print ou o número: a gente confere a foto e o perfil.
-                </p>
-              </div>
-            </div>
-
-            <p className="dossie-fonte">Febraban · 1º semestre de 2025 — <b>o único dos três que
-            caiu.</b> O crime não sumiu: migrou para a falsa venda, que subiu 314% no mesmo período.</p>
-          </article>
-
-        </div>
-
-        <p className="resto">
-          <b>Do 4º ao 10º lugar,</b> na mesma lista: falso investimento, phishing, falso
-          boleto, troca de cartão, devolução de empréstimo, mão fantasma e golpe do delivery.
-          <span>A Febraban divulgou a ordem desses sete, mas não o número de casos de cada
-          um. Então não inventamos nenhum aqui.</span>
-        </p>
-
-        <p className="fonte">Fonte dos três cartões acima: Federação Brasileira de Bancos
-        (Febraban), balanço divulgado em 11 de novembro de 2025, referente às ocorrências
-        relatadas por clientes aos bancos associados no 1º semestre de 2025.</p>
+            Os ícones continuam batendo com a legenda, e continua
+            valendo o conferidor `npm run confere-icones`. */}
+        <Golpes />
 
         {/* ─────────────────────────────────────────────────────────
             O QUE A GENTE NÃO FAZ — EM DESTAQUE, NÃO EM NOTA DE RODAPÉ
@@ -421,38 +298,49 @@ export function Home() {
           <div className="limite-topo">
             <i className="bi bi-hand-thumbs-down" aria-hidden="true"></i>
             <div>
-              <b>O que a gente ainda NÃO consegue verificar</b>
-              <span>Se o seu caso for um destes, a nossa resposta não serve. Mas existe
-              quem resolva — e, no caso do Pix, existe prazo correndo. Está escrito em cada
-              um, aqui embaixo.</span>
+              {/* <h3> e não <b> — 27/08/2026.
+
+                  Este é o segundo assunto da seção, e quem navega
+                  por leitor de tela pula de título em título. Como
+                  <b>, o bloco inteiro não existia nessa navegação:
+                  a pessoa saía de "O que a gente reconhece" direto
+                  para "Por que existimos" e nunca sabia que havia
+                  um aviso de limite no meio.
+
+                  O tamanho continua vindo de `.limite-topo h3` no
+                  globals — trocar a etiqueta não mudou nada na
+                  aparência, de propósito. */}
+              <h3>O que a gente ainda NÃO consegue verificar</h3>
+              <span>Se o seu caso for um destes, a nossa resposta não serve — e é melhor
+              você saber disso agora do que confiar num &ldquo;não encontramos nada&rdquo;
+              que nunca foi checado. Em cada um está escrito o que fazer.</span>
             </div>
           </div>
           <ul className="limite-lista">
-            <li>
-              <i className="bi bi-credit-card-2-front" aria-hidden="true"></i>
-              <b>Cartão clonado ou trocado</b>
-              <span>Quando a pesquisa pergunta às pessoas, é o golpe mais citado do país
-              (Observatório Febraban/IPESPE, junho de 2025). Depende de dado que só o seu
-              banco enxerga — a gente nem tenta adivinhar.</span>
-              <p className="saida">
-                <i className="bi bi-arrow-return-right" aria-hidden="true"></i>
-                <b>Quem resolve:</b> conteste a compra pelo aplicativo do banco, na própria
-                fatura, e registre boletim de ocorrência. É o BO que sustenta a contestação.
-              </p>
-            </li>
-            <li>
-              <i className="bi bi-qr-code" aria-hidden="true"></i>
-              <b>Chave Pix, boleto e comprovante</b>
-              <span>Precisa de acesso ao sistema bancário. Estamos atrás disso — e responder
-              errado sobre dinheiro é pior do que não responder.</span>
-              <p className="saida saida--urgente">
-                <i className="bi bi-stopwatch" aria-hidden="true"></i>
-                <b>Quem resolve, e tem prazo:</b> o <b>MED</b>, Mecanismo Especial de Devolução
-                do Banco Central. São <b>80 dias corridos</b> para contestar, no seu próprio
-                aplicativo, dentro do extrato do Pix. Mas pedir <b>no mesmo dia</b> muda muito a
-                chance de o dinheiro voltar — o golpista ainda não tirou da conta.
-              </p>
-            </li>
+            {/* "CARTÃO CLONADO" SAIU EM 27/08/2026, pelo mesmo
+                motivo do Pix: a gente não vai atrás de banco, e
+                conta bancária não é "limite do nosso serviço" —
+                é assunto que não é nosso.
+
+                Com ele saiu a única citação da Febraban que ainda
+                restava na home. Não faz falta: nada aqui afirma
+                número, então não há o que fundamentar. */}
+            {/* O ITEM DE PIX/BOLETO SAIU DAQUI — 27/08/2026
+
+                Decisão da dona do projeto: a gente não vai atrás
+                de banco, então conta bancária não é "limite do
+                nosso serviço", é assunto que não é nosso.
+
+                MAS O MED NÃO FOI APAGADO. Ele está em /denunciar,
+                no bloco "Perdeu dinheiro agora?" — que é onde
+                está quem precisa dele, e não quem só veio
+                verificar um link. Os 80 dias são a informação
+                desta página que mais faz dinheiro voltar; apagar
+                seria custar dinheiro de gente real para arrumar
+                uma seção.
+
+                SE VOCÊ MEXER ALI, LEMBRE DAQUI: /denunciar virou
+                o único lugar do site com o prazo do MED. */}
             <li>
               <i className="bi bi-telephone-x" aria-hidden="true"></i>
               <b>Ligação telefônica</b>
@@ -460,57 +348,78 @@ export function Home() {
               rastro que dê para conferir.</span>
               <p className="saida">
                 <i className="bi bi-arrow-return-right" aria-hidden="true"></i>
-                <b>Quem resolve:</b> desligue e ligue <b>você</b> para o número do verso do seu
-                cartão. Nenhum banco se ofende com isso. Se já saiu dinheiro, MED primeiro,
-                boletim de ocorrência depois.
+                <b>O que fazer:</b> desligue e ligue <b>você</b> para o número oficial, o do
+                site ou o do verso do cartão. Nenhuma empresa séria se ofende com isso — e
+                golpista, ao contrário, insiste para você não desligar.
+              </p>
+            </li>
+
+            {/* OS QUATRO ABAIXO ENTRARAM EM 27/08/2026
+
+                Pedido da dona do projeto: "é até bom você colocar
+                mais coisas, para deixar cem por cento explicativo".
+                E ficou necessário — tirando o Pix e o cartão, a
+                lista tinha sobrado com um item só, o que fazia
+                parecer que a gente cobre quase tudo.
+
+                REGRA DOS ITENS DAQUI: nenhum é sobre banco (não é
+                assunto nosso), e todo um termina em CAMINHO. Bloco
+                que lista o que não faz e para ali deixa a pessoa
+                parada no meio do problema — foi crítica dela na
+                rodada anterior, e vale para os novos também. */}
+
+            <li>
+              <i className="bi bi-chat-dots" aria-hidden="true"></i>
+              <b>Mensagem sem link, sem @ e sem print</b>
+              <span>Se a conversa foi só por áudio ou texto solto, não existe endereço,
+              perfil nem imagem para abrir. Não tem o que conferir.</span>
+              <p className="saida">
+                <i className="bi bi-arrow-return-right" aria-hidden="true"></i>
+                <b>O que fazer:</b> peça o site, o CNPJ ou o perfil, e traga aqui. Quem é
+                honesto manda na hora. <b>Quem não manda já respondeu sua pergunta.</b>
+              </p>
+            </li>
+
+            <li>
+              <i className="bi bi-lock" aria-hidden="true"></i>
+              <b>Perfil, grupo ou canal fechado</b>
+              <span>A gente não entra em conta privada nem em grupo — e não vai criar
+              perfil falso para isso, que seria fazer o que a gente denuncia.</span>
+              <p className="saida">
+                <i className="bi bi-arrow-return-right" aria-hidden="true"></i>
+                <b>O que fazer:</b> mande o print. Da conversa, do anúncio, da tela de
+                pagamento. Print a gente lê.
+              </p>
+            </li>
+
+            <li>
+              <i className="bi bi-box-seam" aria-hidden="true"></i>
+              <b>Se a loja de verdade vai entregar</b>
+              <span>A gente confere se a empresa <b>existe e é quem diz ser</b>. Não confere
+              se o produto é bom, se chega no prazo ou se o atendimento presta — loja real
+              também atrasa e também decepciona.</span>
+              <p className="saida">
+                <i className="bi bi-arrow-return-right" aria-hidden="true"></i>
+                <b>O que fazer:</b> para problema de compra com empresa que existe, o
+                caminho é o <b>consumidor.gov.br</b> (oficial, do governo, e as empresas
+                respondem) ou o Procon da sua cidade.
+              </p>
+            </li>
+
+            <li>
+              <i className="bi bi-phone" aria-hidden="true"></i>
+              <b>Aplicativo já instalado no seu celular</b>
+              <span>Se você já baixou e instalou alguma coisa, a análise passa a ser do
+              aparelho, e ela não acontece por aqui.</span>
+              <p className="saida">
+                <i className="bi bi-arrow-return-right" aria-hidden="true"></i>
+                <b>O que fazer:</b> desinstale, e troque as senhas <b>de outro aparelho</b>
+                — trocar do celular comprometido é entregar a senha nova junto.
               </p>
             </li>
           </ul>
         </div>
 
-        {/* Nove tipos: os que dá para reconhecer a partir de um link,
-            um @ ou um print — que é exatamente o que o verificador
-            aceita. Cada ícone diz a MESMA coisa que o texto ao lado.
-            Ícone que contradiz a legenda confunde mais do que ajuda,
-            e já aconteceu aqui. */}
-        <div className="grid-check" style={{ marginTop: '34px' }}>
-          <div className="check pane">
-            <i className="ico ico--risk bi bi-bag-x" aria-hidden="true"></i>
-            <div><b>Loja que não entrega</b><span>Site criado semana passada, preço fora da realidade, pagamento só por transferência ou Pix.</span></div>
-          </div>
-          <div className="check pane">
-            <i className="ico ico--risk bi bi-shield-exclamation" aria-hidden="true"></i>
-            <div><b>Página de login falsa</b><span>Cópia da tela do banco ou da rede social para roubar sua senha. Muda uma letra no endereço.</span></div>
-          </div>
-          <div className="check pane">
-            <i className="ico ico--risk bi bi-person-bounding-box" aria-hidden="true"></i>
-            <div><b>Perfil clonado</b><span>Conta nova copiando o nome e as fotos de alguém que você conhece — ou de uma marca.</span></div>
-          </div>
-          <div className="check pane">
-            <i className="ico ico--risk bi bi-controller" aria-hidden="true"></i>
-            <div><b>Skin, case e conta de jogo</b><span>Sorteio de skin, troca fora da plataforma oficial, intermediário que some com o item.</span></div>
-          </div>
-          <div className="check pane">
-            <i className="ico ico--warn bi bi-cash-coin" aria-hidden="true"></i>
-            <div><b>Empréstimo com taxa adiantada</b><span>Crédito aprovado sem consulta — desde que você pague antes um seguro ou taxa de liberação.</span></div>
-          </div>
-          <div className="check pane">
-            <i className="ico ico--warn bi bi-briefcase" aria-hidden="true"></i>
-            <div><b>Vaga e renda extra</b><span>Trabalho fácil por aplicativo, tarefa paga que pede depósito para liberar o saque.</span></div>
-          </div>
-          <div className="check pane">
-            <i className="ico ico--warn bi bi-gift" aria-hidden="true"></i>
-            <div><b>Prêmio que você não disputou</b><span>Sorteio, cupom ou “você foi selecionado”. Cobra um frete ou uma taxa para liberar.</span></div>
-          </div>
-          <div className="check pane">
-            <i className="ico ico--warn bi bi-graph-up-arrow" aria-hidden="true"></i>
-            <div><b>Investimento milagroso</b><span>Rendimento garantido, cripto que só sobe, robô que nunca erra. Some com o depósito.</span></div>
-          </div>
-          <div className="check pane">
-            <i className="ico ico--warn bi bi-ticket-perforated" aria-hidden="true"></i>
-            <div><b>Ingresso e evento falso</b><span>Revenda de show, jogo ou festa. Entrega um PDF que não passa na catraca.</span></div>
-          </div>
-        </div>
       </section>
 
 
@@ -520,9 +429,15 @@ export function Home() {
             <p className="eyebrow">Por que existimos</p>
             <h2>Ninguém cai por ser bobo. Cai por estar com pressa.</h2>
 
+            {/* A skin de jogo saiu daqui em 27/08/2026, a pedido da
+                dona do projeto. As três histórias precisam ser as
+                que qualquer pessoa reconhece na própria família —
+                e skin só é reconhecível para quem joga. Entrou a
+                encomenda parada na alfândega, que é do mesmo
+                tamanho de "todo mundo conhece alguém". */}
             <p>Todo mundo conhece alguém que caiu. A mãe que pagou um boleto que não era da
-            loja. O amigo que comprou uma skin e nunca recebeu. O avô que atendeu a central
-            do banco que não era o banco.</p>
+            loja. O primo que pagou a taxa para liberar uma encomenda que nunca existiu. O
+            avô que atendeu a central do banco que não era o banco.</p>
 
             <p>O que essas histórias têm em comum não é burrice. É o <b>momento</b>. O golpe
             chega quando a pessoa está distraída, com medo, ou com vontade de acreditar — e
@@ -534,18 +449,23 @@ export function Home() {
             encontrou, por que aquilo é sinal de golpe, e o que fazer agora.{' '}
             <b>Sem termo técnico e sem julgar quem perguntou.</b></p>
 
-            {/* Isto não é modéstia decorativa: é o que separa este site
-                de um que promete 100%. Quem promete 100% está mentindo,
-                e num serviço antigolpe a mentira é o produto do
-                concorrente. */}
-            <p className="ressalva">
-              <i className="bi bi-exclamation-diamond" aria-hidden="true"></i>
-              Ainda estamos em beta, e dizemos isso na cara. Nenhuma ferramenta honesta
-              acerta sempre — a nossa também não. Por isso mostramos o motivo de cada
-              conclusão, para você poder discordar da gente.
-            </p>
+            {/* A RESSALVA DE BETA E A ASSINATURA SAÍRAM — 27/08/2026
 
-            <p className="assina">Feito no interior de São Paulo, melhorando toda semana.</p>
+                Duas remoções pedidas pela dona do projeto: o
+                parágrafo "ainda estamos em beta" e o "Feito no
+                interior de São Paulo, melhorando toda semana".
+
+                ⚠ O QUE ISSO CUSTOU, para quem vier depois: o
+                CLAUDE.md lista quatro lugares onde o site avisa o
+                que ainda não entrega. Este era um deles. Ficaram
+                três — a faixa vermelha do /resultado, o "a gente
+                pode errar" na ressalva embaixo do verificador, e a
+                loja que nasce sempre `em_analise`.
+
+                O aviso de que a gente pode errar NÃO sumiu do
+                site: ele continua colado no verificador, que é
+                onde a pessoa decide se confia. Era lá que ele
+                importava. */}
           </div>
 
           <div className="crencas">
@@ -584,6 +504,38 @@ export function Home() {
                 <b>Empresa tem direito de resposta</b>
                 <span>Loja honesta que aparecer com sinal ruim se cadastra, comprova o CNPJ
                 e responde. De graça, e sem precisar falar com vendedor.</span>
+              </div>
+            </div>
+
+            {/* A QUINTA PROMESSA — 27/08/2026
+
+                Ditada pela dona do projeto, e ela enxergou uma
+                coisa que faltava: até aqui as quatro promessas
+                falavam só com QUEM DESCONFIA. Nenhuma falava com
+                quem é alvo da desconfiança.
+
+                E empresa nova carrega reputação suja sem ter feito
+                nada — domínio recente, dono oculto, zero avaliação
+                são exatamente os sinais que a gente aponta. Ela
+                não consegue crescer porque parece golpe, e não
+                tem como provar que não é.
+
+                Isso é o nicho que traz empresa pequena até nós, e
+                é por isso que esta promessa fica logo acima do
+                convite "Tem uma loja? Cadastre de graça". As duas
+                são a mesma ideia: uma explica, a outra convida.
+
+                ⚠ Se você mexer no convite `#convites` lá embaixo,
+                leia esta promessa antes — elas têm que continuar
+                dizendo a mesma coisa. */}
+            <div className="crenca">
+              <i className="bi bi-shop-window" aria-hidden="true"></i>
+              <div>
+                <b>Ser novo não é ser golpe</b>
+                <span>Empresa pequena começa parecendo suspeita: site recente, ninguém
+                conhece, nenhuma avaliação. Ela perde venda por isso, sem ter feito nada.
+                Aqui ela tem onde provar que é real — e é de graça, porque cobrar para
+                alguém deixar de ser confundido com golpista seria o nosso próprio golpe.</span>
               </div>
             </div>
           </div>

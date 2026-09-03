@@ -1,22 +1,31 @@
 /* =============================================================
    confiia.com.br — /planos
 
-   Três partes:
+   Duas partes:
      · o topo e os cartões (cartoes.tsx — precisa de JavaScript
        por causa do seletor mensal/anual)
      · a tabela comparativa e as dúvidas (detalhes.tsx — texto
        puro, vai inteiro pelo servidor)
-     · o aviso de que a cobrança ainda não existe
 
    ─────────────────────────────────────────────────────────────
-   O AVISO NO TOPO NÃO É OPCIONAL
+   O AVISO DE "AINDA NÃO DÁ PARA ASSINAR" SAIU — 27/08/2026
 
-   Os preços estão na tela, mas não há como pagar: a cobrança é a
-   Etapa 9. Uma página de planos com botão "Assinar" que não
-   assina é a definição de promessa vazia — e este site existe
-   justamente para ensinar a desconfiar de promessa vazia.
+   Decisão da dona do projeto: o Asaas está sendo contratado, a
+   cobrança entra, e o aviso de obra some antes dela chegar.
 
-   O aviso sai quando o pagamento entrar. Até lá, ele fica.
+   O QUE SEGURA A HONESTIDADE ENQUANTO O ASAAS NÃO ENTRA não é
+   mais o aviso — é o BOTÃO. Ele diz "Criar minha conta grátis" e
+   leva para `/criar-conta`, que é exatamente o que ele faz. Uma
+   página de preço só vira promessa vazia quando o botão promete
+   pagamento e não entrega; este não promete.
+
+   ⚠ ENTÃO A REGRA VIROU ESTA: enquanto o Asaas não estiver
+   ligado, o botão NÃO pode virar "Assinar", "Ir para o
+   pagamento" nem nada parecido. No dia em que o texto do botão
+   mudar sem o pagamento existir, o aviso tem que voltar — os
+   dois não podem estar fora ao mesmo tempo.
+
+   Ver `acao.href` em cartoes.tsx, e a Etapa 9 do PLANO.md.
    ─────────────────────────────────────────────────────────────
    ============================================================= */
 
@@ -53,19 +62,6 @@ export default function Planos() {
             Comece de graça, sem cartão. Se precisar de mais, o plano acompanha —
             inclusive para proteger quem você ama e não entende de internet.
           </p>
-
-          {/* Honestidade acima de tudo. Ver o comentário do topo. */}
-          <div className="aviso-etapa aviso-etapa--centro">
-            <i className="bi bi-cone-striped" aria-hidden="true" />
-            <div>
-              <b>Ainda não dá para assinar</b>
-              <span>
-                Os preços abaixo já estão definidos, mas a cobrança entra numa próxima
-                etapa da construção. Por enquanto, o plano grátis funciona inteiro e não
-                pede cartão.
-              </span>
-            </div>
-          </div>
 
           <CartoesPlano />
         </section>

@@ -24,9 +24,22 @@
        parte dos aparelhos.
      - A declaração final é o que responsabiliza quem cadastra.
        Ela não pode vir marcada por padrão.
+
+     - E ela trava o envio em DOIS lugares, de propósito:
+       aqui (para a pessoa saber ANTES de mandar) e em
+       `lib/acoes-loja.ts`, que recusa sem ela. Se você tirar a
+       trava daqui, a de lá segura — mas a pessoa só descobre
+       depois da viagem até o servidor, que é o defeito que
+       existia. Se tirar a de lá, não sobra nada: o navegador é
+       do outro lado, e do outro lado ninguém manda.
+
+     - `noValidate` no <form> desliga a validação do navegador
+       (as mensagens dele saem em inglês em parte dos aparelhos).
+       Então `required` no checkbox NÃO faria nada aqui. É por
+       isso que a trava é escrita à mão logo abaixo.
    ============================================================= */
 
-import { useActionState, useState } from 'react';
+import { useActionState, useRef, useState } from 'react';
 import Link from 'next/link';
 import { CamposArmadilha } from '@/components/campos-armadilha';
 import { cadastrarLoja } from '@/lib/acoes-loja';
@@ -59,6 +72,21 @@ export function FormaLoja({ carimbo }: { carimbo: string }) {
   /* Só para revelar o campo do "Outro". A pergunta era feita e a
      resposta descartada — ver lib/acoes-loja.ts. */
   const [categoria, setCategoria] = useState('');
+
+  /* A DECLARAÇÃO E A TRAVA DELA
+
+     `aceito` guarda o estado do checkbox; `faltaAceitar` só vira
+     true quando a pessoa TENTA enviar sem marcar. São dois
+     estados e não um porque cobrar antes da tentativa é implicar
+     com quem ainda está preenchendo — o aviso vermelho tem que
+     aparecer no momento em que ele explica alguma coisa.
+
+     `refAceite` existe para o foco voltar ao checkbox quando o
+     envio é barrado. Sem isso, quem navega por teclado ou usa
+     leitor de tela fica parado no botão sem saber para onde ir. */
+  const [aceito, setAceito] = useState(false);
+  const [faltaAceitar, setFaltaAceitar] = useState(false);
+  const refAceite = useRef<HTMLInputElement>(null);
 
   if (estado?.protocolo) {
     return (
@@ -232,15 +260,48 @@ export function FormaLoja({ carimbo }: { carimbo: string }) {
 
       <div className="divisor" />
 
-      <label className="opcao opcao--bloco">
-        <input type="checkbox" name="aceite" />
+      {/* POR QUE ISTO NÃO É MAIS UM `.opcao`
+
+          Era. E `.opcao` esconde o checkbox de verdade
+          (`opacity:0`) e desenha uma pílula no lugar — o mesmo
+          traço das escolhas de categoria logo acima. A declaração
+          ficava com cara de preferência, de "marque se quiser",
+          quando ela é a única linha do formulário que transfere
+          responsabilidade para quem preenche.
+
+          Agora é bloco próprio, com o quadrado de marcar à vista.
+          Se você mexer no visual daqui, mexa sabendo disso: o que
+          esta linha faz é separar "cadastrei minha empresa" de
+          "cadastrei a empresa dos outros". */}
+      <label className={`declaracao${faltaAceitar ? ' declaracao--cobrada' : ''}`}>
+        <input
+          ref={refAceite}
+          type="checkbox"
+          name="aceite"
+          checked={aceito}
+          onChange={(e) => {
+            setAceito(e.target.checked);
+            if (e.target.checked) setFaltaAceitar(false);
+          }}
+          aria-describedby="declaracao-peso"
+        />
         <span>
-          <i className="bi bi-check2-square" aria-hidden="true" />
-          Declaro que represento esta empresa e que os dados são verdadeiros.
+          <b>Declaro que represento esta empresa</b> e que os dados que escrevi acima são
+          verdadeiros.
+          <span className="declaracao-peso" id="declaracao-peso">
+            Cadastrar empresa que não é sua é falsidade — e o cadastro fica registrado com
+            data, hora e endereço de onde foi enviado.
+          </span>
         </span>
       </label>
 
       <div aria-live="polite">
+        {faltaAceitar && !estado?.erro && (
+          <p className="recado recado--erro">
+            <i className="bi bi-exclamation-circle-fill" aria-hidden="true" /> Marque a
+            declaração acima para continuar — ela é o que responsabiliza quem cadastra.
+          </p>
+        )}
         {estado?.erro && (
           <p className="recado recado--erro">
             <i className="bi bi-exclamation-circle-fill" aria-hidden="true" /> {estado.erro}
@@ -250,7 +311,30 @@ export function FormaLoja({ carimbo }: { carimbo: string }) {
 
       <div className="rodape-form">
         <Link className="btn btn--calmo" href="/">Cancelar</Link>
-        <button className="btn btn--forte" type="submit" disabled={enviando}>
+        {/* `aria-disabled` E NÃO `disabled` — a diferença importa
+
+            Botão com `disabled` de verdade some da navegação por
+            teclado e fica mudo para leitor de tela: a pessoa chega
+            ao fim do formulário, não acha botão nenhum e não é
+            informada do motivo. Com `aria-disabled` ele continua
+            alcançável, anuncia que está indisponível, e o clique
+            leva o foco de volta à declaração dizendo o que falta.
+
+            O `disabled` de verdade fica só para `enviando`, que é
+            outra coisa: ali o objetivo é impedir envio em dobro,
+            e dura um instante. */}
+        <button
+          className={`btn btn--forte${!aceito ? ' btn--travado' : ''}`}
+          type="submit"
+          disabled={enviando}
+          aria-disabled={!aceito}
+          onClick={(e) => {
+            if (aceito) return;
+            e.preventDefault();
+            setFaltaAceitar(true);
+            refAceite.current?.focus();
+          }}
+        >
           <i className="bi bi-shield-check" aria-hidden="true" />{' '}
           {enviando ? 'Enviando…' : 'Cadastrar loja'}
         </button>

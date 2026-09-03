@@ -18,9 +18,10 @@ qualquer código ou me responder qualquer coisa:
 
 1. CLAUDE.md          — as regras que não se discutem e as armadilhas técnicas
                         que já custaram horas. Leia inteiro.
-2. MELHORIAS.md § I   — a LISTA VIVA. É por aqui que se retoma: o que já ficou
-                        pronto e o que ainda falta da minha última rodada de
-                        críticas.
+2. MELHORIAS.md § II  — a LISTA VIVA. É por aqui que se retoma: as onze etapas
+                        que eu ditei, o que já ficou pronto e o que ainda falta.
+                        A § I é a rodada anterior — o que sobrou nela marcado
+                        com [ ] continua valendo.
 3. PLANO.md           — as etapas 1 a 10 e onde a gente está.
 4. PENDENCIAS.md      — o que depende de mim (MEI, advogado, chave do cofre).
 5. SEGURANCA.md       — as 20 travas de segurança e como conferir cada uma.

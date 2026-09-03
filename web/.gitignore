@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# QR Code de cobranca de teste (npm run asaas-teste).
+# E um codigo de pagamento REAL: quem tiver a imagem, paga.
+# Nao entra no Git nem que o valor seja R$ 1,00.
+pix-teste-*.png

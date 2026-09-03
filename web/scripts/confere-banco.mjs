@@ -53,6 +53,20 @@ const PODE_ALCANCAR = {
   api_chaves:       'SELECT',
   tickets:          'SELECT',
   assinaturas:      'SELECT',
+
+  /* Entrou em 27/08/2026 com a migração 019, para a página
+     /noticias. É a única tabela desta lista alimentada por
+     conteúdo de FORA — feed público lido pelo `npm run noticias`.
+
+     Por isso ela é `SELECT` e nada mais, e isso é a defesa: se um
+     dia aparecer uma injeção de SQL numa rota pública, ela não
+     consegue plantar link nenhum aqui. Quem grava é o script,
+     conectando como dono, rodado por uma pessoa.
+
+     ⚠ Se alguém precisar de INSERT nesta tabela pelo site, pare e
+     pense duas vezes: tabela que a internet alimenta E o site
+     escreve é como link de estranho vai parar na sua página. */
+  noticias_golpe:   'SELECT',
 };
 
 /* Funções que precisam rodar com a autoridade do dono. Ver 016. */

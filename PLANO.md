@@ -360,6 +360,18 @@ E os contratos de proteção de dados (DPA) da OpenAI e da Hive — está no
 
 **Objetivo:** entra dinheiro.
 
+> 📄 **O mapa desta etapa está em [ASAAS.md](ASAAS.md).** Como a chave é
+> guardada sem vazar, a diferença entre sandbox e produção, e por que o
+> webhook não pode ser testado antes da Etapa 7.
+
+- [x] Guardar a chave sem ela passar por chat, terminal ou Git
+      (`npm run asaas-chave`, teclado mudo)
+- [x] Provar que a chave funciona (`npm run prova-asaas`, só leitura)
+- [x] A porta única de saída para o Asaas (`web/src/lib/asaas.ts`), com
+      `server-only`, tempo limite e o ambiente deduzido do prefixo da chave
+- [x] Pix confirmado de ponta a ponta: cobrança criada, paga de verdade (R$ 5,00)
+      e detectada por consulta — sem webhook. Prova: `pay_txwi7w3wvjj19mgz`, `RECEIVED`
+- [x] Ferramenta de teste com seis travas (`npm run asaas-teste`)
 - [ ] Checkout no Asaas (Pix, cartão, boleto)
 - [ ] Webhook confirmando pagamento
 - [ ] Limite de cada plano valendo de verdade

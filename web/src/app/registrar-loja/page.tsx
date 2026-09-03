@@ -34,10 +34,33 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic';
 
+/* OS ÍCONES DOS QUATRO NÍVEIS — refeitos em 27/08/2026
+
+   A dona do projeto disse que um deles "parece que está
+   quebrado". Estava certa, e não era ícone faltando: o
+   `npm run confere-icones` passava, porque todos os quatro
+   existiam mesmo no pacote.
+
+   Eram DOIS defeitos visuais, os dois só visíveis ampliando:
+
+     1. `bi-file-earmark-check` é ícone de CONTORNO, e os outros
+        três eram PREENCHIDOS. Contorno fino, em cinza de 55% de
+        opacidade, sobre fundo escuro, lê exatamente como ícone
+        que não carregou. Virou a versão `-fill`.
+
+     2. `bi-award-fill` (a medalha) vira um borrão verde nesse
+        tamanho — a fita embaixo do círculo some e o desenho não
+        lê como medalha. Trocado por `bi-calendar-check-fill`,
+        que além de ler melhor DIZ o que o nível significa: mais
+        de um ano de casa.
+
+   ⚠ REGRA PARA MEXER AQUI: os quatro têm que ser do mesmo peso
+   (todos `-fill`). Misturar contorno e preenchido na mesma
+   escada faz o de contorno parecer defeito, não escolha. */
 const NIVEIS = [
   {
     n: 1,
-    icone: 'bi-file-earmark-check',
+    icone: 'bi-file-earmark-check-fill',
     nome: 'Registrada',
     texto: 'CNPJ ativo conferido na Receita. Sai na hora.',
   },
@@ -49,7 +72,7 @@ const NIVEIS = [
   },
   {
     n: 3,
-    icone: 'bi-award-fill',
+    icone: 'bi-calendar-check-fill',
     nome: 'Estabelecida',
     texto: 'Mais de um ano de casa e nenhuma denúncia confirmada.',
   },
@@ -103,19 +126,47 @@ export default function RegistrarLoja() {
 
             <div className="bloco pane">
               <h2>
-                <i className="bi bi-exclamation-diamond" aria-hidden="true" /> O que o selo{' '}
-                <em>não</em> diz
+                <i className="bi bi-patch-question" aria-hidden="true" /> O que o selo diz
               </h2>
-              <p>
-                Que a empresa <b>é quem diz ser</b> — só isso, e é bastante.
-              </p>
-              <p>
-                Ele não diz que o produto é bom, que a entrega é rápida nem que você vai
-                gostar do atendimento. Não somos avaliação de compra.
-              </p>
-              <p>
-                E não é para sempre: <b>3 denúncias confirmadas em 90 dias derrubam o
-                selo sozinhas</b>, sem ninguém precisar decidir.
+
+              {/* REESCRITO EM 27/08/2026
+
+                  A dona do projeto leu e não entendeu o que o selo
+                  dizia. O motivo estava na estrutura, não nas
+                  palavras: o título era "o que o selo NÃO diz" e o
+                  primeiro parágrafo dizia o que ele DIZ. Quem lia
+                  na ordem levava uma contradição na primeira
+                  linha e desistia.
+
+                  Agora são duas colunas de significado, cada uma
+                  com o seu rótulo, e a frase mais curta possível
+                  em cada lado. "Se eu não entendi, ninguém vai
+                  entender" — e ela tinha razão. */}
+              <div className="selo-diz">
+                <p className="selo-sim">
+                  <i className="bi bi-check-circle-fill" aria-hidden="true" />
+                  <span>
+                    <b>Que a empresa existe e é quem diz ser.</b> O CNPJ está ativo, e o
+                    site é mesmo dela.
+                  </span>
+                </p>
+                <p className="selo-nao">
+                  <i className="bi bi-x-circle-fill" aria-hidden="true" />
+                  <span>
+                    <b>Não diz que a loja é boa.</b> Nada sobre produto, prazo de entrega
+                    ou atendimento. Loja honesta também atrasa, e isso não é golpe.
+                  </span>
+                </p>
+              </div>
+
+              <p className="selo-cai">
+                <i className="bi bi-hourglass-split" aria-hidden="true" />
+                <span>
+                  E ele não é para sempre: <b>5 denúncias confirmadas em 90 dias derrubam
+                  o selo sozinhas</b>, sem ninguém precisar decidir.{' '}
+                  <b>Confirmadas</b> — denúncia que ninguém analisou não conta, senão
+                  bastaria um concorrente com paciência.
+                </span>
               </p>
             </div>
 

@@ -62,12 +62,34 @@ export function FormaDenuncia({ carimbo }: { carimbo: string }) {
      pessoa achar que precisa mandar de novo. */
   if (estado?.protocolo) {
     return (
+      /* A TELA DE OBRIGADO — refeita em 27/08/2026
+
+         Pedido da dona do projeto: "aparece uma mensagem na tela
+         dela falando obrigado pela sua denúncia, isso ajuda nós e
+         a população, e você fala o que acontece depois lá embaixo".
+
+         O "o que acontece depois" VEIO DA LATERAL do formulário.
+         Lá ele estava antes do envio, e ela disse que não fazia
+         sentido: quem ainda está preenchendo não precisa saber do
+         nosso processo interno — precisa é conseguir preencher.
+         Depois de enviar, a mesma informação vira o que a pessoa
+         quer saber. Mesma frase, momento certo.
+
+         ⚠ SE VOCÊ MEXER AQUI, LEMBRE DA LATERAL em
+         `denunciar/page.tsx`: os dois textos não podem voltar a
+         existir ao mesmo tempo. */
       <div className="denuncia-pronta">
         <i className="bi bi-check-circle-fill" aria-hidden="true" />
-        <h2>Denúncia registrada</h2>
-        <p>
-          A gente vai conferir e cruzar com outras do mesmo alvo. Confirmando, o site,
-          perfil ou número passa a aparecer marcado para quem verificar.
+        <h2>Obrigado. Sua denúncia entrou.</h2>
+
+        {/* O agradecimento vem antes do processo, e é sincero: sem
+            denúncia não existe base, e sem base o site não serve
+            para nada. Quem acabou de relatar um golpe merece saber
+            que aquilo teve utilidade. */}
+        <p className="denuncia-obrigado">
+          O que você acabou de contar não fica só com a gente: <b>ele protege a próxima
+          pessoa que receber o mesmo link</b>. É assim que a nossa base cresce — uma
+          denúncia de cada vez, de gente que passou por isso.
         </p>
 
         <p className="protocolo-rot">Seu protocolo</p>
@@ -75,6 +97,39 @@ export function FormaDenuncia({ carimbo }: { carimbo: string }) {
         <p className="protocolo-nota">
           Anote esse código. É por ele que a gente encontra a sua denúncia se você
           precisar falar com a gente.
+        </p>
+
+        <div className="depois">
+          <h3>
+            <i className="bi bi-clock-history" aria-hidden="true" /> O que acontece agora
+          </h3>
+          <ol>
+            <li>
+              <b>A gente confere</b> o que você mandou e cruza com outras denúncias do
+              mesmo site, perfil ou número.
+            </li>
+            <li>
+              <b>Quem confere é gente, não robô.</b> Denúncia é sobre a vida de alguém —
+              de quem foi enganado e de quem foi acusado. Isso não se decide sozinho.
+            </li>
+            <li>
+              <b>Confirmando, o alvo passa a aparecer marcado</b> para todo mundo que
+              verificar aquilo aqui.
+            </li>
+            <li>
+              <b>Se você deixou e-mail, a gente conta o desfecho.</b> Se não deixou, o
+              protocolo acima é o seu caminho de volta.
+            </li>
+          </ol>
+        </div>
+
+        <p className="denuncia-guarde">
+          <i className="bi bi-folder-check" aria-hidden="true" />
+          <span>
+            <b>Guarde as suas provas.</b> Print da conversa, comprovante, o anúncio — não
+            apague nada. Se virar boletim de ocorrência ou contestação no banco, é isso
+            que sustenta a sua versão.
+          </span>
         </p>
 
         <div className="denuncia-pronta-acoes">
@@ -287,6 +342,30 @@ export function FormaDenuncia({ carimbo }: { carimbo: string }) {
         <p>
           <b>Sua denúncia é anônima por padrão.</b> Publicamos o que foi denunciado — o
           site, o perfil, o número — nunca quem denunciou.
+        </p>
+      </div>
+
+      {/* QUEM ANALISA É GENTE — 27/08/2026
+
+          Pedido da dona do projeto: "essa parte não será dedicada
+          à API da inteligência artificial e sim humana".
+
+          Dizer isso na tela não é enfeite. Todo o resto do site
+          fala em análise automática, e a pessoa que denuncia
+          precisa saber que AQUI é diferente — porque denúncia
+          decide a reputação de alguém. Errar sozinho, por conta de
+          um robô, seria fazer com uma empresa o que a gente
+          combate.
+
+          ⚠ Isto vira promessa no momento em que aparece na tela.
+          Se um dia a triagem virar automática, esta frase sai
+          ANTES — não depois. */}
+      <div className="recado recado--info">
+        <i className="bi bi-person-check" aria-hidden="true" />
+        <p>
+          <b>Quem lê a sua denúncia é uma pessoa, não um robô.</b> Denúncia mexe com a
+          reputação de quem foi denunciado e com o prejuízo de quem denunciou. Isso não
+          se decide no automático.
         </p>
       </div>
 

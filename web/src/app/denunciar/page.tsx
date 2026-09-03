@@ -63,9 +63,25 @@ export default function Denunciar() {
               </h2>
               <p>Antes de qualquer coisa, faça isto — nesta ordem:</p>
               <ol>
+                {/* O MED COM O PRAZO VEIO DA HOME — 27/08/2026
+
+                    Na home ele estava dentro de "o que a gente não
+                    consegue verificar", e aquele bloco perdeu a
+                    parte bancária (a gente não vai atrás de banco).
+                    Mas o prazo é a informação do site inteiro que
+                    mais faz dinheiro voltar, então mudou de lugar
+                    em vez de sumir — e este é o lugar certo: aqui
+                    está quem JÁ perdeu, não quem veio conferir um
+                    link antes de clicar.
+
+                    Os 80 dias são regra do Banco Central. Se ela
+                    mudar, muda aqui — hoje é o único lugar do site
+                    onde esse número aparece. */}
                 <li>
-                  <b>Ligue para o seu banco</b> e peça o Mecanismo Especial de Devolução.
-                  Se foi Pix, há chance de reaver.
+                  <b>Peça o MED, e conte os dias.</b> O Mecanismo Especial de Devolução do
+                  Banco Central dá <b>80 dias corridos</b> para contestar um Pix — pelo seu
+                  próprio aplicativo, dentro do extrato. Mas pedir <b>no mesmo dia</b> muda
+                  muito a chance de voltar: o golpista ainda não tirou o dinheiro da conta.
                 </li>
                 <li>
                   <b>Registre boletim de ocorrência</b> — dá para fazer online, na
@@ -81,28 +97,33 @@ export default function Denunciar() {
               </ol>
             </div>
 
-            <div className="bloco pane">
-              <h2>
-                <i className="bi bi-clock-history" aria-hidden="true" /> O que acontece
-                depois
-              </h2>
-              <p>
-                A gente confere a denúncia, cruza com outras do mesmo alvo e, confirmando,
-                o site ou número passa a aparecer marcado para todo mundo que verificar.
-                Se você deixou e-mail, contamos o desfecho.
-              </p>
-            </div>
+            {/* DOIS BLOCOS SAÍRAM DAQUI — 27/08/2026
 
-            <div className="bloco pane">
-              <h2>
-                <i className="bi bi-image" aria-hidden="true" /> Tem print da conversa?
-              </h2>
-              <p>
-                <b>Guarde.</b> O envio de imagem entra junto com a análise automática, e
-                a gente pede quando chegar lá. Antes de mandar qualquer print para
-                alguém, tampe número de cartão, senha e endereço.
-              </p>
-            </div>
+                "O QUE ACONTECE DEPOIS" foi para a tela de obrigado
+                (`denunciar/forma.tsx`). A dona do projeto: "a pessoa
+                não deveria saber esse tipo de informação [antes];
+                é bom mostrar assim que ela enviar a denúncia".
+
+                Ela tem razão e o motivo é de foco: quem está
+                preenchendo precisa conseguir preencher. Explicar o
+                nosso processo interno ANTES do envio é assunto
+                nosso ocupando a cabeça de quem veio resolver o
+                problema dela. Depois do envio, a mesma frase vira
+                exatamente o que a pessoa quer saber.
+
+                "TEM PRINT DA CONVERSA?" saiu porque mandava a
+                pessoa GUARDAR e ESPERAR a gente pedir. Assim que o
+                anexo de provas existir no formulário, essa espera
+                deixa de fazer sentido — ela anexa na hora. O aviso
+                de guardar as provas foi para a tela de obrigado,
+                que é onde ele continua servindo (para BO e para
+                contestação no banco).
+
+                ⚠ SOBROU UM BLOCO SÓ NA LATERAL, de propósito. Você
+                tinha dito que era "informação demais, junto". Com
+                um, ele é a primeira coisa que a pessoa lê — e é o
+                que salva dinheiro. Não encha esta lateral de novo.
+                ───────────────────────────────────────────── */}
           </aside>
 
           <div className="folha">

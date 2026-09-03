@@ -43,10 +43,12 @@
      - `Antes de assinar` NÃO fica solto na página. Ele abre ao
        clicar em assinar, que é quando a pergunta existe. Ver
        `AntesDeAssinar` no fim deste arquivo.
-     - A cobrança não existe (é a Etapa 9). A página diz isso em
-       vez de fingir: página de preço com botão que não cobra é
-       promessa vazia, e este site existe para ensinar a
-       desconfiar disso.
+     - A cobrança ainda não está ligada (Etapa 9, Asaas a
+       caminho). O aviso de obra saiu em 27/08/2026, e quem
+       segura a honestidade agora é o TEXTO DO BOTÃO: "Criar
+       minha conta grátis", indo para /criar-conta. Enquanto o
+       Asaas não entrar, esse texto não vira "Assinar" — a regra
+       inteira está no topo de `planos/page.tsx`.
    ============================================================= */
 
 import { useState, useRef, useEffect } from 'react';
@@ -334,17 +336,15 @@ function AntesDeAssinar({
             ))}
           </ul>
 
-          {/* A verdade sobre onde este botão leva. Sem isto, a
-              pessoa clicaria esperando uma tela de pagamento. */}
-          <div className="antes-real">
-            <i className="bi bi-cone-striped" aria-hidden="true" />
-            <p>
-              <b>A cobrança ainda não existe.</b> Continuar cria uma conta grátis, que
-              funciona inteira. Quando a assinatura entrar no ar, a gente avisa você por
-              e-mail — e nada é cobrado sem você aceitar de novo.
-            </p>
-          </div>
+          {/* O painel "a cobrança ainda não existe" saiu daqui em
+              27/08/2026, junto com o aviso do topo da página —
+              decisão da dona do projeto, com o Asaas a caminho.
 
+              Quem passou a segurar a verdade é o botão logo
+              abaixo: ele diz "Criar minha conta grátis" e leva
+              para /criar-conta. Ver o comentário do topo de
+              `planos/page.tsx` — a regra de quando o aviso tem
+              que voltar está escrita lá. */}
           <div className="antes-acoes">
             {/* Classes próprias, não `.btn--calmo`/`.btn--forte`.
                 Aquelas foram desenhadas para o cartão BRANCO do

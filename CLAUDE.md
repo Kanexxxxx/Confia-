@@ -1,4 +1,5 @@
 # confia? — leia isto antes de qualquer coisa
+USE SKLLIS
 
 Este arquivo existe por um motivo específico: **conversa nova começa do zero.**
 O Claude não carrega nada do chat anterior. Só o que está escrito no repositório
@@ -88,14 +89,16 @@ não é assim que vidro funciona.
 
 | Arquivo | O que tem dentro |
 |---|---|
-| **`MELHORIAS.md` § I** | **A LISTA VIVA.** Comece por aqui. É a última rodada de crítica: o que já foi feito e o que falta. |
+| **`MELHORIAS.md` § II** | **A LISTA VIVA.** Comece por aqui. É a última rodada de crítica — onze etapas ditadas em 27/08/2026 — com o que falta e as nove decisões que dependem da dona do projeto. A § I é a rodada anterior, e o que sobrou nela em `[ ]` continua valendo. |
 | `COMECAR-CHAT-NOVO.md` | O prompt que a dona do projeto cola ao abrir uma conversa nova. Se as regras mudarem, mudam lá também. |
 | `PLANO.md` | As etapas do projeto, 1 a 10. Onde estamos e o que vem. |
 | `PENDENCIAS.md` | O que depende de ação humana (MEI, advogado, chave do cofre). |
 | `SEGURANCA.md` | As 20 travas, como cada uma foi fechada, e como conferir. |
+| `ASAAS.md` | O pagamento (Etapa 9): como a chave é guardada sem vazar, sandbox × produção, e por que o webhook depende da Etapa 7. |
+| **`PLANO-EMPREENDEDOR/`** | **A ENTREGA DO SENAC, com prazo externo: 09/09/2026, 21h.** Começa em **`AGORA.md`** (o que fazer hoje) e depois `00-MAPA.md`. Não é sobre o código — é o Portfólio de Evidências, o Pitch Deck e o vídeo. O diagnóstico honesto está lá: o projeto tem muita prova de execução e **nenhuma** prova de cliente, e as duas seções que mais pesam na avaliação (3.3 e 3.4) só se escrevem com dado de campo. |
 | `web/AGENTS.md` | Regras do Next.js 16 neste repositório. |
 
-**Ordem de leitura para retomar o trabalho:** `MELHORIAS.md` § I → `PLANO.md` →
+**Ordem de leitura para retomar o trabalho:** `MELHORIAS.md` § II → `PLANO.md` →
 `PENDENCIAS.md`.
 
 ---
@@ -170,9 +173,20 @@ Isto foi decidido de propósito, várias vezes, e deve continuar:
 
 - `/resultado` mostra faixa vermelha dizendo que é demonstração — o motor de
   verificação **não existe ainda** (Etapa 8).
-- `/planos` avisa que **cobrança ainda não existe**.
-- O painel "Antes de assinar" inclui *"A gente pode errar"*.
+- Embaixo do verificador, na home: *"O confia? pode errar. Confira sempre os
+  motivos."* Este é o mais importante dos três — fica onde a pessoa decide.
 - Loja cadastrada entra sempre como `em_analise`, nunca aprovada sozinha.
+
+⚠ **Dois avisos saíram em 27/08/2026, por decisão da dona do projeto**, e é
+importante saber o que segura a honestidade no lugar de cada um:
+
+- **O aviso de "a cobrança ainda não existe" em `/planos`.** Saiu porque o Asaas
+  chegou. Quem segura agora é o **texto do botão**: "Criar minha conta grátis",
+  indo para `/criar-conta`. Enquanto o pagamento não estiver ligado dentro do
+  site, esse texto **não vira "Assinar"** — se virar, o aviso volta. A regra
+  inteira está no topo de `web/src/app/planos/page.tsx`.
+- **A ressalva de beta no bloco "Por que existimos".** Saiu da home, mas o "a
+  gente pode errar" continua colado no verificador, que é onde ele importa.
 
 Um site anti-golpe que promete o que não entrega é o próprio problema que ele diz
 combater. Se for escrever texto novo, escreva com esse padrão.

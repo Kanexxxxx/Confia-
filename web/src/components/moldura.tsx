@@ -42,16 +42,15 @@ import {
 
 /* O MENU, E POR QUE ELE TEM ESTES CINCO ITENS
 
-   "Como funciona" aponta para uma âncora da home (/#como) e não
-   para uma página. Isso é de propósito: funciona de qualquer
-   lugar do site, e a explicação não merece uma página só dela —
-   ela precisa estar perto de quem acabou de chegar.
+   "COMO FUNCIONA" SAIU EM 27/08/2026, e "Notícias" entrou no
+   lugar. Decisão da dona do projeto: a explicação já é a primeira
+   coisa da tela inicial, e repetir no topo não acrescentava.
 
-   E ela ENTRA na lista, apesar de ser a única âncora, porque boa
-   parte de quem mais precisa deste site nunca usou um serviço
-   assim. Um menu só com "Planos / Registrar loja / Denunciar"
-   assume que a pessoa já entendeu o que a gente faz. Ela não
-   entendeu — e é por isso que ela está aqui.
+   ⚠ Aqui havia um comentário meu de dez linhas defendendo que ela
+   ficasse — o argumento era que quem mais precisa deste site
+   nunca usou um serviço assim. O argumento não era ruim; a
+   decisão é dela, e a âncora `/#como` continua existindo na home
+   para quem chega por link direto.
 
    CUIDADO AO MEXER:
      - Mexer aqui muda o cabeçalho de TODAS as páginas.
@@ -61,7 +60,7 @@ import {
        navegador, então não precisa de ajuste ao acrescentar um. */
 const MENU = [
   { href: '/', texto: 'Confia?' },
-  { href: '/#como', texto: 'Como funciona' },
+  { href: '/noticias', texto: 'Notícias' },
   { href: '/planos', texto: 'Planos' },
   { href: '/registrar-loja', texto: 'Registrar loja' },
   { href: '/denunciar', texto: 'Denunciar' },
@@ -151,7 +150,17 @@ export function Rodape() {
         <div className="foot-assina">
           <span>© {ANO_FUNDACAO} confia? — confiia.com.br</span>
           <span className="foot-onde">
-            <i className="bi bi-geo-alt" aria-hidden="true" /> Feito em {CIDADE_LONGA}
+            {/* "Feito em" virou "Empresa localizada em" — 27/08/2026,
+                a pedido da dona do projeto. Não é só palavra: "feito
+                em" descreve um trabalho artesanal, "empresa localizada
+                em" descreve uma pessoa jurídica com endereço, que é o
+                que um site que pede confiança precisa parecer.
+
+                ⚠ Enquanto não houver CNPJ, isto é a única declaração
+                de onde a empresa fica. O endereço completo continua
+                fora de propósito — sem CNPJ ele seria o residencial de
+                uma pessoa física. Ver `lib/contato.ts`. */}
+            <i className="bi bi-geo-alt" aria-hidden="true" /> Empresa localizada em {CIDADE_LONGA}
             {' · '}desde {ANO_FUNDACAO}
           </span>
           <span className="foot-onde">

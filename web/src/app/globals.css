@@ -1195,6 +1195,43 @@ form{margin:44px 0 0;text-align:left}
 }
 .icon-btn:hover{background:#e9eefa;color:var(--navy-800)}
 
+/* A PERGUNTA "ESSE @ É DE QUAL REDE?"
+
+   Só existe na tela quando a pessoa cola um @ — ver o comentário
+   4 em `components/verificador.tsx`.
+
+   Ela aparece DENTRO do card do verificador, entre o campo e a
+   dica. Por isso é discreta: fundo levíssimo e sem borda grossa.
+   Um painel pesado aqui competiria com o botão Verificar, que é
+   para onde a pessoa está indo.
+
+   ⚠ NÃO ponha `filter`, `opacity<1`, `transform` nem
+   `backdrop-filter` neste bloco. O card do verificador é o
+   `.tablet.lg`, que é vidro — qualquer uma dessas propriedades
+   num filho vira raiz de backdrop e corta o efeito. Está anotado
+   em CSS-ARMADILHAS.md e já custou tempo uma vez. */
+.redes{
+  margin:12px 0 0;padding:12px 14px;border:0;
+  border-radius:var(--r-md);background:#f4f7fc;
+}
+.redes legend{
+  display:flex;align-items:center;gap:7px;padding:0;margin:0 0 9px;
+  font-size:13px;font-weight:600;color:var(--ink);
+}
+.redes legend .bi{font-size:15px;color:var(--sky)}
+.redes-lista{display:flex;flex-wrap:wrap;gap:7px}
+
+/* O alvo de toque tem que passar de 44px no celular, e as pílulas
+   de `.opcao` são apertadas para isso. Aqui elas crescem. */
+.redes .opcao span{min-height:38px}
+@media (max-width:640px){
+  .redes .opcao span{min-height:44px}
+}
+
+.redes-porque{
+  margin:9px 0 0;font-size:12px;line-height:1.5;color:var(--ink-3);
+}
+
 .hint{display:flex;align-items:center;gap:8px;margin:10px 2px 0;min-height:18px;
   font-size:12.5px;color:var(--ink-3)}
 .hint .bi{font-size:14px}
@@ -1330,6 +1367,128 @@ body > section, main > section{width:var(--shell);margin:0 auto}
 .check b{display:block;font-size:14.5px;font-weight:600;color:#fff;margin-bottom:3px}
 .check span{display:block;font-size:13px;line-height:1.55;color:var(--on-dark-3)}
 
+/* ==============================================================
+   "SABER MAIS" — o botão em cada golpe
+   Componente: src/components/golpes.tsx
+
+   Ele é discreto de propósito. São DEZ cartões: se cada um
+   tivesse um botão cheio, a seção viraria uma parede de dez
+   botões azuis e ninguém leria o texto. Aqui ele lê como link
+   dentro do cartão, e o cartão inteiro continua sendo o assunto.
+
+   ⚠ Alvo de toque: 34px de altura + o padding do cartão dá o
+   suficiente no dedo, e no celular a regra abaixo leva para 44.
+   Não diminua sem medir. */
+.saber{
+  display:inline-flex;align-items:center;gap:2px;
+  margin-top:9px;padding:0;border:0;background:none;
+  font:inherit;font-size:12.5px;font-weight:600;
+  color:var(--sky-soft);cursor:pointer;
+  min-height:34px;
+}
+.saber:hover{color:#fff;text-decoration:underline}
+.saber:focus-visible{outline:2px solid var(--sky);outline-offset:3px;border-radius:6px}
+.saber .bi{font-size:17px;transition:transform .18s var(--ease)}
+.saber:hover .bi{transform:translateX(3px)}
+@media (max-width:640px){
+  .saber{min-height:44px}
+}
+@media (prefers-reduced-motion: reduce){
+  .saber .bi{transition:none}
+  .saber:hover .bi{transform:none}
+}
+
+/* ==============================================================
+   A CAIXA QUE EXPLICA O GOLPE
+
+   `<dialog>` nativo. O `::backdrop` escurece a página atrás, e é
+   ele que faz a caixa parecer estar por cima em vez de dentro.
+
+   ⚠ NÃO ponha `backdrop-filter` no `::backdrop`. A página atrás
+   tem o card de vidro do verificador, e desfoque em cima de
+   desfoque não produz nada — está escrito em CSS-ARMADILHAS.md e
+   já custou tempo neste projeto. Escurecer resolve e é barato.
+
+   ⚠ `max-height` com rolagem interna: o golpe da loja falsa tem
+   cinco passos e quatro sinais, e num celular deitado isso passa
+   da altura da tela. Sem esta trava o botão de fechar sai do
+   alcance. */
+.golpe-caixa{
+  width:min(560px,calc(100vw - 32px));max-height:min(86vh,760px);
+  margin:auto;padding:0;overflow:auto;
+  border:1px solid rgba(255,255,255,.12);border-radius:var(--r-xl);
+  background:var(--navy-800);color:var(--on-dark-2);
+  box-shadow:0 30px 90px rgba(2,8,20,.7);
+}
+.golpe-caixa::backdrop{background:rgba(2,8,18,.62)}
+
+.golpe-topo{
+  display:flex;align-items:center;gap:13px;
+  padding:22px 24px;position:sticky;top:0;z-index:1;
+  background:var(--navy-800);
+  border-bottom:1px solid rgba(255,255,255,.09);
+}
+.golpe-topo h3{
+  margin:0;flex:1;font-family:var(--fonte-titulo),sans-serif;
+  font-size:19px;font-weight:600;letter-spacing:-.01em;color:#fff;
+}
+.golpe-fechar{
+  flex:none;width:38px;height:38px;display:grid;place-items:center;
+  border:0;border-radius:11px;background:rgba(255,255,255,.07);
+  color:var(--on-dark-2);font-size:15px;cursor:pointer;
+}
+.golpe-fechar:hover{background:rgba(255,255,255,.13);color:#fff}
+.golpe-fechar:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+
+.golpe-corpo{display:grid;gap:24px;padding:22px 24px 6px}
+.golpe-corpo h4{
+  display:flex;align-items:center;gap:8px;margin:0 0 12px;
+  font-size:11.5px;font-weight:700;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--on-dark-3);
+}
+.golpe-corpo h4 .bi{font-size:14px;color:var(--sky)}
+
+/* Numerado: a ordem dos passos É a informação. O golpe funciona
+   porque cada passo prepara o seguinte. */
+.golpe-corpo ol{margin:0;padding:0 0 0 4px;list-style:none;counter-reset:passo}
+.golpe-corpo ol li{
+  counter-increment:passo;position:relative;
+  padding:0 0 14px 34px;font-size:14px;line-height:1.6;
+}
+.golpe-corpo ol li::before{
+  content:counter(passo);position:absolute;left:0;top:1px;
+  width:22px;height:22px;display:grid;place-items:center;
+  border-radius:50%;background:rgba(255,255,255,.08);
+  font-size:11.5px;font-weight:700;color:var(--on-dark-2);
+}
+.golpe-corpo ol li:last-child{padding-bottom:0}
+.golpe-corpo ol b{color:#fff}
+
+.golpe-corpo ul{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.golpe-corpo ul li{display:flex;gap:9px;font-size:14px;line-height:1.6}
+.golpe-corpo ul li > .bi{flex:none;margin-top:3px;color:var(--safe);font-size:15px}
+.golpe-corpo ul b{color:#fff}
+
+/* A FONTE NÃO É RODAPÉ DECORATIVO
+
+   É o que separa esta caixa de um texto qualquer da internet. Ela
+   fica presa embaixo, sempre visível, e o link abre em aba nova
+   para a pessoa não perder o lugar. */
+.golpe-fonte{
+  display:flex;gap:9px;align-items:flex-start;
+  margin:0;padding:16px 24px 22px;
+  font-size:12px;line-height:1.55;color:var(--on-dark-3);
+}
+.golpe-fonte .bi{flex:none;margin-top:1px;font-size:14px}
+.golpe-fonte a{color:var(--sky-soft);text-decoration:underline}
+.golpe-fonte a:hover{color:#fff}
+
+@media (max-width:560px){
+  .golpe-topo{padding:18px 18px}
+  .golpe-corpo{padding:18px 18px 4px}
+  .golpe-fonte{padding:14px 18px 18px}
+}
+
 .aviso{display:flex;align-items:flex-start;gap:12px;margin-top:16px;padding:16px 20px;
   border-radius:var(--r-lg);background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.16)}
 .aviso .bi{font-size:17px;color:var(--warn);line-height:1.4}
@@ -1358,177 +1517,25 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 .foot a:hover{color:var(--on-dark)}
 
 
-/* ---------- faixa de números ---------- */
-#numeros{padding:10px 0 90px}
-.numeros{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.numero{padding:26px 24px;border-radius:var(--r-xl);
-  background:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.028));
-  border:1px solid rgba(255,255,255,.1)}
-.numero b{display:block;font-family:var(--fonte-titulo),sans-serif;font-size:clamp(26px,3vw,34px);
-  font-weight:700;letter-spacing:-.02em;color:#fff;line-height:1.1}
-.numero span{display:block;margin-top:8px;font-size:13px;line-height:1.55;color:var(--on-dark-3)}
-.fonte{margin:16px 0 0;font-size:12px;color:rgba(234,241,253,.55)}
-.fonte a{color:rgba(234,241,253,.55)}
+/* APAGADO EM 27/08/2026 — a seção "O tamanho do problema" e os
+   três dossiês de golpe saíram da home inteiros (MELHORIAS.md
+   § II, etapas 3 e 4). Com eles morreu todo o CSS que vivia
+   aqui:
 
-/* ---------- dossiês de golpe ----------
+     .numeros .numero .fonte          — a faixa de números
+     .dossies .dossie*                — os cartões de golpe
+     .reproducao .anuncio* .chamada*  — as reproduções do que a
+     .conversa .balao                   vítima viu
+     .leitura .escopo*  .resto        — a leitura de cada caso
 
-   Substituiu o ranking de barras (.ranking/.rank/.pos/.barra/.pct).
-   Aquilo era um gráfico: quatro barras e quatro porcentagens. Diz o
-   tamanho e não diz mais nada — nem o que o golpe é, nem por que
-   funciona, nem o que a gente consegue conferir.
+   São ~170 linhas. Não ficam comentadas: CSS morto comentado é
+   pior que CSS morto apagado — ninguém sabe se ainda vale, e o
+   arquivo cresce para sempre. Está no histórico do Git.
 
-   Cada dossiê tem duas colunas. À esquerda, a PROVA: a reprodução do
-   que a vítima viu, desenhada para parecer a tela de onde aquilo
-   chega — anúncio, ligação, conversa. À direita, a LEITURA: por que
-   funciona e o que entrega.
-
-   A prova é clara (fundo --paper-2) no meio de uma página escura, de
-   propósito. É a única coisa do site com essa cor, e é ela que faz o
-   bloco parecer evidência colada num dossiê em vez de mais um cartão.
-   ⚠ Se você escurecer a prova para "combinar", ela some no fundo e o
-     bloco vira o ranking de novo, só que com mais texto.
-
-   ⚠ .leitura-bloco b é RÓTULO (bloco, caixa alta, pequeno). Dentro do
-     <p> tem <b> de ÊNFASE, que precisa desmontar tudo isso — daí a
-     regra .leitura-bloco p b logo abaixo. Se mexer numa, olhe a outra.
-*/
-/* ⚠ NÃO renomeie de volta para .prova: esse nome já é do cartão da
-   tela de verificação de selo (procure por ".prova .codigo" mais
-   abaixo). Ele vem depois no arquivo e ganharia desta regra. */
-.dossies{display:grid;gap:16px}
-
-.dossie{
-  padding:22px 24px 18px;
-  border-radius:var(--r-xl);
-  background:linear-gradient(180deg,rgba(255,255,255,.065),rgba(255,255,255,.022));
-  border:1px solid rgba(255,255,255,.09)}
-
-.dossie-cabeca{
-  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
-  padding-bottom:15px;margin-bottom:18px;
-  border-bottom:1px solid rgba(255,255,255,.08)}
-.dossie-pos{
-  font-family:var(--fonte-texto),system-ui,sans-serif;
-  font-size:12px;font-weight:700;letter-spacing:.12em;
-  font-variant-numeric:tabular-nums;
-  color:var(--sky-soft);opacity:.65}
-.dossie-nome{
-  margin:0;flex:1 1 200px;min-width:0;
-  font-family:var(--fonte-titulo),sans-serif;
-  font-size:clamp(17px,2vw,20px);font-weight:600;
-  letter-spacing:-.01em;color:#fff}
-.dossie-casos{margin-left:auto;font-size:13px;color:var(--on-dark-3)}
-.dossie-casos b{font-size:17px;font-weight:600;color:#fff;font-variant-numeric:tabular-nums}
-
-/* Subir é ruim, cair é bom — a cor diz isso antes da seta. */
-.dossie-tend{
-  display:inline-flex;align-items:center;gap:5px;
-  padding:4px 10px;border-radius:999px;
-  font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums}
-.dossie-tend i{font-size:11px}
-.dossie-tend--sobe{color:var(--risk);background:rgba(255,122,107,.12);
-  border:1px solid rgba(255,122,107,.24)}
-.dossie-tend--cai{color:var(--safe);background:rgba(47,211,155,.1);
-  border:1px solid rgba(47,211,155,.22)}
-
-.dossie-corpo{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);
-  gap:26px;align-items:start}
-
-/* ----- a prova ----- */
-.reproducao{display:grid;gap:8px}
-.reproducao-selo{
-  font-size:10.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
-  color:rgba(234,241,253,.42)}
-
-/* Material comum das três telas. */
-.anuncio,.chamada,.conversa{
-  background:var(--paper-2);color:var(--ink);
-  border-radius:16px;border:1px solid rgba(11,36,67,.1);
-  box-shadow:0 14px 34px rgba(2,8,20,.42)}
-
-.anuncio{display:grid;grid-template-columns:80px minmax(0,1fr);gap:14px;padding:14px}
-.anuncio-foto{display:grid;place-items:center;border-radius:11px;font-size:26px;
-  /* Quadrado e preso no topo: 80x169 esticado lia como imagem que
-     nao carregou. Anuncio de verdade tem miniatura quadrada. */
-  aspect-ratio:1;align-self:start;
-  background:linear-gradient(160deg,#dde6f4,#c3d3ea);color:#8496af}
-.anuncio-dados{display:grid;gap:6px;align-content:start;min-width:0}
-.anuncio-dados b{font-size:12.5px;font-weight:600;line-height:1.35;color:var(--ink)}
-.anuncio-preco{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
-.anuncio-preco s{font-size:11.5px;color:var(--ink-3)}
-.anuncio-preco em{font-style:normal;font-size:19px;font-weight:700;color:#c62f1f;
-  font-variant-numeric:tabular-nums}
-.anuncio-pressa{display:inline-flex;align-items:center;gap:5px;width:fit-content;
-  padding:3px 8px;border-radius:6px;background:#ffe6e1;color:#c62f1f;
-  font-size:11px;font-weight:600}
-.anuncio-loja{font-size:11px;color:var(--ink-3)}
-
-.chamada{display:grid;gap:6px;padding:16px}
-.chamada-etiqueta{display:inline-flex;align-items:center;gap:6px;
-  font-size:11px;font-weight:600;color:var(--ink-3)}
-.chamada-quem{font-size:14.5px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
-.chamada-num{font-size:11px;color:var(--ink-3)}
-.chamada-fala{margin:9px 0 0;padding:11px 13px;border-radius:12px;
-  background:#fff;border:1px solid var(--line);border-left:3px solid var(--warn);
-  font-size:12.5px;line-height:1.55;color:var(--ink-2)}
-.chamada-fala b{color:#c62f1f;font-weight:700}
-
-.conversa{display:grid;gap:8px;padding:14px}
-.conversa-quem{display:inline-flex;align-items:center;gap:6px;
-  padding-bottom:9px;border-bottom:1px solid var(--line);
-  font-size:11.5px;font-weight:600;color:var(--ink-3)}
-.balao{margin:0;justify-self:start;max-width:93%;
-  padding:9px 12px;border-radius:14px 14px 14px 4px;
-  background:#fff;border:1px solid var(--line);
-  font-size:12.5px;line-height:1.5;color:var(--ink)}
-
-/* ----- a leitura ----- */
-.leitura{display:grid;gap:15px;align-content:start}
-.leitura-bloco b{display:block;margin-bottom:5px;
-  font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--sky-soft);opacity:.75}
-.leitura-bloco p{margin:0;font-size:14px;line-height:1.62;color:var(--on-dark-2)}
-/* ⚠ desmonta o rótulo acima: aqui <b> é ênfase dentro da frase. */
-.leitura-bloco p b{display:inline;margin:0;font-size:inherit;letter-spacing:0;
-  text-transform:none;color:#fff;opacity:1;font-weight:600}
-
-.escopo{display:flex;align-items:flex-start;gap:8px;
-  margin:1px 0 0;padding:10px 12px;border-radius:12px;
-  font-size:12.5px;line-height:1.5;color:rgba(234,241,253,.86)}
-.escopo i{flex:none;margin-top:1px;font-size:14px}
-.escopo--sim{background:rgba(47,211,155,.09);border:1px solid rgba(47,211,155,.2)}
-.escopo--sim i{color:var(--safe)}
-.escopo--meio{background:rgba(255,198,92,.08);border:1px solid rgba(255,198,92,.2)}
-.escopo--meio i{color:var(--warn)}
-
-/* Fonte em CADA cartão, não uma nota só no fim da seção: número sem
-   período colado nele é número que envelhece sem avisar. */
-.dossie-fonte{margin:18px 0 0;padding-top:13px;
-  border-top:1px solid rgba(255,255,255,.07);
-  font-size:11.5px;line-height:1.55;color:rgba(234,241,253,.45)}
-.dossie-fonte b{color:rgba(234,241,253,.72);font-weight:600}
-
-.resto{margin:16px 0 0;padding:16px 18px;border-radius:var(--r-lg);
-  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
-  font-size:13.5px;line-height:1.6;color:var(--on-dark-2)}
-.resto b{color:#fff;font-weight:600}
-.resto span{display:block;margin-top:7px;font-size:12.5px;color:rgba(234,241,253,.5)}
-
-@media (max-width:900px){
-  .dossie-corpo{grid-template-columns:1fr;gap:18px}
-  .reproducao{max-width:420px}
-}
-@media (max-width:560px){
-  .dossie{padding:18px 16px 14px}
-  .dossie-nome{flex:1 1 100%;order:-1}
-  .dossie-casos{margin-left:0}
-  .reproducao{max-width:none}
-}
-@media (min-width:901px){
-  .leitura{grid-template-columns:1fr 1fr;gap:16px 26px}
-  .escopo{grid-column:1 / -1}
-}
-
+   ⚠ Se a etapa 4 trouxer o "saber mais" com caixa de detalhe,
+   NÃO ressuscite `.dossie`. Aquilo era cartão de página, e o
+   "saber mais" é caixa que abre no clique — outro problema,
+   outro desenho. */
 
 /* ---------- história ---------- */
 #historia{padding:0 0 90px}
@@ -1603,128 +1610,28 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 }
 @media (max-width:760px){
   .numeros{grid-template-columns:1fr}
-  #numeros,#historia,#convites{padding-bottom:60px}
+  /* `#numeros` saiu daqui em 27/08/2026 junto com a seção. */
+  #historia,#convites{padding-bottom:60px}
+
+  /* ESPAÇO PARA OS BOTÕES FLUTUANTES NÃO TAPAREM O RODAPÉ
+
+     No celular eles ficam lado a lado no canto inferior esquerdo,
+     ocupando 64px de altura fixa na tela. Sem esta folga, quem
+     rola até o fim encontra os links do rodapé (Privacidade,
+     Termos, Reembolso) escondidos embaixo deles — e no rodapé
+     estão justamente os documentos que a lei obriga a deixar
+     acessíveis.
+
+     78px = 64 dos botões + 14 de respiro. Mudou a posição dos
+     botões, muda esta conta. */
+  footer{padding-bottom:78px}
 }
 
 
-/* ==============================================================
-   PAINEL QUE CONTA OS GOLPES
-   Componente: src/components/contador-golpes.tsx
-
-   Cada algarismo mora numa "casinha" com fundo e borda próprios.
-   Isso é o que dá a leitura de painel mecânico — e resolve um
-   problema real: com o número inteiro num bloco só, a linha
-   TODA parece piscar a cada atualização e o olho não pousa.
-   ============================================================== */
-.contador{
-  grid-column:1 / -1;
-  margin:0 0 26px;padding:26px 30px 24px;border-radius:var(--r-xl);
-  background:
-    radial-gradient(120% 140% at 50% 0%, rgba(255,122,107,.16), transparent 62%),
-    linear-gradient(180deg, rgba(8,20,38,.92), rgba(6,16,32,.96));
-  border:1px solid rgba(255,122,107,.26);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.09), 0 28px 60px -38px rgba(2,10,24,1);
-}
-
-/* ---------- cabeçalho: título à esquerda, relógio à direita ---------- */
-.contador-topo{
-  display:flex;align-items:center;justify-content:space-between;gap:16px;
-  flex-wrap:wrap;margin-bottom:18px;
-}
-.contador-titulo{display:flex;align-items:center;gap:10px}
-.contador-titulo h3{
-  margin:0;font-family:Inter,sans-serif;font-size:12.5px;font-weight:600;
-  letter-spacing:.13em;text-transform:uppercase;color:var(--on-dark-2);
-}
-
-/* O pontinho pulsando é o sinal de "ao vivo" que todo painel usa.
-   Some para quem pediu menos movimento — ver o bloco no fim. */
-.contador-ponto{
-  width:8px;height:8px;border-radius:50%;flex:none;
-  background:var(--risk);box-shadow:0 0 0 0 rgba(255,122,107,.6);
-  animation:pulsa 2s var(--ease) infinite;
-}
-@keyframes pulsa{
-  0%{box-shadow:0 0 0 0 rgba(255,122,107,.55)}
-  70%{box-shadow:0 0 0 9px rgba(255,122,107,0)}
-  100%{box-shadow:0 0 0 0 rgba(255,122,107,0)}
-}
-
-.contador-quando{
-  display:flex;align-items:center;gap:10px;margin:0;
-  font-size:12.5px;color:var(--on-dark-3);
-}
-.contador-quando b{
-  padding:4px 10px;border-radius:8px;
-  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
-  color:#fff;font-weight:600;
-  /* tabular-nums: sem isto o relógio muda de largura a cada
-     segundo e o cabeçalho inteiro treme. */
-  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;
-}
-
-/* ---------- as casinhas ---------- */
-.odo{
-  display:flex;align-items:stretch;justify-content:center;gap:5px;
-  margin:0;
-}
-.odo-casa{
-  display:grid;place-items:center;
-  min-width:clamp(30px,5.4vw,58px);padding:clamp(6px,1vw,12px) 0;
-  border-radius:clamp(8px,1.1vw,14px);
-  background:linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.045));
-  border:1px solid rgba(255,255,255,.16);
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.22),
-    inset 0 -10px 16px -12px rgba(2,10,24,.9),
-    0 8px 18px -12px rgba(2,10,24,.9);
-  font-family:var(--fonte-texto),system-ui,sans-serif;font-weight:700;
-  font-size:clamp(26px,5.6vw,62px);line-height:1;letter-spacing:-.02em;color:#fff;
-  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;
-  text-shadow:0 0 26px rgba(255,122,107,.4);
-}
-
-/* A separação de milhar: mesma altura, sem caixa. Ela nunca muda,
-   então não precisa de compartimento. */
-.odo-sep{
-  display:grid;place-items:end center;padding-bottom:clamp(8px,1.2vw,14px);
-  font-family:var(--fonte-texto),system-ui,sans-serif;font-weight:700;
-  font-size:clamp(20px,3.6vw,40px);line-height:1;color:var(--on-dark-3);
-}
-
-.contador-desde{
-  margin:10px 0 0;text-align:center;
-  font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--on-dark-3);
-}
-
-/* ---------- rodapé do painel ---------- */
-.contador-rodape{
-  margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1);
-}
-.contador-vivo{margin:0;text-align:center;font-size:15px;color:var(--on-dark-2)}
-.contador-vivo b{
-  color:#fff;font-weight:700;
-  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;
-}
-.contador-fonte{
-  margin:12px auto 0;max-width:66ch;text-align:center;
-  font-size:11.5px;line-height:1.6;color:var(--on-dark-3);
-}
-.contador-fonte b{color:var(--on-dark-2);font-weight:600}
-
-@media (max-width:760px){
-  .contador{padding:20px 14px 18px}
-  .contador-topo{margin-bottom:14px}
-  .odo{gap:3px}
-  .odo-casa{min-width:26px;border-radius:7px}
-}
-
-/* Quem pediu menos movimento: o painel para. O pontinho deixa de
-   pulsar e o número fica no valor do instante em que a página
-   abriu — o dado continua lá, só não se mexe. */
-@media (prefers-reduced-motion: reduce){
-  .contador-ponto{animation:none}
-}
+/* O painel contador de golpes foi APAGADO em 27/08/2026, com o
+   componente e a seção "O tamanho do problema" inteira. Ficavam
+   aqui `.contador*` e `.odo*` (as casinhas dos algarismos). Se
+   precisar de volta, está no histórico do Git. */
 
 /* ==============================================================
    O LIMITE DO SERVIÇO — o que a gente NÃO verifica
@@ -1752,7 +1659,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
   flex:none;width:44px;height:44px;display:grid;place-items:center;border-radius:13px;
   background:rgba(255,122,107,.16);color:var(--risk);font-size:21px;
 }
-.limite-topo b{display:block;margin-bottom:5px;font-family:var(--fonte-titulo),sans-serif;
+.limite-topo h3{display:block;margin:0 0 5px;font-family:var(--fonte-titulo),sans-serif;
   font-size:19px;font-weight:600;letter-spacing:-.01em;color:#fff}
 .limite-topo span{display:block;font-size:14.5px;line-height:1.55;color:var(--on-dark-2)}
 
@@ -1868,12 +1775,42 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
   .zap-flutua{transition:background .18s ease}
 }
 
-/* No celular o rótulo não abre — não há ponteiro para passar por
-   cima, e um toque tem que ABRIR a conversa, não revelar texto.
-   Fica só o círculo. */
+/* NO CELULAR ELES FICAM LADO A LADO, NÃO EMPILHADOS — 27/08/2026
+
+   Duas mudanças, e a segunda foi a dona do projeto quem viu.
+
+   1. O rótulo não abre. Não há ponteiro para passar por cima, e um
+      toque tem que ABRIR a conversa, não revelar texto.
+
+   2. EMPILHADOS ELES TAPAVAM 136px DE TELA. O de acessibilidade
+      ocupava de 14 a 64, o do WhatsApp de 80 a 136 — uma coluna
+      de dois dedos de altura passando por cima do conteúdo que
+      rola atrás. Ela viu isso acontecendo em cima da pergunta
+      "esse @ é de qual rede?", dentro do card do verificador, que
+      é a coisa mais importante da página.
+
+      Lado a lado, os dois cabem em 64px de altura. Não elimina a
+      sobreposição — botão fixo sempre cobre alguma coisa —, mas
+      corta pela metade o que ele cobre, e tira a coluna alta bem
+      do lado do card.
+
+   ⚠ SE VOCÊ MEXER AQUI, MEXA NO OUTRO: o botão de acessibilidade
+   mora em `public/assets/acessibilidade.css` (`.a11y-botao`, 50px,
+   left 14, bottom 14 no celular). A conta do `left` deste aqui
+   sai de lá: 14 + 50 + 10 de respiro = 74. E o painel dele
+   (`.a11y-painel`) abre a partir de bottom:74 — por isso este
+   botão fica em bottom:14, embaixo do painel, e não no caminho.
+
+   ⚠ A etapa 10 traz um terceiro botão (chat ao vivo), e ele vai
+   para o LADO DIREITO justamente por isso. Não empilhe mais nada
+   nesta esquina. */
 @media (max-width:760px){
-  .zap-flutua{left:16px;bottom:80px}
-  .zap-flutua:hover,.zap-flutua:focus-visible{max-width:56px}
+  .zap-flutua{
+    left:74px;bottom:14px;
+    height:50px;max-width:50px;
+  }
+  .zap-flutua > .bi{width:50px;font-size:23px}
+  .zap-flutua:hover,.zap-flutua:focus-visible{max-width:50px;transform:none}
   .zap-rotulo{display:none}
 }
 
@@ -2461,13 +2398,10 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 .antes-lista li div{display:grid;gap:4px}
 .antes-lista li b{font-size:14.5px;color:#fff}
 .antes-lista li span{font-size:13px;line-height:1.65;color:var(--on-dark-3)}
-.antes-real{
-  display:flex;gap:11px;margin:0 26px;padding:15px 17px;border-radius:12px;
-  background:rgba(255,198,92,.1);border:1px solid rgba(255,198,92,.28);
-}
-.antes-real .bi{flex:none;margin-top:2px;color:var(--warn)}
-.antes-real p{margin:0;font-size:13px;line-height:1.65;color:var(--on-dark-2)}
-.antes-real b{color:#fff}
+/* `.antes-real` foi removida em 27/08/2026 junto com o painel de
+   "a cobrança ainda não existe" — ver o topo de planos/page.tsx.
+   Não recrie por hábito: se o aviso precisar voltar, `.aviso-etapa`
+   já faz esse trabalho e é a que sobrou viva. */
 /* =============================================================
    OS BOTÕES DA CAIXA ESCURA — classe própria, de propósito
 
@@ -2563,6 +2497,78 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
    existiam no globals entraram.
    ============================================================== */
 .corpo{width:var(--shell);margin:34px auto 0;display:grid;grid-template-columns:1fr 330px;gap:24px;align-items:start}
+
+/* ==============================================================
+   /noticias — duas folhas de largura igual
+
+   `.corpo` normal é formulário + lateral de apoio (1fr + 330px).
+   Aqui as duas partes têm o MESMO peso: as manchetes e os órgãos
+   oficiais. Uma não é apoio da outra — quando o arquivo está
+   vazio, o bloco oficial é a página inteira.
+
+   ⚠ Por isso `.corpo--largo` e não uma lateral: pôr os órgãos
+   numa coluna estreita de apoio diria, pelo desenho, que eles são
+   secundários. São o contrário: mandar a pessoa para a fonte
+   primária é o melhor conselho da página.
+   ============================================================== */
+.corpo--largo{grid-template-columns:1fr 1fr}
+@media (max-width:900px){
+  .corpo--largo{grid-template-columns:1fr}
+}
+
+.folha > h2{
+  display:flex;align-items:center;gap:9px;margin:0 0 6px;
+  font-family:var(--fonte-titulo),sans-serif;
+  font-size:19px;font-weight:600;letter-spacing:-.01em;color:var(--ink);
+}
+.folha > h2 .bi{font-size:18px;color:var(--sky)}
+
+/* AS MANCHETES
+
+   Sem imagem, sem resumo, sem "leia mais". Só o título e de onde
+   veio — que é exatamente o que se pode republicar, e é o que a
+   pessoa precisa para decidir se clica.
+
+   ⚠ NÃO acrescente imagem aqui. Ela viria de CDN de terceiro e
+   entregaria o IP de cada visitante, contra o que a Política de
+   Privacidade promete. Ver o topo de `app/noticias/page.tsx`. */
+.manchetes{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:2px}
+.manchetes li{
+  padding:14px 0;border-bottom:1px solid #e8edf6;
+}
+.manchetes li:last-child{border-bottom:0}
+.manchetes a{
+  display:inline-flex;align-items:flex-start;gap:7px;
+  font-size:15.5px;line-height:1.5;font-weight:600;
+  color:var(--ink);text-decoration:none;
+}
+.manchetes a:hover{color:#2970d3;text-decoration:underline}
+.manchetes a:focus-visible{outline:2px solid var(--sky);outline-offset:3px;border-radius:4px}
+/* A setinha de "abre fora" é aviso, não enfeite: a pessoa sai do
+   nosso site ao clicar, e ela merece saber disso antes. */
+.manchetes a > .bi{flex:none;margin-top:4px;font-size:12px;color:var(--ink-3)}
+.manchete-pe{margin:5px 0 0;font-size:12.5px;color:var(--ink-3)}
+
+.manchetes-nota{
+  margin:18px 0 0;padding-top:14px;border-top:1px solid #e8edf6;
+  font-size:12.5px;line-height:1.6;color:var(--ink-3);
+}
+
+/* OS ÓRGÃOS OFICIAIS — a parte que nunca fica vazia */
+.oficiais{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:12px}
+.oficiais li{
+  display:flex;gap:13px;padding:15px 16px;
+  border:1px solid #e2e9f4;border-radius:var(--r-md);background:#fbfcfe;
+}
+.oficiais li > .bi{flex:none;margin-top:2px;font-size:19px;color:var(--sky)}
+.oficiais a{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:14.5px;font-weight:650;color:var(--ink);text-decoration:none;
+}
+.oficiais a:hover{color:#2970d3;text-decoration:underline}
+.oficiais a:focus-visible{outline:2px solid var(--sky);outline-offset:3px;border-radius:4px}
+.oficiais a > .bi{font-size:11.5px;color:var(--ink-3)}
+.oficiais span{display:block;margin-top:4px;font-size:13px;line-height:1.55;color:var(--ink-2)}
 .lateral{display:grid;gap:14px;position:sticky;top:100px}
 .bloco h2 .bi{color:var(--sky-soft);font-size:17px}
 .bloco p{margin:0;font-size:13px;line-height:1.65;color:var(--on-dark-3)}
@@ -2729,12 +2735,86 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 }
 .protocolo-nota{margin:10px auto 0;max-width:44ch;font-size:12.5px;
   line-height:1.55;color:var(--ink-3)}
+/* A TELA DE OBRIGADO — o que veio da lateral, e por quê
+
+   "O que acontece agora" morava na lateral do formulário, ANTES
+   do envio. Veio para cá em 27/08/2026: quem está preenchendo
+   precisa conseguir preencher, e o nosso processo interno só
+   interessa depois que a denúncia saiu.
+
+   ⚠ Repare que `.denuncia-pronta` é `text-align:center` e estes
+   dois blocos voltam para a esquerda. Não é inconsistência: o
+   agradecimento e o protocolo são um momento, e leem centrados.
+   Lista de passos centrada é ilegível — o olho perde o começo da
+   linha a cada item. */
+.denuncia-obrigado{
+  margin:0 auto !important;max-width:48ch;
+}
+
+/* ⚠ CORES DE FUNDO CLARO, E ISSO QUASE PASSOU
+
+   Escrevi este bloco com `rgba(255,255,255,.045)` de fundo e
+   `#fff` de texto — a paleta do FUNDO ESCURO do site. Mas
+   `.denuncia-pronta` vive dentro de `.folha`, que é
+   `background:var(--paper)` com `color:var(--ink)`: um cartão
+   BRANCO. Resultado: texto branco em fundo branco, o bloco
+   inteiro invisível.
+
+   Não deu erro, passou no `npm run confere`, e só apareceu ao
+   olhar a tela depois de enviar uma denúncia de verdade.
+
+   REGRA: antes de escrever cor aqui, veja em que cartão o bloco
+   mora. `--ink*` para o que vive em `.folha` (branco);
+   `--on-dark*` para o que vive direto na página (escura). */
+.depois{
+  margin:26px auto 0;max-width:52ch;text-align:left;
+  padding:20px 22px;border-radius:var(--r-lg);
+  background:#f4f7fc;border:1px solid #e2e9f4;
+}
+.depois h3{
+  display:flex;align-items:center;gap:9px;margin:0 0 14px;
+  font-family:var(--fonte-titulo),sans-serif;
+  font-size:15px;font-weight:600;color:var(--ink);
+}
+.depois h3 .bi{font-size:16px;color:var(--sky)}
+
+/* Numerado porque é sequência: um passo acontece depois do outro,
+   e a pessoa quer saber em que ponto a denúncia dela está. */
+.depois ol{margin:0;padding:0;list-style:none;counter-reset:etapa;display:grid;gap:12px}
+.depois ol li{
+  counter-increment:etapa;position:relative;padding-left:32px;
+  font-size:13.5px;line-height:1.6;color:var(--ink-2);
+}
+.depois ol li::before{
+  content:counter(etapa);position:absolute;left:0;top:0;
+  width:22px;height:22px;display:grid;place-items:center;border-radius:50%;
+  background:var(--sky-wash);color:#2970d3;
+  font-size:11.5px;font-weight:700;
+}
+.depois ol b{color:var(--ink)}
+
+/* O aviso de guardar as provas. Veio do "Tem print da conversa?"
+   que saiu da lateral — mas com outro sentido: lá mandava
+   ESPERAR a gente pedir; aqui é sobre o que sustenta um boletim
+   de ocorrência ou uma contestação no banco. */
+.denuncia-guarde{
+  display:flex;gap:11px;text-align:left;
+  margin:18px auto 0;max-width:52ch;padding:14px 16px;
+  border-radius:var(--r-md);
+  background:#fff8e9;border:1px solid #f0dcae;
+  font-size:13px;line-height:1.6;color:var(--ink-2);
+}
+.denuncia-guarde .bi{flex:none;margin-top:2px;font-size:16px;color:#a9740c}
+.denuncia-guarde b{color:var(--ink)}
+
 .denuncia-pronta-acoes{
   display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:26px;
 }
 
 @media (max-width:600px){
   .denuncia-pronta-acoes .btn{width:100%}
+  .depois{padding:16px 16px}
+  .denuncia-guarde{padding:13px 14px}
 }
 
 /* ==============================================================
@@ -2743,16 +2823,49 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
    ============================================================== */
 .bloco p + p{margin-top:9px}
 .bloco b{color:#fff}
-.escada{display:grid;gap:9px;margin:0}
-.degrau{display:grid;grid-template-columns:auto 1fr;gap:11px;padding:12px 14px;border-radius:12px;
-    background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09)}
-.degrau .bi{font-size:16px;line-height:1.35}
-.degrau b{display:block;font-size:13px;color:#fff;margin-bottom:3px}
-.degrau span{display:block;font-size:12px;line-height:1.55;color:var(--on-dark-3)}
-.degrau--1 .bi{color:var(--on-dark-3)}
-.degrau--2 .bi{color:var(--sky)}
-.degrau--3 .bi{color:var(--safe)}
-.degrau--4 .bi{color:var(--warn)}
+/* ⚠ `.escada` e `.degrau` ESTAVAM DEFINIDAS DUAS VEZES neste
+   arquivo, e este bloco era a cópia morta — apagada em
+   27/08/2026. A que vale está mais abaixo, junto do comentário
+   que explica por que a escada é um <ol>.
+
+   É exatamente a armadilha que este projeto já pagou uma vez com
+   o `.eyebrow`: dois blocos com o mesmo nome de classe se somam
+   em silêncio, e o navegador fica com a ÚLTIMA declaração de
+   cada propriedade — misturando os dois. Aqui um dizia
+   `display:grid` e o outro `display:flex`; sobrava um
+   `grid-template-columns` sem grid nenhum para governar.
+
+   Não dava erro, não aparecia no console, e só apareceu porque
+   alguém olhou a tela ampliada. Se for escrever CSS novo para
+   uma página, PROCURE A CLASSE ANTES. */
+/* O QUE O SELO DIZ — o par "diz / não diz"
+
+   O bloco antigo eram três parágrafos seguidos, e a dona do
+   projeto leu sem entender. O problema não era a redação: era a
+   falta de forma. Prosa corrida não separa duas ideias opostas;
+   dois blocos rotulados separam.
+
+   Verde e vermelho fazem o trabalho antes da leitura — a pessoa
+   já sabe qual é qual pelo canto do olho. Mas a cor NÃO é a única
+   pista: cada linha tem ícone próprio (✓ e ✕) e a frase começa
+   dizendo o que é. Quem não distingue cor entende igual, que é
+   requisito, não gentileza. */
+.selo-diz{display:grid;gap:10px;margin:0 0 14px}
+.selo-diz p{display:flex;gap:10px;margin:0;font-size:13px;line-height:1.6}
+.selo-diz .bi{flex:none;margin-top:2px;font-size:15px}
+.selo-sim .bi{color:var(--safe)}
+.selo-nao .bi{color:var(--risk)}
+
+/* A perda do selo fica separada das duas: não é "o que ele diz",
+   é o que faz ele cair. Assunto diferente, caixa diferente. */
+.selo-cai{
+  display:flex;gap:10px;margin:0;padding:12px 14px;
+  border-radius:12px;background:rgba(255,198,92,.08);
+  border:1px solid rgba(255,198,92,.2);
+  font-size:12.5px;line-height:1.6;
+}
+.selo-cai .bi{flex:none;margin-top:2px;font-size:15px;color:var(--warn)}
+
 .prova{
     margin-top:22px;padding:20px 22px;border-radius:14px;
     background:var(--sky-wash);border:1.5px solid rgba(77,159,255,.3);
@@ -2797,7 +2910,12 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 
 /* Cada degrau tem a sua cor, e elas SOBEM: cinza, azul, verde,
    dourado. O olho lê a progressão antes de ler o texto. */
-.degrau--1 > .bi{color:var(--on-dark-3)}
+/* O primeiro degrau é o mais apagado de propósito — a escada
+   SOBE, e cinza é o degrau de baixo. Mas em `--on-dark-3` (55%)
+   ele sumia a ponto de parecer ícone que não carregou, que foi
+   a queixa da dona do projeto. Em `--on-dark-2` (74%) ele
+   continua sendo o mais discreto dos quatro e dá para ver. */
+.degrau--1 > .bi{color:var(--on-dark-2)}
 .degrau--2 > .bi{color:var(--sky)}
 .degrau--3 > .bi{color:var(--safe)}
 .degrau--4 > .bi{color:var(--warn)}
@@ -2810,9 +2928,62 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 }
 .forma-secao-nota{margin:0 0 20px;font-size:13.5px;line-height:1.6;color:var(--ink-3)}
 
-/* A declaração final ocupa a linha inteira: ela é a única coisa
-   entre a pessoa e o envio, e precisa ser lida. */
-.opcao--bloco{display:block;margin-bottom:6px}
+/* A DECLARAÇÃO FINAL DO CADASTRO DE LOJA
+
+   Antes era `.opcao--bloco`, e `.opcao` esconde o checkbox
+   (`opacity:0`) para desenhar uma pílula no lugar. Resultado: a
+   declaração tinha exatamente o mesmo traço dos botões de
+   categoria logo acima — lia como preferência, não como
+   responsabilidade. A dona do projeto apontou isso olhando a
+   tela, e estava certa.
+
+   Agora: bloco próprio, quadrado de marcar à vista, e o peso da
+   frase escrito embaixo. O checkbox É o nativo de propósito —
+   ele já vem com semântica, foco e alvo de toque que qualquer
+   leitor de tela entende, e nenhum desenho nosso melhora isso.
+
+   SE VOCÊ MEXER AQUI: o alvo de toque não pode cair abaixo de
+   44px no celular (regra de todas as telas, ver PLANO.md). O
+   `padding` do bloco é o que garante isso — o quadrado sozinho
+   tem 22px, e é a área inteira do <label> que recebe o toque. */
+.declaracao{
+  display:flex;gap:13px;align-items:flex-start;
+  margin:4px 0 18px;padding:16px 18px;
+  border:1.5px solid #d7e0ee;border-radius:var(--r-md);
+  background:#fbfcfe;cursor:pointer;
+  transition:border-color .18s ease, background .18s ease;
+}
+.declaracao:hover{border-color:#c1cfe2;background:#f7faff}
+.declaracao input{
+  width:22px;height:22px;flex:none;margin:1px 0 0;
+  accent-color:var(--navy-800);cursor:pointer;
+}
+.declaracao > span{font-size:14px;line-height:1.6;color:var(--ink-2)}
+.declaracao b{color:var(--ink);font-weight:650}
+
+/* Marcada, o bloco confirma sozinho — sem isso a pessoa marca e
+   nada muda na tela, que é quando ela desconfia se pegou. */
+.declaracao:has(input:checked){border-color:var(--sky);background:var(--sky-wash)}
+
+/* Foco visível é obrigação, e aqui ele precisa aparecer no BLOCO,
+   não só no quadradinho: o foco chega neste elemento vindo do
+   botão barrado, e a pessoa tem que enxergar para onde foi. */
+.declaracao:has(input:focus-visible){outline:2px solid var(--sky);outline-offset:2px}
+
+/* Só depois de a pessoa TENTAR enviar sem marcar. Cobrar antes
+   disso é implicar com quem ainda está preenchendo. */
+.declaracao--cobrada{border-color:#e0857a;background:#fdeceb}
+.declaracao--cobrada .declaracao-peso{color:#8a2f22}
+
+.declaracao-peso{
+  display:block;margin-top:6px;
+  font-size:12.5px;line-height:1.55;color:var(--ink-3);
+}
+
+/* O botão travado: apagado, mas NÃO com `disabled` — ver o
+   comentário em registrar-loja/forma.tsx. Ele continua clicável
+   de propósito, e o clique é que explica o que falta. */
+.btn--travado{opacity:.55}
 
 .passos-seta{color:var(--ink-3)}
 

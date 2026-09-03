@@ -44,7 +44,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '@/db';
 import { empresas, empresaDominios } from '@/db/schema';
 import { sessaoAtual } from '@/lib/sessao';
-import { confereLimite } from '@/lib/limite';
+import { confereLimite, ipDeQuemChama } from '@/lib/limite';
 import { registra } from '@/lib/auditoria';
 import { cnpjValido, soNumeros } from '@/lib/documento';
 import { pareceRobo } from '@/lib/armadilha';
@@ -276,12 +276,32 @@ export async function cadastrarLoja(
     };
   }
 
+  /* O IP ENTRA AQUI, E NÃO É DETALHE
+
+     Este cadastro era a única ação do projeto que gravava
+     auditoria SEM o IP — todas as de conta e de segurança já
+     mandavam (`acoes-conta.ts`, `acoes-seguranca.ts`).
+
+     Faz diferença justamente nesta: o risco desta tela é alguém
+     cadastrar empresa que não é dele. Quando isso acontecer, o
+     que responde "quem foi" é esta linha. Sem ela, sobra só o
+     protocolo — que diz o QUE foi cadastrado e não POR QUEM.
+
+     SE VOCÊ MEXER AQUI, MEXA ALI TAMBÉM: a tela diz à pessoa,
+     na declaração (`registrar-loja/forma.tsx`), que o envio fica
+     registrado com data, hora e endereço. Tirando o IP daqui,
+     aquela frase vira promessa falsa — e num site que existe
+     para apontar promessa falsa, isso é pior que o buraco.
+
+     Prazo e base legal já estão na Política de Privacidade:
+     registro de acesso, 6 meses, Marco Civil art. 15. */
   await registra({
     ator: quem?.id ?? null,
     acao: 'empresa.cadastrar',
     alvoTipo: 'empresa',
     alvoId: protocolo,
     depois: { categoria, temInstagram: Boolean(instagram), emailDoDominio },
+    ip: await ipDeQuemChama(),
   });
 
   return {
