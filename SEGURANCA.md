@@ -1,6 +1,6 @@
 # confia? — Segurança
 
-**Última revisão:** 23/08/2026
+**Última revisão:** 26/08/2026
 
 ---
 
@@ -130,6 +130,11 @@ dessas linhas é alguém varrendo — e isso a gente precisa **enxergar**.
 | Injeção que passe assim mesmo | O app usa `confia_app`, que **não cria nem apaga tabela**. O estrago vira "mexeram nos dados", não "apagaram o banco". |
 | Ler o banco de fora | Escuta só em `localhost`. De fora, só por túnel SSH. |
 | Log com dado pessoal | `log_statement='ddl'` — registra estrutura, nunca conteúdo. |
+| Injeção que consiga escrever | `confia_app` alcança **14 objetos**, não 52. Não tem DELETE em quase nada. Migração `015`. |
+| Apagar o rastro | A aplicação **não enxerga a tabela `auditoria`**. Só consegue acrescentar, e só chamando `registra()`. |
+| Se dar poderes | `admins` é **só leitura** para a aplicação. Quem promove alguém é o `npm run admin`, que conecta como dono. |
+| Se dar o selo de "verificada" | A aplicação não tem UPDATE em `empresas`. A regra deixou de depender só do código. |
+| Um `GRANT` geral distraído | RLS ligada nas 43 tabelas. Sem política escrita, a tabela responde zero linha mesmo com GRANT total. |
 
 ### A senha
 
@@ -194,14 +199,16 @@ Esta lista existe porque esconder buraco não tapa buraco.
 
 | Falta | Risco | Quando |
 |---|---|---|
-| **HTTPS** | Hoje o beta é HTTP. Senha trafega em claro numa rede aberta. | Etapa 7 |
-| **CSP** | Sem ela, um script injetado teria menos barreira. | Etapa 7 |
+| **HTTPS** | A configuração está escrita (`servidor/03-publica.sh`: porta 80 só redireciona, HSTS de 2 anos), mas **ainda não roda em servidor nenhum**. Enquanto o beta não subir, não existe HTTPS. | Etapa 7 |
+| ~~CSP~~ | ~~Sem ela, um script injetado teria menos barreira.~~ | ✅ **feito** (`web/src/proxy.ts`, nonce por requisição) |
 | ~~2FA no admin~~ | ~~Saber a senha do admin hoje basta.~~ | ✅ **feito** |
 | **Limite compartilhado** | O contador vive na memória de um servidor. Com dois, o limite real triplica. | Etapa 10 |
 | **Backup fora** | Existe cópia local, mas sem automação rodando. | você |
 | **DMARC firme** | Está em `p=none`. Dá para falsificar e-mail em nome do confia?. | Etapa 7 |
+| **Envio de imagem** | Hoje o anexo **não sai do navegador** — não existe rota de upload. Quando existir (Etapa 8), tipo, tamanho e conteúdo precisam ser conferidos **no servidor**: `accept="image/*"` e o limite de 10 MB da tela são só sugestão para quem é honesto. | Etapa 8 |
 | **Teste de invasão** | Nada disso foi testado por alguém de fora. | depois da 10 |
 | **CNPJ** | Sem empresa, você responde com **CPF e patrimônio pessoal**. | você |
+| **`'unsafe-inline'` no CSP** | O React escreve `style="..."` em dezenas de lugares. Enquanto isso existir, a CSP protege contra script injetado, não contra estilo injetado. | Etapa 10 |
 
 ---
 
@@ -223,6 +230,9 @@ Plano curto, para não improvisar no susto:
 
 ## Como isso é conferido
 
+- `npm run confere-banco` — as trancas do banco continuam de pé? (alcance, auditoria, RLS, gatilhos)
+- `npm run prova-armadilha` — a armadilha para robô ainda barra robô e deixa gente passar?
+- `npm run cifra-segredos -- --conferir` — sobrou algum segredo de 2FA em texto puro?
 - `npm audit` a cada mudança de dependência — hoje: **0 falhas conhecidas**
 - Lighthouse a cada tela nova — hoje: **100** em acessibilidade
 - Auditoria final na Etapa 10, item por item, com relatório escrito

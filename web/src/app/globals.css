@@ -11,6 +11,20 @@
    conserta os dois.
    ============================================================= */
 
+/* =============================================================
+   REGRA QUE VALE NO ARQUIVO INTEIRO: PREFIXO PRIMEIRO
+
+       -webkit-backdrop-filter: blur(18px);   ← prefixo
+       backdrop-filter: blur(18px);           ← padrão, por último
+
+   Invertido, o padrão é DESCARTADO. O lightningcss trata as duas
+   como a mesma propriedade e guarda só a última — e o Chrome atual
+   não reconhece mais a forma com -webkit-. O site inteiro ficou sem
+   o efeito de vidro por causa disso, sem nenhum erro aparecer.
+
+   Vale para backdrop-filter e mask-image. Detalhes em
+   CSS-PREFIXOS.md, na raiz de web/.
+   ============================================================= */
 :root{
   --navy-950:#04101f; --navy-900:#07182c; --navy-800:#0b2443;
   --navy-700:#11375f; --navy-600:#1a4d80;
@@ -19,16 +33,74 @@
   --paper:#fff; --paper-2:#f5f8fd; --line:#e2e8f2;
   --ink:#0b2443; --ink-2:#41597a; --ink-3:#62738b;
   --on-dark:#eaf1fd; --on-dark-2:rgba(234,241,253,.74); --on-dark-3:rgba(234,241,253,.55);
-  --r-md:14px; --r-lg:20px; --r-xl:26px;
+  /* Escala de arredondamento. O --r-2xl é o do card do verificador.
+     Ele estava USADO e não definido, e uma variável CSS indefinida
+     faz o navegador jogar fora a declaração inteira: o card ficava
+     de canto reto, com a moldura branca do ::before desenhando um
+     quadrado em volta. Era o "quadrado atrás do efeito". */
+  --r-md:14px; --r-lg:20px; --r-xl:26px; --r-2xl:36px;
   --ease:cubic-bezier(.22,.61,.36,1);
+
+  /* LARGURA DA PÁGINA. Tudo que é conteúdo usa `width:var(--shell)`
+     com `margin:0 auto` — é o que dá a margem lateral e impede a
+     linha de texto de atravessar um monitor largo.
+
+     Estava sendo usada em cinco regras e não existia em lugar
+     nenhum: uma variável CSS indefinida faz a propriedade inteira
+     ser descartada, então `.hero` ficava com largura automática e
+     o texto colava na borda esquerda da tela. Foi exatamente o que
+     aconteceu ao juntar o protótipo aqui.
+
+     O segundo valor (100% - 64px) é quem manda em tela estreita:
+     32px de respiro de cada lado. Os dois ajustes por tamanho
+     estão no fim do arquivo, em RESPONSIVO. */
+  --shell:min(1220px, 100% - 64px);
+
+  /* AS TRÊS CORES DO VEREDITO (/resultado).
+
+     NÃO são --safe/--warn/--risk. Aquelas foram escolhidas para o
+     fundo navy escuro do site; estas vivem dentro do card BRANCO
+     do resultado, onde as claras sumiriam.
+
+     `-tinta` é a versão escura, para TEXTO sobre a cor de fundo
+     correspondente — verde claro escrito em verde claro não se lê. */
+  --risco:#e2604c;
+  --alerta:#f2dc57;  --alerta-tinta:#6b5a10;
+  --ok:#8fe3a3;      --ok-tinta:#0f6b3a;
 }
 
-/* Títulos em Poppins, texto em Inter. */
+/* =============================================================
+   TÍTULOS EM FRAUNCES, TEXTO EM INSTRUMENT SANS
+
+   As duas famílias vêm do next/font (layout.tsx), servidas do
+   nosso servidor — nenhuma requisição para o Google, que é o que
+   a Política promete.
+
+   ⚠  ISTO JÁ DEU ERRADO UMA VEZ, EM SILÊNCIO.
+
+   Havia TRINTA regras neste arquivo com `font-family:Poppins`
+   escrito na mão, herdadas do protótipo. A variável `--fonte-titulo`
+   existia e apontava para a fonte certa — e trinta regras passavam
+   por cima dela. Trocar a fonte no layout.tsx não mudava nada na
+   tela, e não havia erro nenhum para avisar.
+
+   Se for trocar de fonte de novo: troque em layout.tsx e confira
+   NO NAVEGADOR com `getComputedStyle(h1).fontFamily`. Só o arquivo
+   não conta a verdade.
+
+   CUIDADO AO MEXER: use var(--fonte-titulo) e var(--fonte-texto).
+   Nome de fonte escrito na mão aqui é como o problema começou.
+   ============================================================= */
 h1,h2,h3,.cartao-conta h1,.cabeca-conta h1{
   font-family:var(--fonte-titulo),var(--fonte-texto),system-ui,sans-serif;
 }
 
 *{box-sizing:border-box}
+/* Rolagem suave para os links de âncora (#politicas, #verificador).
+   Desligada mais abaixo em prefers-reduced-motion: para quem tem
+   labirintite ou enxaqueca vestibular, a página deslizando é o
+   que causa mal-estar — não é preferência de gosto. */
+html{scroll-behavior:smooth}
 html,body{margin:0;padding:0}
 body{
   min-height:100vh;
@@ -54,8 +126,21 @@ body{
   min-height:100vh;display:flex;flex-direction:column;align-items:center;
   justify-content:center;padding:32px 20px 60px;
 }
-.porta-marca{display:block;margin-bottom:26px}
-.porta-marca img{display:block;width:118px;filter:brightness(0) invert(1)}
+/* A LOGO DAS TELAS DE ENTRADA.
+
+   Estava em 118px — o mesmo tamanho do cabeçalho, onde ela divide
+   espaço com o menu inteiro. Aqui ela está sozinha no topo de uma
+   tela vazia, e ficava pequena demais para o único elemento de
+   marca da página. 168px é o tamanho que ela ocupa como assinatura,
+   não como item de navegação.
+
+   `clamp` porque numa tela de 360px o valor fixo encostaria nas
+   bordas. */
+.porta-marca{display:block;margin-bottom:30px}
+.porta-marca img{
+  display:block;width:clamp(140px,42vw,168px);height:auto;
+  filter:brightness(0) invert(1) drop-shadow(0 3px 10px rgba(2,10,24,.5));
+}
 
 .cartao-conta{
   width:100%;max-width:420px;padding:32px 30px 28px;border-radius:22px;
@@ -66,6 +151,47 @@ body{
   margin:0 0 6px;font-size:23px;font-weight:600;letter-spacing:-.02em;color:var(--ink);
 }
 .cartao-conta .lead{margin:0 0 24px;font-size:14.5px;line-height:1.65;color:var(--ink-2)}
+
+/* ---------- criar conta: na horizontal no computador ----------
+
+   Voce disse: "para computador, a aba de criar conta voce vai deixar
+   ela na horizontal... a pessoa nao tem que ficar arrastando pra
+   baixo, o scroll do mouse". Estava certo -- eram nove blocos
+   empilhados dentro de um cartao de 420px: sobrava tela dos dois
+   lados e faltava embaixo.
+
+   De 900px para cima o cartao abre para 780px e os campos correm em
+   DUAS colunas. No celular continua uma coluna so, que la e a forma
+   certa -- e e por isso que isto e `min-width` e nao `max-width`.
+
+   ⚠ A ordem visual e a ordem do HTML. Nada foi movido com `order:`,
+     porque o leitor de tela segue o HTML e as duas iriam divergir.
+     Precisa mudar a sequencia? Mude no JSX.
+
+   ⚠ Atravessam as duas colunas: a escolha pessoa/empresa (decide o
+     resto do formulario), os avatares (ja sao uma fileira), o aceite
+     e o botao.
+
+   ⚠ So vale com `.porta--larga`. /entrar compartilha `.porta` e tem
+     dois campos. */
+@media (min-width:900px){
+  .porta--larga .cartao-conta{max-width:780px;padding:36px 38px 30px}
+  .porta--larga .cartao-conta form{
+    display:grid;grid-template-columns:1fr 1fr;
+    column-gap:24px;align-items:start}
+  .porta--larga .cartao-conta form > .escolha-tipo,
+  .porta--larga .cartao-conta form > .aceite,
+  .porta--larga .cartao-conta form > .btn{grid-column:1 / -1}
+  /* A figura NAO atravessa as duas colunas: ela cai na coluna que
+     sobrava ao lado da senha, que era o maior vazio da tela.
+     ⚠ Nao adianta encolher os circulos por CSS aqui: o <Avatar> escreve
+       width/height no atributo style, e estilo inline ganha de classe.
+       Para mudar o tamanho, mude o prop `tamanho` em escolhe-avatar.tsx. */
+  .porta--larga .grade-avatar{gap:7px}
+  /* Botao do tamanho do que ele faz, nao do tamanho da tela. */
+  .porta--larga .cartao-conta form > .btn{
+    justify-self:start;width:auto;min-width:250px}
+}
 
 /* ---------- campos ---------- */
 .campo{display:block;margin-bottom:18px}
@@ -100,16 +226,30 @@ body{
 .caixa-senha button:focus-visible{background:var(--paper-2)}
 
 /* ---------- botões ---------- */
+/* =============================================================
+   `appearance:none` em todo botão estilizado
+
+   Um <button> vem com aparência NATIVA do sistema. Enquanto ela
+   estiver ligada, parte do desenho é do Windows/macOS e não do
+   CSS — e o resultado muda de máquina para máquina, principalmente
+   em `height`, `font` e no foco.
+
+   Desligar é o padrão em qualquer botão que a gente desenha.
+   Prefixo primeiro, padrão por último: ver o aviso no topo do
+   arquivo sobre o lightningcss.
+   ============================================================= */
 .btn{
+  -webkit-appearance:none;appearance:none;
   display:inline-flex;align-items:center;justify-content:center;gap:9px;
   width:100%;height:52px;padding:0 22px;border:none;border-radius:12px;cursor:pointer;
   font-family:inherit;font-size:15.5px;font-weight:600;text-decoration:none;
   transition:background .2s var(--ease),transform .16s var(--ease);
 }
-.btn--forte{background:var(--navy-800);color:#fff}
-.btn--forte:hover{background:var(--navy-700)}
-.btn--calmo{background:#fff;color:var(--ink-2);border:1.5px solid var(--line)}
-.btn--calmo:hover{background:var(--paper-2);color:var(--navy-800)}
+/* As cores do botão vivem numa regra só, mais abaixo neste
+   arquivo. Havia DUAS cópias de `.btn--forte` e `.btn--calmo` —
+   uma daqui e outra do protótipo — e a segunda vencia por vir
+   depois. Quem editasse a de cima não veria mudança nenhuma na
+   tela e não teria erro nenhum para explicar. */
 .btn:active{transform:translateY(1px)}
 .btn[disabled]{opacity:.6;pointer-events:none}
 .btn[data-carregando]{color:transparent;position:relative;pointer-events:none}
@@ -245,7 +385,7 @@ body{
 }
 .avatar-iniciais{
   font-weight:700;letter-spacing:.02em;line-height:1;
-  font-family:Inter,system-ui,sans-serif;
+  font-family:var(--fonte-texto),system-ui,sans-serif;
 }
 
 .escolha-avatar{border:none;padding:0;margin:0 0 20px}
@@ -334,17 +474,10 @@ body{
    O que saiu no caminho: as variáveis de cor, o reset e o body,
    que já estavam definidos acima.
    ============================================================= */
-.bg{position:fixed;inset:0;z-index:-3;pointer-events:none;
-  background:linear-gradient(158deg,#0a2140 0%,var(--navy-900) 46%,var(--navy-950) 100%)}
-.orbs{position:fixed;inset:0;z-index:-2;pointer-events:none;overflow:hidden;filter:blur(60px)}
-.orb{position:absolute;border-radius:50%;opacity:.5}
-.orb--1{width:600px;height:600px;top:-18%;left:-6%;
-  background:radial-gradient(circle at 34% 34%,rgba(77,159,255,.8),rgba(77,159,255,0) 66%)}
-.orb--2{width:660px;height:660px;bottom:-26%;right:-8%;
-  background:radial-gradient(circle at 46% 50%,rgba(26,77,128,.9),rgba(26,77,128,0) 68%)}
-
-
-
+/* O fundo e as esferas NÃO ficam aqui: a versão animada, com três
+   esferas, está mais abaixo em "fundo com esferas". Havia duas
+   definições brigando — esta, de duas esferas paradas, perdia no
+   cascade e só servia para confundir quem viesse mexer. */
 
 
 /* ---------- topo ---------- */
@@ -352,9 +485,36 @@ body{
   position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;gap:14px;
   padding:16px max(24px,calc((100% - 1100px)/2));
 }
-.topbar::after{
+/* =============================================================
+   ⚠  ESTA CORTINA ERA A CAUSA DO "VIDRO HORRÍVEL"
+
+   Ela vivia LIGADA — sem `.is-scrolled`, sem condição nenhuma —
+   cobrindo os 170% do topo com `backdrop-filter: blur(10px)` mais
+   um escurecimento.
+
+   O menu de vidro senta em cima dela. Então o que o vidro tentava
+   refratar já tinha passado por um liquidificador: chegava sem
+   detalhe, e a lente não tinha o que entortar. O resultado era o
+   retângulo fosco que você comparou, com razão, ao vidro do
+   iPhone e achou horrível.
+
+   Duas coisas faziam a mesma cortina, e uma delas nunca desligava.
+   Quem cuida do fundo ao rolar é a `.haze`, logo abaixo, que sobe
+   só com `.is-scrolled` — quando existe conteúdo claro passando
+   por trás e o texto do menu precisa de proteção. Parado no topo
+   não há do que proteger: o fundo é escuro e o texto é branco.
+
+   Agora, no topo, entre o vidro e a gravura não há nada. As
+   linhas atravessam o menu e entortam na borda da pastilha, que é
+   o que faz o olho ler "isto é vidro".
+
+   CUIDADO AO MEXER: qualquer camada com `backdrop-filter`,
+   `filter: blur()` ou fundo opaco entre a cena e um `.lg` mata o
+   efeito no site inteiro — e não dá erro nenhum. Se o vidro
+   "sumir" de novo, procure primeiro o que foi posto no meio.
+   ============================================================= */
+.is-scrolled .topbar::after{
   content:"";position:absolute;left:0;right:0;top:0;height:170%;pointer-events:none;
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
   -webkit-mask-image:linear-gradient(#000 0%,#000 42%,transparent 88%);
   mask-image:linear-gradient(#000 0%,#000 42%,transparent 88%);
   background:linear-gradient(to bottom,rgba(7,24,44,.62),transparent);
@@ -363,25 +523,22 @@ body{
 .brand img{display:block;width:110px;filter:brightness(0) invert(1) drop-shadow(0 2px 6px rgba(2,10,24,.55))}
 .nav{position:relative;z-index:2;display:flex;align-items:center;gap:4px;padding:5px;border-radius:999px;
   background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
-  backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%)}
+  -webkit-backdrop-filter:blur(18px) saturate(160%);backdrop-filter:blur(18px) saturate(160%)}
 .nav a{padding:10px 17px;border-radius:999px;color:var(--on-dark-2);font-size:14px;font-weight:500;
   text-decoration:none;white-space:nowrap;transition:color .2s var(--ease),background .2s var(--ease)}
 .nav a:hover{color:#fff;background:rgba(255,255,255,.08)}
 .nav a[aria-current="page"]{color:#fff;font-weight:600;background:rgba(255,255,255,.16)}
-.account{position:relative;z-index:2;display:inline-flex;align-items:center;gap:9px;height:44px;
-  padding:4px 16px 4px 4px;border:none;border-radius:999px;cursor:pointer;background:rgba(255,255,255,.92);
-  color:var(--navy-800);font-family:inherit;font-size:14px;font-weight:600;
-  box-shadow:0 10px 26px -14px rgba(2,10,24,.95)}
-.account:hover{background:#fff}
-.account .ring{width:36px;height:36px;display:grid;place-items:center;border-radius:50%;
-  background:var(--navy-800);color:#fff;font-size:16px}
+/* O .account de verdade está mais abaixo, junto com o vidro. Esta
+   cópia mais antiga perdia no cascade e só confundia. */
 
 /* ---------- cabeçalho de página ---------- */
 .capa{width:var(--shell);margin:0 auto;padding:136px 0 0}
-.eyebrow{display:inline-flex;align-items:center;gap:8px;margin:0 0 14px;padding:7px 14px;border-radius:999px;
-  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
-  font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--sky-soft)}
-.capa h1{margin:0;font-family:Poppins,sans-serif;font-weight:600;
+/* Havia um .eyebrow em PÍLULA aqui, vindo do base.css. Ninguém o
+   usava — as páginas legais usam .doc-capa —, mas ele se somava ao
+   .eyebrow de verdade lá embaixo: o fundo, a borda e o padding da
+   pílula grudavam no traço+rótulo da home, e o resultado era uma
+   pílula esticada de ponta a ponta da seção. Removido. */
+.capa h1{margin:0;font-family:var(--fonte-titulo),sans-serif;font-weight:600;
   font-size:clamp(28px,3.6vw,42px);line-height:1.15;letter-spacing:-.03em;color:#fff}
 .capa .lead{margin:16px 0 0;max-width:620px;font-size:16px;line-height:1.65;color:var(--on-dark-3)}
 
@@ -516,7 +673,7 @@ footer{margin-top:80px;border-top:1px solid rgba(255,255,255,.08)}
    ============================================================= */
 .doc{width:min(820px,100% - 48px);margin:0 auto;padding:130px 0 0}
 .doc-capa{margin-bottom:34px}
-.doc-capa h1{margin:0;font-family:Poppins,sans-serif;font-weight:600;
+.doc-capa h1{margin:0;font-family:var(--fonte-titulo),sans-serif;font-weight:600;
   font-size:clamp(28px,3.4vw,40px);line-height:1.15;letter-spacing:-.03em;color:#fff}
 .doc-meta{display:flex;flex-wrap:wrap;gap:16px;margin-top:14px;font-size:13px;color:var(--on-dark-3)}
 .doc-meta b{color:var(--on-dark-2);font-weight:600}
@@ -529,7 +686,7 @@ footer{margin-top:80px;border-top:1px solid rgba(255,255,255,.08)}
 .sumario a:hover{color:#fff;text-decoration:underline}
 
 .doc-corpo{padding:38px 40px 34px}
-.doc-corpo h2{margin:38px 0 12px;font-family:Poppins,sans-serif;font-size:19px;font-weight:600;
+.doc-corpo h2{margin:38px 0 12px;font-family:var(--fonte-titulo),sans-serif;font-size:19px;font-weight:600;
   letter-spacing:-.01em;color:var(--ink);scroll-margin-top:100px}
 .doc-corpo h2:first-child{margin-top:0}
 .doc-corpo h3{margin:22px 0 8px;font-size:15.5px;font-weight:600;color:var(--ink)}
@@ -564,4 +721,2542 @@ footer{margin-top:80px;border-top:1px solid rgba(255,255,255,.08)}
   .doc{padding-top:150px}
   .doc-corpo{padding:24px 20px}
   .doc-corpo table{display:block;overflow-x:auto}
+}
+
+
+/* =============================================================
+   HOME (vindo de prototipo/index.html)
+
+   Inclui o efeito de vidro — os filtros SVG com mapa de
+   deslocamento. Ele é pesado: fica só no cabeçalho e no card
+   verificador, e não nos cartões da página. Já derrubamos a
+   renderização uma vez por ter espalhado demais.
+   ============================================================= */
+/* ==============================================================
+   confia? — site
+   Marca: #0b2443. A logo aparece sempre na cor dela, sobre claro.
+   ============================================================== */
+
+
+/* =============================================================
+   O CENÁRIO — três camadas, e nenhuma delas é desenho
+
+   Aqui havia três esferas de gradiente à deriva com
+   `filter: blur(60px)`. Elas saíram, e o motivo é técnico antes
+   de ser estético:
+
+   O VIDRO NÃO TINHA O QUE REFRATAR. `backdrop-filter: blur()`
+   pega o que está atrás e borra. Se o que está atrás JÁ é um
+   borrão de 60px, borrar de novo não muda nada — e o vidro vira
+   um retângulo cinza chapado. Era essa a diferença para o
+   iPhone: lá o vidro fica sobre FOTO, que tem contraste, borda
+   nítida e detalhe fino. O efeito não vem do blur; vem do que
+   existe embaixo dele.
+
+   Entrou então uma textura de guilhochê — a gravura da cédula —
+   e ela TAMBÉM saiu. Dois motivos, nesta ordem:
+
+     1. A conta do ladrilho estava errada e a emenda aparecia ao
+        dar zoom: as linhas não continuavam de um ladrilho para o
+        outro.
+     2. Mesmo com a conta certa, o desenho ficou estranho na tela.
+        Textura que se repete tende a virar papel de parede, e
+        papel de parede compete com o texto.
+
+   Sobrou LUZ E GRÃO. Nenhum desenho.
+
+   ─────────────────────────────────────────────────────────────
+   ⚠  O PREÇO DISSO, PARA QUEM VIER DEPOIS
+
+   Sem detalhe fino atrás, o vidro tem pouco o que refratar. Ele
+   ainda funciona pela LUZ (a variação de claro para escuro que
+   ele dobra) e pela BORDA (o relevo do `.lg-shine`), mas não
+   chega ao efeito do iPhone — lá o vidro fica sobre foto, que é
+   detalhe puro.
+
+   Se o vidro voltar a parecer chapado, a causa está aqui, e a
+   solução NÃO é aumentar o blur: é dar a ele algo com detalhe
+   para deformar.
+
+   CUIDADO AO MEXER:
+     - NÃO ponha `filter: blur()` em nenhuma destas camadas. Foi
+       exatamente isso que matou o vidro da primeira vez.
+     - A luz não é decoração: é o que sobrou para o vidro dobrar.
+       Achatar o gradiente apaga o efeito junto.
+   ============================================================= */
+
+.cena{position:fixed;inset:0;z-index:-3;pointer-events:none;overflow:hidden}
+.cena > *{position:absolute;inset:0}
+
+/* 1. o breu — o quarto escuro onde a nota é erguida */
+.cena-fundo{
+  background:
+    radial-gradient(120% 80% at 50% -10%, #0d2b4e 0%, transparent 60%),
+    linear-gradient(168deg, #081c33 0%, #061527 52%, #040e1c 100%);
+}
+
+/* 2. a luz — quente, vinda de trás e de cima, como janela
+      A cor é âmbar de propósito: luz de sol atravessando papel é
+      quente. Luz azul aqui deixaria tudo com aparência de tela de
+      computador, que é o oposto do gesto. */
+/* Com a textura fora, a luz é a ÚNICA coisa que o vidro tem para
+   dobrar. Por isso ela é mais marcada do que era: são fontes de
+   luz com posição definida, não uma névoa uniforme. Gradiente
+   chapado aqui = vidro chapado lá em cima. */
+.cena-luz{
+  background:
+    radial-gradient(56% 40% at 66% 2%,   rgba(255,206,138,.22) 0%, transparent 64%),
+    radial-gradient(44% 36% at 14% 20%,  rgba(77,159,255,.22) 0%, transparent 66%),
+    radial-gradient(38% 30% at 88% 48%,  rgba(49,215,245,.10) 0%, transparent 70%),
+    radial-gradient(75% 52% at 50% 106%, rgba(26,77,128,.38) 0%, transparent 64%);
+}
+
+/* 3. o grão do papel — tira o liso digital
+      `overlay` para escurecer e clarear ao mesmo tempo, como grão
+      de filme; `multiply` só sujaria. */
+.cena-grao{
+  opacity:.05;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+
+/* entrada: linhas do titulo sobem, o resto aparece em cascata */
+/* =============================================================
+   ENTRADA E REVELAÇÃO AO ROLAR
+
+   O texto sobe e o conteúdo aparece conforme a pessoa desce a
+   página. Quem faz o trabalho é revelacao.tsx.
+
+   ─────────────────────────────────────────────────────────────
+   POR QUE `@media (scripting: enabled)` E NÃO A CLASSE `.js`
+
+   No protótipo estas regras eram `.js .rv{opacity:0}`, e um
+   script no <head> escrevia `js` no <html> antes de pintar. Era
+   a proteção certa: sem JavaScript, nada some.
+
+   Em Next isso não se traduz. O <html> é do React — mexer na
+   classe dele antes da hidratação dá erro de hidratação; mexer
+   DEPOIS deixa a página aparecer, sumir e voltar. Uma piscada.
+
+   `scripting: enabled` é a mesma pergunta feita ao CSS: só
+   esconde onde há JavaScript para revelar de novo. Sem script,
+   a media query não casa, as regras nem existem e a página
+   nasce visível. Zero JavaScript, zero piscada.
+
+   Navegador antigo demais para a media query também cai no lado
+   seguro: mostra tudo, sem animação.
+   ───────────────────────────────────────────────────────────── */
+.ln{display:block;padding-bottom:.08em}
+.mark{--d:0s}
+
+@media (scripting: enabled){
+  .ln{overflow:hidden}
+  .ln > .w{display:block;transform:translateY(115%);
+    transition:transform 1.05s var(--ease);transition-delay:var(--d,0s)}
+  .is-ready .ln > .w{transform:none}
+
+  .rv{opacity:0;transform:translateY(22px);
+    transition:opacity .85s var(--ease), transform .85s var(--ease);
+    transition-delay:var(--d,0s)}
+  .rv.is-in{opacity:1;transform:none}
+
+  /* O HERÓI APARECE COM A PÁGINA, NÃO COM A ROLAGEM.
+
+     O subtítulo e os chips estão ACIMA da dobra: já nascem na
+     tela. Deixá-los presos ao observador de rolagem significa que,
+     entre o HTML chegar e o JavaScript rodar, existe um instante
+     em que eles estão ali com opacity:0 — um buraco no meio do
+     herói. Foi exatamente o que apareceu numa captura de tela.
+
+     `is-ready` entra no segundo quadro, junto com o título e o
+     card. Sem observador, sem buraco. */
+  .pitch .rv{transition-delay:var(--d,0s)}
+  .is-ready .pitch .rv{opacity:1;transform:none}
+
+  .tablet{opacity:0;transform:translateY(26px);
+    transition:opacity 1s var(--ease), transform 1s var(--ease);transition-delay:.25s}
+  .is-ready .tablet{opacity:1;transform:none}
+}
+
+/* Quem pediu menos movimento não espera nada subir nem surgir: o
+   conteúdo já nasce no lugar. Isto precisa vir DEPOIS do bloco
+   acima para vencer, e é mais forte do que só encurtar a
+   transição — a página não se mexe. */
+@media (prefers-reduced-motion: reduce){
+  .rv,.tablet,.ln > .w{opacity:1 !important;transform:none !important}
+}
+
+
+:focus-visible{outline:2px solid var(--sky);outline-offset:3px;border-radius:8px}
+
+.skip{position:absolute;left:-9999px;top:0;z-index:80;background:#fff;color:var(--ink);
+  padding:12px 18px;border-radius:0 0 12px 0;font-weight:600}
+.skip:focus{left:0}
+
+/* ==============================================================
+   VIDRO LÍQUIDO — 3 camadas: refração · tinta · brilho especular
+   ============================================================== */
+
+/* NÃO PONHA `isolation:isolate` NEM `z-index` AQUI.
+
+   Estava `position:relative;isolation:isolate`, herdado do
+   protótipo, e o resultado era o TEXTO DO MENU quase invisível:
+   1,4:1 de contraste, medido no pixel. Sem isso: 10,5:1.
+
+   O que acontece: `isolation` (ou qualquer `z-index`) faz o .lg
+   virar um contexto de empilhamento, e ele passa a ser o
+   "backdrop root" do filho .lg-refract, que tem backdrop-filter.
+   Aí o filtro passa a amostrar o interior do próprio .lg em vez
+   da página atrás — e o navegador compõe o grupo inteiro de um
+   jeito que apaga o texto por cima.
+
+   Testado: `isolation:isolate` reprova, `z-index:0` reprova,
+   nenhum dos dois passa. Só sem contexto de empilhamento funciona.
+
+   O QUE ISSO CUSTA: os z-index das camadas (refract 0, tinta 1,
+   brilho 2, pino 2, conteúdo 3) deixam de ser locais e passam a
+   valer no contexto do pai. Hoje está tudo bem porque nada no
+   cabeçalho nem no herói se sobrepõe ao vidro. Se um dia algum
+   elemento vizinho aparecer por cima ou por baixo na hora errada,
+   é AQUI que está a explicação — resolva pela ordem no DOM, não
+   voltando o isolation. */
+.lg{position:relative}
+.lg > .lg-refract,
+.lg > .lg-tint,
+.lg > .lg-shine{position:absolute;inset:0;border-radius:inherit;pointer-events:none}
+
+/* 1. refração: a borda entorta o que está atrás, como uma lente */
+.lg > .lg-refract{
+  z-index:0;
+  -webkit-backdrop-filter:blur(.6px) saturate(150%) brightness(1.02);
+  backdrop-filter:blur(.6px) saturate(150%) brightness(1.02);
+}
+/* Os dois testes, não só o sem prefixo: no Safari 16.4 só existe a
+   forma com -webkit-, e um @supports que pergunta apenas pela forma
+   sem prefixo reprova o navegador que na verdade sabe fazer. Ele
+   cairia no desfoque simples sem motivo. */
+@supports ((-webkit-backdrop-filter:url(#warp-pill) blur(.3px) saturate(155%) brightness(1.03);
+    backdrop-filter:url(#warp-pill)) or (-webkit-backdrop-filter:url(#warp-pill))){
+  .glass > .lg-refract{
+    backdrop-filter:url(#warp-pill) blur(.3px) saturate(155%) brightness(1.03);
+  }
+  .tablet > .lg-refract{
+    -webkit-backdrop-filter:url(#warp-card) blur(.4px) saturate(150%) brightness(1.02);
+    backdrop-filter:url(#warp-card) blur(.4px) saturate(150%) brightness(1.02);
+  }
+}
+/* 2. tinta: quase nada. Ao rolar, o menu ganha um fumê escuro —
+   invisível sobre o fundo navy, mas segura o texto quando passa conteúdo claro. */
+.lg > .lg-tint{z-index:1;background:transparent;
+  transition:background .45s var(--ease)}
+/* A TINTA DO MENU É O QUE SEGURA A LEITURA — não é enfeite.
+
+   Estava em .34 e o menu ficava ILEGÍVEL toda vez que o card
+   branco do verificador passava por trás dele ao rolar: texto
+   branco sobre vidro claro, 2,22:1. O mínimo da WCAG é 4,5:1.
+
+   Com .74, medido no pixel da tela: 10,4:1 nos links comuns e
+   13,5:1 no link da página atual — AAA nos cinco. Sobre o fundo
+   navy da página a mudança é imperceptível, porque a tinta É a
+   cor do fundo. O vidro continua vidro; só parou de sumir.
+
+   (A outra metade desta correção está lá em cima, no .lg: o
+   `isolation:isolate` estava apagando o texto do menu. Tinta e
+   isolation precisavam das duas correções — uma só não bastava.)
+
+   CUIDADO AO MEXER: baixar este número volta a quebrar a leitura,
+   e só aparece quando algo claro passa atrás do cabeçalho. Se
+   precisar mexer, refaça a conta contra branco puro. */
+.is-scrolled .glass > .lg-tint{background:rgba(5,18,36,.74)}
+.is-scrolled .glass > .lg-refract{
+  -webkit-backdrop-filter:url(#warp-pill) blur(2.4px) saturate(150%);
+  backdrop-filter:url(#warp-pill) blur(2.4px) saturate(150%);
+}
+/* 3. brilho: a borda é o que faz o olho ler "vidro" */
+.lg > .lg-shine{
+  z-index:2;overflow:hidden;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.42),
+    inset 0 -1px 0 rgba(255,255,255,.08),
+    inset 1px 0 0 rgba(255,255,255,.07),
+    inset -1px 0 0 rgba(255,255,255,.07),
+    inset 0 -12px 18px -16px rgba(255,255,255,.28);
+}
+.lg > .lg-shine::after{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(190px circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,.14), transparent 72%);
+  opacity:0;transition:opacity .4s var(--ease);
+}
+.lg:hover > .lg-shine::after{opacity:1}
+.lg > *:not(.lg-refract):not(.lg-tint):not(.lg-shine):not(.pin){position:relative;z-index:3}
+.lg > .pin{z-index:2}
+
+/* ==============================================================
+   TOPO
+   ============================================================== */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  display:flex;align-items:center;gap:14px;
+  padding:16px max(24px, calc((100% - 1220px) / 2));
+  transition:padding .4s var(--ease);
+}
+.is-scrolled .topbar{padding-top:10px;padding-bottom:10px}
+
+/* desfoque progressivo por trás de tudo */
+.haze{position:absolute;left:0;right:0;top:0;height:190%;pointer-events:none;
+  opacity:0;transition:opacity .45s var(--ease)}
+.is-scrolled .haze{opacity:1}
+.haze span{position:absolute;inset:0;display:block}
+.haze span:nth-child(1){-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);
+  -webkit-mask-image:linear-gradient(#000 0%,#000 15%,transparent 32%);mask-image:linear-gradient(#000 0%,#000 15%,transparent 32%)}
+.haze span:nth-child(2){-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  -webkit-mask-image:linear-gradient(transparent 2%,#000 18%,#000 34%,transparent 50%);mask-image:linear-gradient(transparent 2%,#000 18%,#000 34%,transparent 50%)}
+.haze span:nth-child(3){-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);
+  -webkit-mask-image:linear-gradient(transparent 18%,#000 34%,#000 50%,transparent 66%);mask-image:linear-gradient(transparent 18%,#000 34%,#000 50%,transparent 66%)}
+.haze span:nth-child(4){-webkit-backdrop-filter:blur(2.5px);backdrop-filter:blur(2.5px);
+  -webkit-mask-image:linear-gradient(transparent 34%,#000 50%,#000 66%,transparent 82%);mask-image:linear-gradient(transparent 34%,#000 50%,#000 66%,transparent 82%)}
+.haze span:nth-child(5){-webkit-backdrop-filter:blur(1px);backdrop-filter:blur(1px);
+  -webkit-mask-image:linear-gradient(transparent 50%,#000 68%,#000 84%,transparent 98%);mask-image:linear-gradient(transparent 50%,#000 68%,#000 84%,transparent 98%)}
+.haze span:nth-child(6){background:linear-gradient(to bottom, rgba(7,24,44,.58), rgba(7,24,44,.22) 54%, transparent)}
+
+/* marca: pastilha clara para a logo aparecer na cor dela */
+.brand{position:relative;z-index:2;margin-right:auto;display:flex;text-decoration:none;
+  border-radius:12px;padding:6px 0;transition:transform .25s var(--ease)}
+.brand:hover{transform:translateY(-1px)}
+.brand svg{display:block;width:112px;aspect-ratio:3.516;height:auto;color:#fff;
+  filter:drop-shadow(0 2px 6px rgba(2,10,24,.55))}
+
+/* pílula de navegação */
+.glass{display:flex;align-items:center;padding:5px;border-radius:999px;
+  box-shadow:0 10px 28px -18px rgba(2,10,24,.55)}
+.pin{position:absolute;top:5px;left:0;height:calc(100% - 10px);border-radius:999px;z-index:2;
+  background:linear-gradient(180deg, rgba(255,255,255,.17), rgba(255,255,255,.06));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.42), 0 2px 8px rgba(2,10,24,.22);
+  transition:transform .45s var(--ease), width .45s var(--ease);pointer-events:none}
+.nav-link{
+  display:inline-block;padding:10px 19px;border-radius:999px;
+  /* NÃO use var(--on-dark-2) aqui. Aquela variável é .74 de opacidade
+     e serve para texto sobre o fundo navy, onde dá 9:1 de sobra. O
+     menu é o único lugar do site que flutua sobre conteúdo QUALQUER
+     — inclusive o card branco do verificador —, e ali .74 cai para
+     3,79:1. Reprovado. Com .88 fica 5,7:1 no pior caso e continua
+     visivelmente mais apagado que o item atual, que é o efeito que
+     o desenho quer. */
+  color:rgba(234,241,253,.88);font-size:14.5px;font-weight:500;
+  text-decoration:none;white-space:nowrap;
+  text-shadow:0 1px 2px rgba(3,12,28,.75), 0 0 12px rgba(3,12,28,.45);
+  transition:color .25s var(--ease);
+}
+.nav-link:hover{color:#fff}
+.nav-link[aria-current="page"]{color:#fff;font-weight:600}
+
+/* conta — claro, no mesmo material do resto */
+.account{
+  position:relative;z-index:2;display:inline-flex;align-items:center;gap:9px;
+  height:46px;padding:5px 17px 5px 5px;border:none;border-radius:999px;cursor:pointer;
+  font-family:inherit;font-size:14px;font-weight:600;color:var(--navy-800);
+  background:rgba(255,255,255,.92);
+  /* No protótipo isto era <button>. Aqui precisa NAVEGAR até /conta
+     ou /entrar, então virou <a> — e trouxe junto o sublinhado padrão
+     do navegador, que aparecia como um traço embaixo de "Entrar". */
+  text-decoration:none;
+  box-shadow:0 10px 26px -14px rgba(2,10,24,.95), inset 0 1px 0 #fff;
+  transition:transform .22s var(--ease), background .22s var(--ease), box-shadow .22s var(--ease);
+}
+.account:hover{transform:translateY(-1px);background:#fff;
+  box-shadow:0 14px 30px -14px rgba(2,10,24,1), inset 0 1px 0 #fff}
+.account .ring{
+  width:36px;height:36px;flex:none;display:grid;place-items:center;border-radius:50%;
+  background:var(--navy-800);color:#fff;font-size:16px;
+}
+
+/* ==============================================================
+   HERO
+   ============================================================== */
+.hero{
+  width:var(--shell);margin:0 auto;
+  display:grid;grid-template-columns:minmax(0,1fr) 600px;
+  align-items:center;gap:60px;
+  min-height:100vh;padding:126px 0 80px;
+}
+
+.kicker{
+  display:inline-flex;align-items:center;gap:9px;
+  margin:0 0 22px;padding:7px 15px 7px 11px;border-radius:999px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);
+  font-size:12.5px;font-weight:500;color:var(--on-dark-2);
+}
+.kicker .bi{font-size:13px;color:var(--safe)}
+
+.pitch h1{
+  margin:0;font-family:var(--fonte-titulo),sans-serif;font-weight:600;
+  font-size:clamp(34px,4.4vw,54px);line-height:1.1;letter-spacing:-.03em;color:#fff;
+}
+.pitch h1 em{font-style:normal;color:var(--sky-soft)}
+.sub{margin:20px 0 0;max-width:440px;font-size:16px;line-height:1.68;color:var(--on-dark-3)}
+
+/* ==============================================================
+   A NUVEM DE DÚVIDAS
+
+   Dez frases curtas que a pessoa reconhece como o próprio
+   pensamento. Elas são APOIO do título, não uma lista de botões —
+   por isso são pequenas, densas, e quebram em duas ou três por
+   linha em vez de virar uma coluna.
+
+   ============================================================== */
+.marks{
+  display:flex;flex-wrap:wrap;gap:7px;margin-top:28px;max-width:520px;
+}
+.mark{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:8px 13px;border-radius:999px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.11);
+  font-size:13px;letter-spacing:-.005em;color:var(--on-dark-2);
+  white-space:nowrap;
+  transition:background .3s var(--ease), border-color .3s var(--ease), transform .3s var(--ease);
+}
+.mark > .bi{font-size:14px;line-height:1;opacity:.75}
+
+/* ==============================================================
+   AQUI PASSAVA UMA LUZ SOBRE OS CHIPS — REMOVIDA
+
+   Era um brilho ovalado atravessando a nuvem de dúvidas a cada 11
+   segundos. A ideia era a lupa da marca passando por cima das
+   dúvidas da pessoa.
+
+   Na tela virou outra coisa: uma bola clara andando sozinha pelo
+   fundo, sem explicação para quem está lendo. Efeito que precisa
+   ser explicado para fazer sentido não está funcionando.
+
+   Saíram junto: `@keyframes lupa-passa`, `@property --lupa` e o
+   `position:relative` que existia só para ancorar o pseudo.
+
+   CUIDADO AO MEXER: se alguém quiser tentar de novo, o problema
+   não é a animação — é que movimento no FUNDO compete com o
+   texto. Movimento que serve é o que responde a uma ação da
+   pessoa, não o que acontece sozinho.
+   ============================================================== */
+
+
+@media (prefers-reduced-motion: reduce){
+  .marks::after{animation:none;opacity:0}
+}
+.mark:hover{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.22);transform:translateY(-1px)}
+.mark .bi{font-size:15px;color:var(--sky-soft)}
+
+/* ==============================================================
+   O TABLET — protagonista
+   ============================================================== */
+.tablet{
+  width:100%;min-height:700px;display:flex;
+  border-radius:var(--r-2xl);padding:22px;
+  box-shadow:
+    0 2px 0 rgba(255,255,255,.06),
+    0 60px 110px -40px rgba(2,10,24,1),
+    0 30px 60px -40px rgba(77,159,255,.5);
+}
+/* uma linha só, branca e mais grossa: é o que dá o ar de dispositivo */
+.tablet::before{
+  content:"";position:absolute;inset:9px;border-radius:calc(var(--r-2xl) - 10px);
+  border:2.5px solid rgba(255,255,255,.88);pointer-events:none;z-index:4;
+}
+.tablet > .lg-shine{box-shadow:inset 0 1px 0 rgba(255,255,255,.28)}
+.screen{
+  position:relative;z-index:3;flex:1;
+  display:flex;flex-direction:column;justify-content:center;
+  background:var(--paper);border-radius:var(--r-xl);
+  padding:54px 44px;text-align:center;
+  box-shadow:0 20px 40px -28px rgba(2,10,24,.7);
+}
+.screen .mark-logo{display:block;width:min(90%,420px);aspect-ratio:3.516;height:auto;
+  margin:0 auto;color:var(--navy-800)}
+.screen .assinatura{margin:30px auto 0;max-width:360px;
+  font-size:16px;line-height:1.7;color:var(--ink-2)}
+.screen .assinatura b{color:var(--ink);font-weight:600}
+
+form{margin:44px 0 0;text-align:left}
+.field{position:relative}
+.field input{
+  width:100%;height:64px;padding:0 92px 0 18px;
+  border:1.5px solid var(--line);border-radius:var(--r-md);background:var(--paper-2);
+  font-family:inherit;font-size:15px;color:var(--ink);outline:none;
+  transition:border-color .2s var(--ease), background .2s var(--ease), box-shadow .2s var(--ease);
+}
+.field input::placeholder{color:#96a3b9}
+.field input:hover{border-color:#c9d4e4}
+.field input:focus{background:#fff;border-color:var(--sky);box-shadow:0 0 0 4px rgba(77,159,255,.16)}
+.field.has-error input{border-color:#e0523f;box-shadow:0 0 0 4px rgba(224,82,63,.12)}
+.field-tools{position:absolute;right:7px;top:50%;transform:translateY(-50%);display:flex;gap:2px}
+.icon-btn{
+  -webkit-appearance:none;appearance:none;
+  width:40px;height:40px;display:grid;place-items:center;border:none;border-radius:10px;
+  background:transparent;color:var(--ink-3);cursor:pointer;font-size:17px;
+  transition:background .2s var(--ease), color .2s var(--ease);
+}
+.icon-btn:hover{background:#e9eefa;color:var(--navy-800)}
+
+/* A PERGUNTA "ESSE @ É DE QUAL REDE?"
+
+   Só existe na tela quando a pessoa cola um @ — ver o comentário
+   4 em `components/verificador.tsx`.
+
+   Ela aparece DENTRO do card do verificador, entre o campo e a
+   dica. Por isso é discreta: fundo levíssimo e sem borda grossa.
+   Um painel pesado aqui competiria com o botão Verificar, que é
+   para onde a pessoa está indo.
+
+   ⚠ NÃO ponha `filter`, `opacity<1`, `transform` nem
+   `backdrop-filter` neste bloco. O card do verificador é o
+   `.tablet.lg`, que é vidro — qualquer uma dessas propriedades
+   num filho vira raiz de backdrop e corta o efeito. Está anotado
+   em CSS-ARMADILHAS.md e já custou tempo uma vez. */
+.redes{
+  margin:12px 0 0;padding:12px 14px;border:0;
+  border-radius:var(--r-md);background:#f4f7fc;
+}
+.redes legend{
+  display:flex;align-items:center;gap:7px;padding:0;margin:0 0 9px;
+  font-size:13px;font-weight:600;color:var(--ink);
+}
+.redes legend .bi{font-size:15px;color:var(--sky)}
+.redes-lista{display:flex;flex-wrap:wrap;gap:7px}
+
+/* O alvo de toque tem que passar de 44px no celular, e as pílulas
+   de `.opcao` são apertadas para isso. Aqui elas crescem. */
+.redes .opcao span{min-height:38px}
+@media (max-width:640px){
+  .redes .opcao span{min-height:44px}
+}
+
+.redes-porque{
+  margin:9px 0 0;font-size:12px;line-height:1.5;color:var(--ink-3);
+}
+
+.hint{display:flex;align-items:center;gap:8px;margin:10px 2px 0;min-height:18px;
+  font-size:12.5px;color:var(--ink-3)}
+.hint .bi{font-size:14px}
+.has-error + .hint{color:#e0523f}
+
+.files{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
+.files:empty{display:none}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:6px 8px 6px 12px;border-radius:999px;
+  background:var(--sky-wash);color:var(--navy-700);font-size:12.5px;font-weight:500;max-width:100%}
+.chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px}
+.chip button{width:18px;height:18px;display:grid;place-items:center;flex:none;border:none;
+  border-radius:50%;background:rgba(11,36,67,.12);color:var(--navy-700);cursor:pointer;font-size:9px;padding:0}
+.chip button:hover{background:rgba(11,36,67,.26)}
+
+.actions{display:flex;gap:12px;margin-top:20px}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  height:58px;padding:0 24px;border:none;border-radius:12px;
+  font-family:inherit;font-size:15px;font-weight:600;letter-spacing:.005em;cursor:pointer;
+  transition:transform .18s var(--ease), background .18s var(--ease),
+             box-shadow .18s var(--ease), border-color .18s var(--ease), color .18s var(--ease);
+}
+.btn .bi{font-size:18px}
+.btn:active{transform:translateY(1px)}
+.btn--primary{flex:1;color:#fff;background:var(--navy-800);
+  box-shadow:0 1px 2px rgba(11,36,67,.28)}
+.btn--primary:hover{background:var(--navy-700)}
+.btn--primary:focus-visible{outline-offset:2px}
+.btn--primary[data-loading]{pointer-events:none;color:transparent;position:relative}
+.btn--primary[data-loading] .bi{visibility:hidden}
+.btn--primary[data-loading]::after{content:"";position:absolute;width:19px;height:19px;border-radius:50%;
+  border:2px solid rgba(255,255,255,.3);border-top-color:#fff;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn--ghost{flex:1;background:#fff;color:var(--ink-2);border:1.5px solid var(--line);
+  box-shadow:0 1px 2px rgba(11,36,67,.06)}
+.btn--ghost:hover{background:var(--paper-2);border-color:#bcc8db;color:var(--navy-800)}
+
+.status{display:none;align-items:flex-start;gap:11px;margin-top:14px;padding:14px 16px;
+  border-radius:var(--r-md);background:var(--sky-wash);border:1px solid rgba(77,159,255,.22)}
+.status[data-show]{display:flex}
+.status .bi{font-size:17px;color:#2970d3;line-height:1.3}
+.status p{margin:0;font-size:13.5px;line-height:1.55;color:var(--ink-2)}
+.status b{color:var(--ink)}
+
+/* rodapé da tela: conta */
+.conta{margin-top:30px;padding-top:24px;border-top:1px solid #eef1f7;text-align:center}
+/* A RESSALVA embaixo do verificador.
+
+   Não é aviso de erro nem letra miúda escondida: fica alinhada à
+   esquerda, com ícone, no mesmo tom do resto do card. Precisa ser
+   lida sem assustar — quem chega aqui já está com medo. */
+.conta-nota{
+  display:flex;gap:9px;align-items:flex-start;text-align:left;
+  margin:0 0 16px;padding:12px 14px;border-radius:var(--r-md);
+  background:var(--paper-2);border:1px solid var(--line);
+  font-size:12.5px;line-height:1.6;color:var(--ink-2);
+}
+.conta-nota > .bi{flex:none;color:var(--sky);font-size:15px;line-height:1.35}
+/* `nowrap` no link: "Ler os termos." é uma unidade. Sem isto ele
+   quebrava no meio — "Ler" no fim de uma linha e "os termos." na
+   seguinte —, e uma chamada partida ao meio deixa de parecer um
+   link e passa a parecer erro. */
+.conta-nota a{color:var(--navy-600);font-weight:600;text-decoration:underline;
+  text-underline-offset:2px;white-space:nowrap}
+.conta-nota a:hover{color:var(--navy-800)}
+.conta-acoes{display:inline-flex;align-items:center;gap:16px}
+.conta-btn{
+  display:inline-flex;align-items:center;gap:8px;height:42px;padding:0 18px;
+  border-radius:11px;background:var(--paper-2);border:1px solid var(--line);
+  color:var(--navy-800);font-size:13.5px;font-weight:600;text-decoration:none;
+  transition:background .2s var(--ease), border-color .2s var(--ease), transform .2s var(--ease);
+}
+.conta-btn:hover{background:#fff;border-color:#bcc8db;transform:translateY(-1px)}
+.conta-btn .bi{font-size:16px;color:var(--ink-3)}
+.conta-btn:hover .bi{color:var(--navy-800)}
+.conta-sep{width:1px;height:20px;background:var(--line)}
+.conta-link{
+  color:var(--ink-2);font-size:13.5px;font-weight:500;text-decoration:none;
+  border-bottom:1px solid transparent;padding-bottom:2px;
+  transition:color .2s var(--ease), border-color .2s var(--ease);
+}
+.conta-link:hover{color:var(--navy-800);border-color:currentColor}
+
+/* ==============================================================
+   SEÇÕES
+   ============================================================== */
+/* `main > section` entrou junto com o <main> que agora envolve a
+   home inteira: antes as seções eram filhas diretas do <body> e só
+   `body > section` bastava. Os dois ficam, porque nem toda página
+   tem <main> em volta. */
+body > section, main > section{width:var(--shell);margin:0 auto}
+.sec-head{max-width:640px;margin-bottom:34px}
+.eyebrow{display:flex;align-items:center;gap:9px;margin:0 0 12px;
+  font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--sky-soft)}
+.eyebrow::before{content:"";width:26px;height:1px;background:currentColor;opacity:.5}
+.sec-head h2{margin:0;font-family:var(--fonte-titulo),sans-serif;font-weight:600;
+  font-size:clamp(24px,2.6vw,32px);line-height:1.25;letter-spacing:-.02em;color:#fff}
+.sec-head p{margin:12px 0 0;font-size:15.5px;line-height:1.65;color:var(--on-dark-3)}
+
+.pane{
+  position:relative;border-radius:var(--r-xl);
+  background:linear-gradient(180deg, rgba(255,255,255,.085), rgba(255,255,255,.028));
+  border:1px solid rgba(255,255,255,.10);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22), 0 24px 50px -34px rgba(2,10,24,.9);
+  transition:transform .35s var(--ease), background .35s var(--ease), border-color .35s var(--ease);
+}
+.pane:hover{transform:translateY(-3px);
+  background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04));
+  border-color:rgba(255,255,255,.2)}
+
+#como{padding:20px 0 90px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.step{padding:28px 26px 30px}
+.step .num{display:flex;align-items:center;gap:10px;margin-bottom:16px;
+  font-family:var(--fonte-texto),system-ui,sans-serif;font-size:12px;font-weight:600;letter-spacing:.14em;color:var(--sky-soft)}
+.step .num i{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;
+  background:linear-gradient(160deg, rgba(77,159,255,.30), rgba(77,159,255,.10));
+  border:1px solid rgba(255,255,255,.12);color:#cfe2ff;font-size:18px}
+.step h3{margin:0 0 8px;font-size:17px;font-weight:600;color:#fff;letter-spacing:-.01em}
+.step p{margin:0;font-size:14px;line-height:1.68;color:var(--on-dark-3)}
+.step ul{margin:14px 0 0;padding:0;list-style:none;display:grid;gap:7px}
+.step li{display:flex;gap:8px;font-size:13px;color:var(--on-dark-2)}
+.step li .bi{color:var(--safe);font-size:14px;line-height:1.4}
+
+#checagens{padding:0 0 90px}
+.grid-check{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.check{display:flex;gap:14px;padding:20px 22px}
+.check i.ico{display:grid;place-items:center;width:40px;height:40px;flex:none;border-radius:12px;
+  font-size:18px;border:1px solid rgba(255,255,255,.10)}
+.ico--risk{background:rgba(255,122,107,.14);color:#ffab9f}
+.ico--warn{background:rgba(255,198,92,.14);color:#ffd58a}
+.ico--safe{background:rgba(47,211,155,.14);color:#8fe8c8}
+.check b{display:block;font-size:14.5px;font-weight:600;color:#fff;margin-bottom:3px}
+.check span{display:block;font-size:13px;line-height:1.55;color:var(--on-dark-3)}
+
+/* ==============================================================
+   "SABER MAIS" — o botão em cada golpe
+   Componente: src/components/golpes.tsx
+
+   Ele é discreto de propósito. São DEZ cartões: se cada um
+   tivesse um botão cheio, a seção viraria uma parede de dez
+   botões azuis e ninguém leria o texto. Aqui ele lê como link
+   dentro do cartão, e o cartão inteiro continua sendo o assunto.
+
+   ⚠ Alvo de toque: 34px de altura + o padding do cartão dá o
+   suficiente no dedo, e no celular a regra abaixo leva para 44.
+   Não diminua sem medir. */
+.saber{
+  display:inline-flex;align-items:center;gap:2px;
+  margin-top:9px;padding:0;border:0;background:none;
+  font:inherit;font-size:12.5px;font-weight:600;
+  color:var(--sky-soft);cursor:pointer;
+  min-height:34px;
+}
+.saber:hover{color:#fff;text-decoration:underline}
+.saber:focus-visible{outline:2px solid var(--sky);outline-offset:3px;border-radius:6px}
+.saber .bi{font-size:17px;transition:transform .18s var(--ease)}
+.saber:hover .bi{transform:translateX(3px)}
+@media (max-width:640px){
+  .saber{min-height:44px}
+}
+@media (prefers-reduced-motion: reduce){
+  .saber .bi{transition:none}
+  .saber:hover .bi{transform:none}
+}
+
+/* ==============================================================
+   A CAIXA QUE EXPLICA O GOLPE
+
+   `<dialog>` nativo. O `::backdrop` escurece a página atrás, e é
+   ele que faz a caixa parecer estar por cima em vez de dentro.
+
+   ⚠ NÃO ponha `backdrop-filter` no `::backdrop`. A página atrás
+   tem o card de vidro do verificador, e desfoque em cima de
+   desfoque não produz nada — está escrito em CSS-ARMADILHAS.md e
+   já custou tempo neste projeto. Escurecer resolve e é barato.
+
+   ⚠ `max-height` com rolagem interna: o golpe da loja falsa tem
+   cinco passos e quatro sinais, e num celular deitado isso passa
+   da altura da tela. Sem esta trava o botão de fechar sai do
+   alcance. */
+.golpe-caixa{
+  width:min(560px,calc(100vw - 32px));max-height:min(86vh,760px);
+  margin:auto;padding:0;overflow:auto;
+  border:1px solid rgba(255,255,255,.12);border-radius:var(--r-xl);
+  background:var(--navy-800);color:var(--on-dark-2);
+  box-shadow:0 30px 90px rgba(2,8,20,.7);
+}
+.golpe-caixa::backdrop{background:rgba(2,8,18,.62)}
+
+.golpe-topo{
+  display:flex;align-items:center;gap:13px;
+  padding:22px 24px;position:sticky;top:0;z-index:1;
+  background:var(--navy-800);
+  border-bottom:1px solid rgba(255,255,255,.09);
+}
+.golpe-topo h3{
+  margin:0;flex:1;font-family:var(--fonte-titulo),sans-serif;
+  font-size:19px;font-weight:600;letter-spacing:-.01em;color:#fff;
+}
+.golpe-fechar{
+  flex:none;width:38px;height:38px;display:grid;place-items:center;
+  border:0;border-radius:11px;background:rgba(255,255,255,.07);
+  color:var(--on-dark-2);font-size:15px;cursor:pointer;
+}
+.golpe-fechar:hover{background:rgba(255,255,255,.13);color:#fff}
+.golpe-fechar:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+
+.golpe-corpo{display:grid;gap:24px;padding:22px 24px 6px}
+.golpe-corpo h4{
+  display:flex;align-items:center;gap:8px;margin:0 0 12px;
+  font-size:11.5px;font-weight:700;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--on-dark-3);
+}
+.golpe-corpo h4 .bi{font-size:14px;color:var(--sky)}
+
+/* Numerado: a ordem dos passos É a informação. O golpe funciona
+   porque cada passo prepara o seguinte. */
+.golpe-corpo ol{margin:0;padding:0 0 0 4px;list-style:none;counter-reset:passo}
+.golpe-corpo ol li{
+  counter-increment:passo;position:relative;
+  padding:0 0 14px 34px;font-size:14px;line-height:1.6;
+}
+.golpe-corpo ol li::before{
+  content:counter(passo);position:absolute;left:0;top:1px;
+  width:22px;height:22px;display:grid;place-items:center;
+  border-radius:50%;background:rgba(255,255,255,.08);
+  font-size:11.5px;font-weight:700;color:var(--on-dark-2);
+}
+.golpe-corpo ol li:last-child{padding-bottom:0}
+.golpe-corpo ol b{color:#fff}
+
+.golpe-corpo ul{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.golpe-corpo ul li{display:flex;gap:9px;font-size:14px;line-height:1.6}
+.golpe-corpo ul li > .bi{flex:none;margin-top:3px;color:var(--safe);font-size:15px}
+.golpe-corpo ul b{color:#fff}
+
+/* A FONTE NÃO É RODAPÉ DECORATIVO
+
+   É o que separa esta caixa de um texto qualquer da internet. Ela
+   fica presa embaixo, sempre visível, e o link abre em aba nova
+   para a pessoa não perder o lugar. */
+.golpe-fonte{
+  display:flex;gap:9px;align-items:flex-start;
+  margin:0;padding:16px 24px 22px;
+  font-size:12px;line-height:1.55;color:var(--on-dark-3);
+}
+.golpe-fonte .bi{flex:none;margin-top:1px;font-size:14px}
+.golpe-fonte a{color:var(--sky-soft);text-decoration:underline}
+.golpe-fonte a:hover{color:#fff}
+
+@media (max-width:560px){
+  .golpe-topo{padding:18px 18px}
+  .golpe-corpo{padding:18px 18px 4px}
+  .golpe-fonte{padding:14px 18px 18px}
+}
+
+.aviso{display:flex;align-items:flex-start;gap:12px;margin-top:16px;padding:16px 20px;
+  border-radius:var(--r-lg);background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.16)}
+.aviso .bi{font-size:17px;color:var(--warn);line-height:1.4}
+.aviso p{margin:0;font-size:13.5px;line-height:1.6;color:var(--on-dark-3)}
+.aviso b{color:var(--on-dark-2);font-weight:600}
+
+#politicas{padding:0 0 90px}
+.grid-pol{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.pol{display:flex;flex-direction:column;padding:24px 22px 22px;text-decoration:none;color:inherit}
+.pol i.ico{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;margin-bottom:16px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:var(--sky-soft);font-size:19px}
+.pol b{font-size:15px;font-weight:600;color:#fff;margin-bottom:6px}
+.pol span{font-size:13px;line-height:1.6;color:var(--on-dark-3);flex:1}
+.pol em{display:flex;align-items:center;gap:6px;margin-top:16px;font-style:normal;
+  font-size:12.5px;font-weight:600;color:var(--sky-soft)}
+.pol em .bi{transition:transform .3s var(--ease)}
+.pol:hover em .bi{transform:translateX(3px)}
+
+footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
+.foot{width:var(--shell);margin:0 auto;padding:26px 0 34px;
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;
+  font-size:12.5px;color:var(--on-dark-3)}
+.foot-logo{display:block;width:92px;aspect-ratio:3.516;height:auto;color:var(--on-dark-3)}
+.foot .links{display:flex;flex-wrap:wrap;gap:20px}
+.foot a{color:var(--on-dark-3);text-decoration:none}
+.foot a:hover{color:var(--on-dark)}
+
+
+/* APAGADO EM 27/08/2026 — a seção "O tamanho do problema" e os
+   três dossiês de golpe saíram da home inteiros (MELHORIAS.md
+   § II, etapas 3 e 4). Com eles morreu todo o CSS que vivia
+   aqui:
+
+     .numeros .numero .fonte          — a faixa de números
+     .dossies .dossie*                — os cartões de golpe
+     .reproducao .anuncio* .chamada*  — as reproduções do que a
+     .conversa .balao                   vítima viu
+     .leitura .escopo*  .resto        — a leitura de cada caso
+
+   São ~170 linhas. Não ficam comentadas: CSS morto comentado é
+   pior que CSS morto apagado — ninguém sabe se ainda vale, e o
+   arquivo cresce para sempre. Está no histórico do Git.
+
+   ⚠ Se a etapa 4 trouxer o "saber mais" com caixa de detalhe,
+   NÃO ressuscite `.dossie`. Aquilo era cartão de página, e o
+   "saber mais" é caixa que abre no clique — outro problema,
+   outro desenho. */
+
+/* ---------- história ---------- */
+#historia{padding:0 0 90px}
+/* `align-items:start` e não `center`: com o texto de um lado bem
+   mais alto que a lista do outro, centralizar deixava os dois blocos
+   desencontrados — nenhum título batia com nenhum. Agora ambos
+   começam na mesma linha. */
+.historia{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:start;
+  padding:44px 44px;border-radius:var(--r-xl);
+  background:linear-gradient(140deg,rgba(77,159,255,.12),rgba(255,255,255,.03));
+  border:1px solid rgba(255,255,255,.12)}
+.historia h2{margin:0 0 16px;font-family:var(--fonte-titulo),sans-serif;font-weight:600;
+  font-size:clamp(22px,2.6vw,30px);line-height:1.25;letter-spacing:-.02em;color:#fff}
+.historia p{margin:0 0 14px;font-size:15.5px;line-height:1.75;color:var(--on-dark-2)}
+.historia p:last-child{margin-bottom:0}
+.historia .assina{margin-top:22px;font-size:13.5px;color:var(--on-dark-3)}
+/* O .eyebrow dentro da história herda o traço da seção, mas aqui ele
+   fica dentro de um painel com fundo próprio — precisa de um respiro
+   maior embaixo para não grudar no título. */
+.historia .eyebrow{margin-bottom:14px}
+
+/* A RESSALVA DO BETA.
+   Não é aviso de erro nem letra miúda: é uma promessa. Fica em azul,
+   a cor da marca, e não em vermelho — vermelho diria "algo deu
+   errado", e o que está escrito ali é justamente o contrário: é a
+   parte honesta. */
+.historia .ressalva{
+  display:flex;gap:12px;align-items:flex-start;
+  margin:20px 0 0;padding:15px 17px;border-radius:var(--r-lg);
+  background:rgba(77,159,255,.10);border:1px solid rgba(77,159,255,.24);
+  font-size:14px;line-height:1.6;color:var(--on-dark-2);
+}
+.historia .ressalva > i{flex:none;color:var(--sky);font-size:17px;line-height:1.5}
+
+.crencas{display:grid;gap:12px;align-content:start}
+.crencas-titulo{
+  margin:0 0 4px;font-size:12px;font-weight:600;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--sky-soft);
+}
+.crenca{display:flex;gap:13px;padding:17px 19px;border-radius:var(--r-lg);
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);
+  transition:background .25s var(--ease), border-color .25s var(--ease)}
+.crenca:hover{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.14)}
+.crenca .bi{font-size:19px;color:var(--sky-soft);line-height:1.35;flex:none}
+.crenca b{display:block;font-size:14.5px;color:#fff;margin-bottom:3px}
+.crenca span{display:block;font-size:13px;line-height:1.6;color:var(--on-dark-3)}
+
+/* ---------- dois convites ---------- */
+#convites{padding:0 0 90px}
+.convites{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.convite{display:flex;flex-direction:column;padding:34px 32px;border-radius:var(--r-xl);
+  text-decoration:none;color:inherit;
+  background:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.028));
+  border:1px solid rgba(255,255,255,.1);
+  transition:transform .35s var(--ease),border-color .35s var(--ease),background .35s var(--ease)}
+.convite:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.22);
+  background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.04))}
+.convite i.ico{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;
+  margin-bottom:18px;font-size:21px;
+  background:rgba(77,159,255,.16);border:1px solid rgba(255,255,255,.12);color:#cfe2ff}
+.convite h3{margin:0 0 8px;font-family:var(--fonte-titulo),sans-serif;font-size:19px;font-weight:600;color:#fff}
+.convite p{margin:0;font-size:14px;line-height:1.7;color:var(--on-dark-3);flex:1}
+.convite em{display:flex;align-items:center;gap:7px;margin-top:20px;font-style:normal;
+  font-size:13.5px;font-weight:600;color:var(--sky-soft)}
+.convite em .bi{transition:transform .3s var(--ease)}
+.convite:hover em .bi{transform:translateX(4px)}
+
+@media (max-width:1080px){
+  .numeros{grid-template-columns:1fr 1fr}
+  .historia{grid-template-columns:1fr;gap:30px;padding:32px 28px}
+  .convites{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .numeros{grid-template-columns:1fr}
+  /* `#numeros` saiu daqui em 27/08/2026 junto com a seção. */
+  #historia,#convites{padding-bottom:60px}
+
+  /* ESPAÇO PARA OS BOTÕES FLUTUANTES NÃO TAPAREM O RODAPÉ
+
+     No celular eles ficam lado a lado no canto inferior esquerdo,
+     ocupando 64px de altura fixa na tela. Sem esta folga, quem
+     rola até o fim encontra os links do rodapé (Privacidade,
+     Termos, Reembolso) escondidos embaixo deles — e no rodapé
+     estão justamente os documentos que a lei obriga a deixar
+     acessíveis.
+
+     78px = 64 dos botões + 14 de respiro. Mudou a posição dos
+     botões, muda esta conta. */
+  footer{padding-bottom:78px}
+}
+
+
+/* O painel contador de golpes foi APAGADO em 27/08/2026, com o
+   componente e a seção "O tamanho do problema" inteira. Ficavam
+   aqui `.contador*` e `.odo*` (as casinhas dos algarismos). Se
+   precisar de volta, está no histórico do Git. */
+
+/* ==============================================================
+   O LIMITE DO SERVIÇO — o que a gente NÃO verifica
+
+   Isto era um parágrafo cinza no fim da seção. Num site que pede
+   confiança, o limite é informação de primeira linha: quem não
+   ler pode achar que cobrimos o caso dele e confiar num "não
+   encontramos nada" que nunca foi checado.
+
+   Por isso ele usa o vermelho de risco e ocupa a largura toda —
+   é para ser impossível de passar batido.
+
+   CUIDADO AO MEXER: não transforme isto num aviso discreto. O
+   ponto é ele NÃO ser discreto.
+   ============================================================== */
+.limite{
+  margin:30px 0 0;padding:26px 28px;border-radius:var(--r-xl);
+  background:linear-gradient(180deg,rgba(255,122,107,.13),rgba(255,122,107,.04));
+  border:1px solid rgba(255,122,107,.3);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 24px 50px -34px rgba(2,10,24,.9);
+}
+.limite-topo{display:flex;gap:16px;align-items:flex-start;
+  padding-bottom:20px;margin-bottom:20px;border-bottom:1px solid rgba(255,122,107,.2)}
+.limite-topo > i{
+  flex:none;width:44px;height:44px;display:grid;place-items:center;border-radius:13px;
+  background:rgba(255,122,107,.16);color:var(--risk);font-size:21px;
+}
+.limite-topo h3{display:block;margin:0 0 5px;font-family:var(--fonte-titulo),sans-serif;
+  font-size:19px;font-weight:600;letter-spacing:-.01em;color:#fff}
+.limite-topo span{display:block;font-size:14.5px;line-height:1.55;color:var(--on-dark-2)}
+
+.limite-lista{list-style:none;margin:0;padding:0;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.limite-lista li{display:grid;grid-template-columns:auto 1fr;
+  /* auto / 1fr / auto: a descricao do meio ESTICA, e com isso as
+     caixas "Quem resolve" dos tres itens ficam na mesma altura.
+     Com tres `auto` cada uma comecava onde o texto dela acabava,
+     e as tres se desalinhavam. */
+  grid-template-rows:auto 1fr auto;column-gap:11px;row-gap:3px;align-items:start}
+.limite-lista li > i{grid-row:1 / -1;
+  width:32px;height:32px;display:grid;place-items:center;border-radius:9px;
+  background:rgba(255,255,255,.06);color:var(--risk);font-size:15px}
+.limite-lista b{font-size:14.5px;font-weight:600;color:#fff}
+.limite-lista span{font-size:13px;line-height:1.5;color:var(--on-dark-3)}
+
+/* "Quem resolve": cada limite termina num caminho concreto, com o
+   canal e o prazo. Sem isto o bloco só dizia o que a gente NÃO faz
+   e deixava a pessoa parada no meio do problema.
+   ⚠ NÃO troque para flex: o ícone é irmão de texto solto e de <b>
+     dentro do mesmo <p>. Em flex, cada <b> vira um item separado e
+     a frase se parte em pedaços. Por isso o ícone é absoluto.
+   ⚠ Este <p> é a 3ª linha da grade do <li>. Se tirar, volte
+     grid-template-rows para dois `auto`. */
+.limite-lista .saida{position:relative;grid-column:2;
+  margin:10px 0 0;padding:10px 12px 10px 33px;border-radius:10px;
+  background:rgba(77,159,255,.09);border:1px solid rgba(77,159,255,.2);
+  font-size:12.5px;line-height:1.55;color:var(--on-dark-2)}
+.limite-lista .saida > i{position:absolute;left:12px;top:11px;
+  color:var(--sky);font-size:13px}
+.limite-lista .saida b{font-size:inherit;font-weight:600;color:#fff}
+/* O do Pix tem prazo correndo. A cor avisa antes de a pessoa ler. */
+.limite-lista .saida--urgente{background:rgba(255,198,92,.09);
+  border-color:rgba(255,198,92,.24)}
+.limite-lista .saida--urgente > i{color:var(--warn)}
+
+/* ---------- as quatro perguntas francas ----------
+   A seção se chamava "Transparência é parte do serviço" e mostrava
+   quatro links para políticas. Prometer transparência não é ser
+   transparente. Agora a pergunta vem na voz de quem pergunta e a
+   resposta começa pela palavra que decide — Não / Vê / Só se você
+   quiser / A gente pode errar. Duas delas não pegam bem, e é
+   exatamente por isso que ficam antes dos links. */
+.francas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;margin-bottom:22px}
+.franca{padding:18px 20px;border-radius:var(--r-lg);
+  background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08)}
+.franca-p{margin:0 0 9px;font-family:var(--fonte-titulo),sans-serif;
+  font-size:15px;font-weight:600;line-height:1.4;color:var(--sky-soft)}
+.franca-r{margin:0;font-size:14px;line-height:1.62;color:var(--on-dark-2)}
+.franca-r b{color:#fff;font-weight:600}
+@media (max-width:760px){
+  .francas{grid-template-columns:1fr;gap:12px}
+  .franca{padding:16px}
+}
+
+@media (max-width:1080px){
+  .limite-lista{grid-template-columns:1fr 1fr}
+}
+@media (max-width:760px){
+  .limite{padding:20px 18px}
+  .limite-lista{grid-template-columns:1fr;gap:16px}
+  .limite-topo{gap:12px}
+}
+
+/* ==============================================================
+   BOTÃO FLUTUANTE DO WHATSAPP
+   Componente: src/components/botao-whatsapp.tsx
+
+   Empilhado ACIMA do botão de acessibilidade, no canto inferior
+   esquerdo. Os dois têm 56px de altura e 20px da borda; o de cima
+   fica em 88px (20 + 56 + 12 de respiro). Mudou um, muda o outro.
+
+   O z-index é 899 — um abaixo do botão de acessibilidade (900) e
+   bem abaixo do painel dele (902), para o painel poder abrir por
+   cima sem este aparecer no meio.
+   ============================================================== */
+.zap-flutua{
+  position:fixed;left:20px;bottom:88px;z-index:899;
+  display:flex;align-items:center;gap:0;
+  height:56px;padding:0;border-radius:999px;
+  background:var(--navy-800);color:#fff;text-decoration:none;
+  box-shadow:0 8px 28px rgba(2,10,24,.6);
+  overflow:hidden;
+  /* max-width, e não width: a transição precisa de um valor que o
+     navegador saiba animar. `width:auto` não anima. */
+  max-width:56px;
+  transition:max-width .34s var(--ease), background .18s ease, transform .18s ease;
+}
+.zap-flutua > .bi{
+  flex:none;width:56px;display:grid;place-items:center;
+  font-size:26px;
+  /* line-height:1 é o que centraliza o glifo de verdade. Com
+     `normal`, a caixa da fonte de ícone fica mais alta que larga e
+     o desenho assenta 2px acima do centro. Vale para os dois
+     botões desta coluna. */
+  line-height:1;
+}
+.zap-rotulo{
+  padding-right:22px;white-space:nowrap;
+  font-size:14.5px;font-weight:600;letter-spacing:-.01em;
+}
+.zap-flutua:hover,
+.zap-flutua:focus-visible{
+  max-width:280px;background:var(--navy-700);transform:translateY(-1px);
+}
+.zap-flutua:focus-visible{outline:3px solid var(--sky);outline-offset:3px}
+
+/* Quem pediu menos movimento não recebe a expansão animada: o
+   rótulo simplesmente já está lá. */
+@media (prefers-reduced-motion: reduce){
+  .zap-flutua{transition:background .18s ease}
+}
+
+/* NO CELULAR ELES FICAM LADO A LADO, NÃO EMPILHADOS — 27/08/2026
+
+   Duas mudanças, e a segunda foi a dona do projeto quem viu.
+
+   1. O rótulo não abre. Não há ponteiro para passar por cima, e um
+      toque tem que ABRIR a conversa, não revelar texto.
+
+   2. EMPILHADOS ELES TAPAVAM 136px DE TELA. O de acessibilidade
+      ocupava de 14 a 64, o do WhatsApp de 80 a 136 — uma coluna
+      de dois dedos de altura passando por cima do conteúdo que
+      rola atrás. Ela viu isso acontecendo em cima da pergunta
+      "esse @ é de qual rede?", dentro do card do verificador, que
+      é a coisa mais importante da página.
+
+      Lado a lado, os dois cabem em 64px de altura. Não elimina a
+      sobreposição — botão fixo sempre cobre alguma coisa —, mas
+      corta pela metade o que ele cobre, e tira a coluna alta bem
+      do lado do card.
+
+   ⚠ SE VOCÊ MEXER AQUI, MEXA NO OUTRO: o botão de acessibilidade
+   mora em `public/assets/acessibilidade.css` (`.a11y-botao`, 50px,
+   left 14, bottom 14 no celular). A conta do `left` deste aqui
+   sai de lá: 14 + 50 + 10 de respiro = 74. E o painel dele
+   (`.a11y-painel`) abre a partir de bottom:74 — por isso este
+   botão fica em bottom:14, embaixo do painel, e não no caminho.
+
+   ⚠ A etapa 10 traz um terceiro botão (chat ao vivo), e ele vai
+   para o LADO DIREITO justamente por isso. Não empilhe mais nada
+   nesta esquina. */
+@media (max-width:760px){
+  .zap-flutua{
+    left:74px;bottom:14px;
+    height:50px;max-width:50px;
+  }
+  .zap-flutua > .bi{width:50px;font-size:23px}
+  .zap-flutua:hover,.zap-flutua:focus-visible{max-width:50px;transform:none}
+  .zap-rotulo{display:none}
+}
+
+/* ==============================================================
+   AVISO DE COOKIES
+   Componente: src/components/aviso-cookies.tsx
+
+   Fica embaixo à DIREITA: o canto esquerdo já tem a coluna do
+   WhatsApp e da acessibilidade. Não cobre a tela inteira e não
+   prende o foco — quem quiser ignorar continua lendo a página.
+   ============================================================== */
+.cookies{
+  position:fixed;right:20px;bottom:20px;z-index:880;
+  width:min(430px,calc(100vw - 40px));
+  padding:20px 22px;border-radius:var(--r-xl);
+  background:rgba(7,24,44,.97);
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:0 30px 70px -20px rgba(2,10,24,.95);
+  animation:cookies-entra .4s var(--ease) both;
+}
+@keyframes cookies-entra{
+  from{opacity:0;transform:translateY(14px)}
+  to{opacity:1;transform:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .cookies{animation:none}
+}
+
+.cookies-titulo{
+  display:flex;align-items:center;gap:9px;
+  margin:0 0 8px;font-family:var(--fonte-titulo),sans-serif;
+  font-size:16px;font-weight:600;letter-spacing:-.01em;color:#fff;
+}
+.cookies-titulo > .bi{color:var(--warn);font-size:19px;line-height:1}
+.cookies-texto p{margin:0;font-size:13.5px;line-height:1.6;color:var(--on-dark-2)}
+.cookies-texto b{color:#fff;font-weight:600}
+.cookies-texto a{color:var(--sky-soft);text-decoration:underline;text-underline-offset:2px}
+.cookies-texto a:hover{color:#fff}
+
+/* `1fr 1fr`: os dois botões com a MESMA largura. Recusar precisa
+   ser tão fácil quanto aceitar — botão de recusa menor ou mais
+   apagado é padrão escuro. */
+.cookies-acoes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.cookies-btn{
+  height:44px;padding:0 14px;border-radius:var(--r-md);cursor:pointer;
+  font-family:inherit;font-size:14px;font-weight:600;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;
+  transition:background .2s var(--ease), border-color .2s var(--ease), transform .16s var(--ease);
+}
+.cookies-btn:hover{background:rgba(255,255,255,.14);transform:translateY(-1px)}
+.cookies-btn:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+.cookies-btn--sim{background:var(--sky);border-color:var(--sky);color:var(--navy-950)}
+.cookies-btn--sim:hover{background:#6fb0ff;border-color:#6fb0ff}
+
+@media (max-width:760px){
+  /* No celular ele ocupa a largura toda embaixo, acima dos botões
+     flutuantes da esquerda. */
+  .cookies{left:16px;right:16px;bottom:16px;width:auto;padding:18px}
+  .cookies-acoes{grid-template-columns:1fr}
+}
+
+/* ==============================================================
+   PAINEL DA CONTA — barra lateral + conteúdo
+   Layout: src/app/conta/layout.tsx
+
+   O QUE ESTAVA ERRADO ANTES:
+   `.folha-conta{max-width:760px}` — uma coluna estreita e
+   comprida no meio de uma tela de 1440px. Tudo empilhado nela:
+   dados, aparelhos, privacidade, administração. Num monitor
+   isso vira uma tira deitada com metade da tela vazia dos dois
+   lados.
+
+   Agora são duas colunas: 268px de menu à esquerda e o resto
+   para o conteúdo. No celular vira uma coluna só, com o menu
+   virando uma faixa rolável em cima — que é o certo lá, porque
+   barra lateral em tela de 390px come metade do espaço.
+   ============================================================== */
+.painel{
+  width:var(--shell);margin:0 auto;
+  padding:118px 0 80px;
+  display:grid;grid-template-columns:268px minmax(0,1fr);gap:28px;
+  align-items:start;
+}
+
+/* ---------- coluna da esquerda ---------- */
+.painel-lado{
+  position:sticky;top:104px;
+  display:flex;flex-direction:column;gap:8px;
+  padding:18px;border-radius:var(--r-xl);
+  background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.03));
+  border:1px solid rgba(255,255,255,.11);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14), 0 24px 50px -34px rgba(2,10,24,.9);
+}
+
+.painel-quem{
+  display:flex;align-items:center;gap:13px;
+  padding:6px 6px 16px;margin-bottom:6px;
+  border-bottom:1px solid rgba(255,255,255,.1);
+}
+/* `min-width:0` no filho de um flex é o que permite o texto
+   encolher e o `text-overflow` funcionar. Sem isso o e-mail
+   longo estica a barra inteira e quebra o layout. */
+.painel-quem-texto{min-width:0;display:flex;flex-direction:column;gap:2px}
+.painel-quem-texto b{
+  font-family:var(--fonte-titulo),sans-serif;font-size:16px;font-weight:600;
+  letter-spacing:-.01em;color:#fff;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.painel-quem-texto span{
+  font-size:12.5px;color:var(--on-dark-3);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+
+/* ---------- os itens do menu ---------- */
+.conta-nav{display:flex;flex-direction:column;gap:2px}
+.conta-nav-item{
+  display:flex;align-items:center;gap:11px;
+  width:100%;padding:11px 12px;border:none;border-radius:var(--r-md);
+  background:transparent;cursor:pointer;text-align:left;text-decoration:none;
+  font-family:inherit;font-size:14.5px;font-weight:500;color:var(--on-dark-2);
+  transition:background .18s var(--ease), color .18s var(--ease);
+}
+.conta-nav-item > .bi{font-size:17px;line-height:1;flex:none;opacity:.8}
+.conta-nav-item > span{flex:1}
+.conta-nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
+.conta-nav-item:focus-visible{outline:2px solid var(--sky);outline-offset:1px}
+
+/* O item atual: fundo aceso E uma barra na borda. Cor sozinha não
+   basta — quem não distingue cor precisa da barra. */
+.conta-nav-item[aria-current="page"]{
+  background:rgba(77,159,255,.16);color:#fff;font-weight:600;
+  box-shadow:inset 3px 0 0 var(--sky);
+}
+.conta-nav-item[aria-current="page"] > .bi{opacity:1;color:var(--sky-soft)}
+
+.conta-nav-aviso{
+  flex:none;padding:3px 8px;border-radius:999px;
+  background:rgba(255,198,92,.16);color:var(--warn);
+  font-size:11px;font-weight:600;font-style:normal;letter-spacing:.02em;
+}
+
+.painel-sair{margin-top:6px;padding-top:10px;border-top:1px solid rgba(255,255,255,.1)}
+.conta-nav-item--sair{color:var(--on-dark-3)}
+.conta-nav-item--sair:hover{background:rgba(255,122,107,.12);color:var(--risk)}
+
+/* ---------- coluna da direita ---------- */
+.painel-conteudo{display:flex;flex-direction:column;gap:20px;min-width:0}
+
+.painel-titulo{margin:0 0 4px}
+.painel-titulo h1{
+  margin:0;font-family:var(--fonte-titulo),sans-serif;font-weight:600;
+  font-size:clamp(24px,2.6vw,31px);line-height:1.2;letter-spacing:-.025em;color:#fff;
+}
+.painel-titulo p{margin:7px 0 0;font-size:14.5px;line-height:1.6;color:var(--on-dark-2)}
+
+/* ---------- cartão de conteúdo ---------- */
+.cartao{
+  padding:24px 26px;border-radius:var(--r-xl);
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.025));
+  border:1px solid rgba(255,255,255,.1);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12), 0 20px 44px -32px rgba(2,10,24,.85);
+}
+.cartao-topo{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+  margin-bottom:18px}
+.cartao h2{
+  margin:0;font-family:var(--fonte-titulo),sans-serif;font-size:17px;font-weight:600;
+  letter-spacing:-.01em;color:#fff;
+}
+.cartao-topo p{margin:5px 0 0;font-size:13.5px;line-height:1.6;color:var(--on-dark-3)}
+
+/* ---------- lista de dados (rótulo à esquerda, valor à direita) ---------- */
+.dados{display:flex;flex-direction:column}
+.dado{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:13px 0;border-bottom:1px solid rgba(255,255,255,.08);
+}
+.dado:first-child{padding-top:0}
+.dado:last-child{padding-bottom:0;border-bottom:none}
+.dado-rot{font-size:14px;color:var(--on-dark-2)}
+.dado-val{font-size:14px;font-weight:600;color:#fff;text-align:right;word-break:break-word}
+
+@media (max-width:1080px){
+  .painel{grid-template-columns:1fr;gap:20px;padding-top:112px}
+
+  /* No celular a barra lateral vira uma faixa horizontal que rola.
+     Ela para de ser `sticky` porque uma faixa colada no topo
+     brigaria com o cabeçalho do site, que já é fixo. */
+  .painel-lado{position:static;top:auto;padding:14px}
+  .conta-nav{
+    flex-direction:row;overflow-x:auto;gap:6px;
+    scrollbar-width:none;
+    /* mesmo esmaecido do menu principal: avisa que rola de lado */
+    -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent);
+    mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent);
+  }
+  .conta-nav::-webkit-scrollbar{display:none}
+  .conta-nav-item{white-space:nowrap;padding:10px 14px}
+  .conta-nav-item[aria-current="page"]{box-shadow:inset 0 -3px 0 var(--sky)}
+  .conta-nav-aviso{display:none}
+  .painel-sair{margin-top:10px}
+}
+
+@media (max-width:760px){
+  .painel{padding:104px 0 60px}
+  .cartao{padding:20px 18px}
+  /* Rótulo em cima, valor embaixo: lado a lado em tela estreita o
+     valor longo (e-mail, data) espremia o rótulo até sumir. */
+  .dado{flex-direction:column;align-items:flex-start;gap:4px}
+  .dado-val{text-align:left}
+}
+
+/* ==============================================================
+   PAINEL DA CONTA — peças de dentro dos cartões
+   ============================================================== */
+
+.cartao-texto{margin:0 0 12px;font-size:14px;line-height:1.72;color:var(--on-dark-2)}
+.cartao-texto:last-child{margin-bottom:0}
+.cartao-texto--fraco{font-size:13px;color:var(--on-dark-3)}
+.cartao-texto a,.dado-link{color:var(--sky-soft);text-decoration:underline;text-underline-offset:2px}
+.cartao-texto a:hover,.dado-link:hover{color:#fff}
+.dado-link{font-weight:500;font-size:13px;margin-left:6px}
+
+.cartao h2 > .bi{margin-right:8px;color:var(--sky-soft)}
+.cartao--admin{border-color:rgba(255,198,92,.3);
+  background:linear-gradient(180deg,rgba(255,198,92,.09),rgba(255,198,92,.02))}
+.cartao--admin h2 > .bi{color:var(--warn)}
+
+/* ---------- pendências da visão geral ---------- */
+.pendencias{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.pendencia{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 16px;border-radius:var(--r-lg);
+  background:rgba(255,198,92,.09);border:1px solid rgba(255,198,92,.22);
+  font-size:14px;line-height:1.55;color:var(--on-dark-2);
+}
+.pendencia > .bi{flex:none;font-size:18px;color:var(--warn);line-height:1}
+.pendencia > span{flex:1;min-width:0}
+/* Grave = a pessoa pode perder o acesso à conta. Cor diferente
+   porque a diferença entre "melhore isto" e "isto vai te
+   prejudicar" precisa ser visível sem ler. */
+.pendencia--grave{background:rgba(255,122,107,.1);border-color:rgba(255,122,107,.26)}
+.pendencia--grave > .bi{color:var(--risk)}
+.pendencia-acao{
+  flex:none;padding:8px 14px;border-radius:999px;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
+  color:#fff;text-decoration:none;font-size:13px;font-weight:600;white-space:nowrap;
+  transition:background .18s var(--ease);
+}
+.pendencia-acao:hover{background:rgba(255,255,255,.18)}
+
+/* ---------- aparelhos ---------- */
+.aparelhos{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.aparelho-item{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 0;border-bottom:1px solid rgba(255,255,255,.08);
+}
+.aparelho-item:first-child{padding-top:0}
+.aparelho-item:last-child{padding-bottom:0;border-bottom:none}
+.aparelho-item > .bi{flex:none;font-size:22px;color:var(--on-dark-3);line-height:1}
+.aparelho-texto{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.aparelho-texto b{font-size:14.5px;color:#fff}
+.aparelho-texto span{font-size:12.5px;color:var(--on-dark-3)}
+
+/* ---------- direitos de privacidade ---------- */
+.direitos{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.direito{
+  display:flex;align-items:center;gap:14px;
+  padding:15px 16px;border-radius:var(--r-lg);
+  background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09);
+}
+.direito > .bi{flex:none;width:38px;height:38px;display:grid;place-items:center;
+  border-radius:11px;background:rgba(77,159,255,.14);color:var(--sky-soft);font-size:17px}
+.direito > div{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.direito b{font-size:14.5px;color:#fff}
+.direito span{font-size:13px;line-height:1.55;color:var(--on-dark-3)}
+.direito-acao{
+  flex:none;padding:9px 16px;border-radius:999px;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
+  color:#fff;text-decoration:none;font-size:13px;font-weight:600;
+  transition:background .18s var(--ease);
+}
+.direito-acao:hover{background:rgba(255,255,255,.18)}
+
+/* ---------- aviso de "ainda não existe" ---------- */
+.aviso-etapa{
+  display:flex;gap:14px;align-items:flex-start;
+  padding:16px 18px;border-radius:var(--r-lg);
+  background:rgba(255,198,92,.09);border:1px solid rgba(255,198,92,.22);
+}
+.aviso-etapa > .bi{flex:none;font-size:20px;color:var(--warn);line-height:1.2}
+.aviso-etapa div{display:flex;flex-direction:column;gap:4px}
+.aviso-etapa b{font-size:14.5px;color:#fff}
+.aviso-etapa span{font-size:13.5px;line-height:1.6;color:var(--on-dark-2)}
+
+/* ---------- planos DENTRO DO PAINEL DA CONTA ----------
+   Prefixo `conta-` de propósito: a página /planos usa `.plano`,
+   `.grade` e `.topo` para os cartões grandes dela. Dois lugares
+   com o mesmo nome de classe se somam em silêncio — foi o que
+   produziu a pílula esticada do .eyebrow. Não repita. */
+.conta-planos{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.conta-plano{
+  display:flex;flex-direction:column;gap:12px;
+  padding:20px 18px;border-radius:var(--r-lg);
+  background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09);
+}
+.conta-plano--atual{background:rgba(77,159,255,.1);border-color:rgba(77,159,255,.3)}
+.conta-plano-topo{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.conta-plano-topo b{font-family:var(--fonte-titulo),sans-serif;font-size:16px;font-weight:600;color:#fff}
+.conta-plano-preco{margin:0;font-family:var(--fonte-titulo),sans-serif;font-size:26px;font-weight:700;
+  letter-spacing:-.02em;color:#fff;line-height:1}
+.conta-plano-preco span{display:block;margin-top:5px;font-family:Inter,sans-serif;
+  font-size:12.5px;font-weight:400;letter-spacing:0;color:var(--on-dark-3)}
+.conta-plano-itens{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;flex:1}
+.conta-plano-itens li{display:flex;gap:9px;align-items:flex-start;
+  font-size:13.5px;line-height:1.5;color:var(--on-dark-2)}
+.conta-plano-itens .bi{flex:none;color:var(--safe);font-size:15px;line-height:1.4}
+
+/* ---------- formulário de perfil ---------- */
+.forma-perfil{display:flex;flex-direction:column;gap:20px}
+.forma-perfil .btn{align-self:flex-start}
+
+@media (max-width:1080px){
+  .conta-planos{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .pendencia{flex-wrap:wrap}
+  .pendencia > span{flex:1 1 100%;order:2}
+  .pendencia-acao{order:3;margin-left:auto}
+  .direito{flex-wrap:wrap}
+  .direito > div{flex:1 1 100%;order:2}
+  .direito-acao{order:3;margin-left:auto}
+  .forma-perfil .btn{align-self:stretch}
+}
+
+/* ==============================================================
+   FORMULÁRIO DENTRO DO PAINEL ESCURO
+
+   As regras de `.campo` foram feitas para o card BRANCO das telas
+   de entrar e criar conta: rótulo em `--ink` (azul quase preto),
+   dica em `--ink-3`. Dentro do painel da conta, que é escuro,
+   isso vira texto invisível sobre fundo escuro.
+
+   Aqui não é um tema novo — é o mesmo componente lido sobre outro
+   fundo. Só as cores mudam; tamanho, espaçamento e altura
+   continuam iguais, senão o mesmo campo teria duas personalidades.
+
+   CUIDADO AO MEXER: se criar outra tela escura com formulário,
+   acrescente a classe dela a este seletor em vez de copiar o
+   bloco. Duas cópias divergem na primeira vez que alguém mexer
+   numa só.
+   ============================================================== */
+.painel .campo > label,
+.painel .escolha-avatar legend,
+.painel .escolha-tipo legend{color:#fff}
+
+.painel .campo .dica,
+.painel .escolha-avatar .dica{color:var(--on-dark-3)}
+
+/* O campo em si continua claro de propósito: área de digitação
+   clara sobre painel escuro é o que separa "onde eu escrevo" de
+   "onde eu leio". É o mesmo contraste do card do verificador. */
+.painel .campo input::placeholder{color:var(--ink-3)}
+
+/* ---------- assinatura do rodapé ---------- */
+.foot-assina{
+  display:flex;flex-direction:column;gap:5px;align-items:flex-end;text-align:right;
+  font-size:12.5px;line-height:1.5;color:var(--on-dark-3);
+}
+.foot-onde{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;
+  justify-content:flex-end;font-size:12px}
+.foot-onde > .bi{font-size:13px;line-height:1}
+.foot-onde a{color:var(--on-dark-2);text-decoration:none}
+.foot-onde a:hover{color:#fff;text-decoration:underline;text-underline-offset:2px}
+
+@media (max-width:820px){
+  /* No celular o rodapé vira coluna e alinhar à direita deixaria a
+     assinatura desencontrada do resto. */
+  .foot-assina{align-items:flex-start;text-align:left}
+  .foot-onde{justify-content:flex-start}
+}
+
+/* ==============================================================
+   PLANOS — /planos
+   Componentes: src/app/planos/{cartoes,detalhes}.tsx
+
+   Veio de prototipo/planos.html. Os seletores de elemento da
+   tabela (table, th, td) foram ESCOPADOS em `.comparativo`: soltos,
+   eles valeriam para as tabelas dos documentos legais também, e
+   `table{min-width:820px}` faria a página de Termos rolar de lado
+   no celular.
+   ============================================================== */
+
+/* ---------- topo ---------- 
+
+/* ---------- cabeçalho ---------- */
+.topo{width:var(--shell);margin:0 auto;padding:140px 0 0;text-align:center}
+.topo h1{margin:0;font-family:var(--fonte-titulo),sans-serif;font-weight:600;
+  font-size:clamp(30px,4vw,46px);line-height:1.15;letter-spacing:-.03em;color:#fff}
+.topo p{margin:16px auto 0;max-width:600px;font-size:16.5px;line-height:1.65;color:var(--on-dark-3)}
+
+/* alternador */
+.ciclo{display:inline-flex;align-items:center;gap:4px;margin:30px 0 0;padding:5px;border-radius:999px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
+.ciclo button{-webkit-appearance:none;appearance:none;padding:10px 20px;border:none;border-radius:999px;cursor:pointer;background:transparent;
+  color:var(--on-dark-2);font-family:inherit;font-size:14px;font-weight:600;
+  transition:background .25s var(--ease),color .25s var(--ease)}
+.ciclo button[aria-pressed="true"]{background:#fff;color:var(--navy-800)}
+.ciclo .selo{margin-left:6px;padding:3px 8px;border-radius:999px;background:rgba(47,211,155,.18);
+  color:#8fe8c8;font-size:11px;font-weight:700}
+
+/* ---------- cards ---------- */
+/* =============================================================
+   ⚠  `text-align:center` DO HERÓI ESCORRIA ATÉ AQUI
+
+   `.topo` é centralizado, e com razão: título e subtítulo de
+   abertura pedem isso. Só que a herança descia até dentro dos
+   cartões, e cada explicação de item — três linhas de texto —
+   ficava centralizada.
+
+   Texto de várias linhas centralizado não tem borda de apoio em
+   lado nenhum: o olho perde onde a próxima linha começa e volta
+   tateando. Era boa parte do "nada alinhado".
+
+   Alinhar à esquerda é o que cria a régua vertical do cartão: o
+   tique, o termo e a explicação passam a partir do mesmo ponto,
+   e a coluna fica com uma borda visível de cima a baixo.
+
+   CUIDADO AO MEXER: o preço fica centralizado de propósito (é
+   número curto, e centrado ele ganha peso). Só o texto corrido é
+   que vem para a esquerda.
+   ============================================================= */
+.grade{
+  width:var(--shell);margin:44px auto 0;display:grid;
+  grid-template-columns:repeat(4,1fr);gap:16px;align-items:start;
+  text-align:left;
+}
+.qual-voce{text-align:left}
+.plano{
+  position:relative;display:flex;flex-direction:column;padding:28px 24px 26px;border-radius:var(--r-xl);
+  background:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.028));
+  border:1px solid rgba(255,255,255,.1);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 24px 50px -34px rgba(2,10,24,.9);
+}
+.plano--destaque{
+  background:linear-gradient(180deg,rgba(77,159,255,.16),rgba(77,159,255,.05));
+  border-color:rgba(77,159,255,.42);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 30px 60px -30px rgba(77,159,255,.45);
+}
+.fita{position:absolute;top:-11px;left:24px;padding:5px 12px;border-radius:999px;
+  background:var(--sky);color:#04101f;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.plano h2{margin:0;font-family:var(--fonte-titulo),sans-serif;font-size:19px;font-weight:600;color:#fff}
+.plano .pra{margin:6px 0 0;font-size:13px;line-height:1.55;color:var(--on-dark-3);min-height:40px}
+.preco{display:flex;align-items:baseline;gap:4px;margin:18px 0 2px}
+.preco .moeda{font-size:15px;font-weight:600;color:var(--on-dark-2)}
+.preco .valor{font-family:var(--fonte-titulo),sans-serif;font-size:36px;font-weight:700;color:#fff;letter-spacing:-.02em}
+.preco .ciclo-txt{font-size:13px;color:var(--on-dark-3)}
+/* À esquerda como o resto do cartão: o preço acima já está na
+   régua da esquerda, e a nota centralizada abaixo dele quebrava a
+   linha vertical logo no primeiro item. */
+.preco-nota{min-height:18px;font-size:12px;color:var(--sky-soft);text-align:left}
+.cta{
+  -webkit-appearance:none;appearance:none;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;height:46px;margin:18px 0 20px;
+  border-radius:12px;text-decoration:none;font-size:14px;font-weight:600;cursor:pointer;border:none;
+  font-family:inherit;transition:background .2s var(--ease),border-color .2s var(--ease),color .2s var(--ease);
+}
+.cta--forte{background:var(--sky);color:#04101f}
+.cta--forte:hover{background:#6fb0ff}
+.cta--calma{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.16)}
+.cta--calma:hover{background:rgba(255,255,255,.14)}
+/* =============================================================
+   OS ITENS DO PLANO — termo em cima, o que faz embaixo
+
+   Antes era um tick e um rótulo: "Detecta se a foto foi feita por
+   IA". Isso não significa nada para quem tem 62 anos e caiu num
+   perfil falso. O tick dizia que existe; não dizia o que é.
+
+   Agora cada item tem duas linhas. A de cima é o que a pessoa
+   procura; a de baixo é o que aquilo faz na vida dela — sempre
+   visível, nunca atrás de clique ou de passar o mouse. Este site
+   fala com gente que não vai caçar informação escondida, e no
+   celular não existe passar o mouse.
+
+   CUIDADO AO MEXER: o cartão fica mais alto, e tudo bem. A lista
+   completa item por item continua na tabela comparativa, para
+   quem quiser cruzar. Voltar a esconder a explicação é desfazer
+   o conserto.
+   ============================================================= */
+.plano-itens{list-style:none;margin:0;padding:0;display:grid;gap:16px}
+.plano-itens li{display:flex;gap:10px;align-items:flex-start}
+.plano-itens li > .bi{flex:none;margin-top:3px;font-size:14px;line-height:1;color:var(--safe)}
+.plano-itens li > div{display:grid;gap:3px}
+.plano-itens li b{font-size:13.5px;font-weight:600;line-height:1.4;color:#fff}
+.plano-itens li span{font-size:12.5px;line-height:1.6;color:var(--on-dark-3)}
+.plano-itens li.na b{color:var(--on-dark-2);font-weight:500}
+.plano-itens li.na > .bi{color:rgba(234,241,253,.28)}
+.plano-itens li.na span{color:rgba(234,241,253,.42)}
+
+/* =============================================================
+   "QUAL DESSES É VOCÊ?" — a entrada da página
+
+   Vem ANTES de qualquer preço, e é a coisa mais importante daqui.
+   Quem chega não está comparando recursos: está tentando
+   descobrir qual caixa é a dele. Quatro frases na primeira
+   pessoa respondem isso em três segundos; quarenta linhas de
+   tick não respondem nunca.
+
+   CUIDADO AO MEXER: são BOTÕES, não links. Eles rolam até o
+   cartão, não navegam. Link que não navega confunde o leitor de
+   tela e quebra o "abrir em nova aba".
+   ============================================================= */
+.qual-voce{width:var(--shell);margin:52px auto 0}
+.qual-voce h2{
+  margin:0;font-family:var(--fonte-titulo),sans-serif;
+  font-size:clamp(24px,3vw,34px);font-weight:600;letter-spacing:-.02em;color:#fff;
+}
+.qual-voce-nota{margin:8px 0 0;font-size:14px;line-height:1.6;color:var(--on-dark-3)}
+.qual-voce-grade{
+  margin-top:22px;display:grid;grid-template-columns:repeat(2,1fr);gap:12px;
+}
+.qual-voce-op{
+  -webkit-appearance:none;appearance:none;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:20px 22px;border-radius:var(--r-lg);cursor:pointer;text-align:left;
+  font-family:inherit;
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.1);
+  transition:background .2s var(--ease),border-color .2s var(--ease),transform .16s var(--ease);
+}
+.qual-voce-op:hover{background:rgba(255,255,255,.08);border-color:rgba(77,159,255,.45);transform:translateY(-2px)}
+.qual-voce-op:focus-visible{outline:2px solid var(--sky);outline-offset:3px}
+.qual-voce-frase{font-size:15.5px;line-height:1.5;color:var(--on-dark)}
+.qual-voce-leva{
+  flex:none;display:inline-flex;align-items:center;gap:7px;
+  font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--sky-soft);
+}
+
+/* O cartão acende por um instante ao vir de lá. Marca permanente
+   na tela vira sujeira; um piscar diz "é este" e some. */
+.plano--aceso{
+  border-color:rgba(77,159,255,.75);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3), 0 0 0 3px rgba(77,159,255,.22),
+    0 30px 60px -30px rgba(77,159,255,.5);
+}
+
+/* =============================================================
+   ANTES DE ASSINAR — a caixa que abre no clique
+
+   `<dialog>` de verdade: o navegador cuida de Esc, de prender o
+   foco dentro e de esconder o resto da página do leitor de tela.
+   Refazer isso à mão com div e z-index dá errado de formas que
+   só aparecem com teclado ou leitor de tela.
+   ============================================================= */
+.antes{
+  width:min(560px, 100% - 32px);padding:0;border:none;border-radius:var(--r-xl);
+  color:var(--on-dark);
+  background:linear-gradient(180deg,#102a4a,#0a1c33);
+  box-shadow:0 40px 90px -30px rgba(2,10,24,.85);
+  /* `.topo` é centralizado e a herança chegava até aqui dentro,
+     deixando quatro parágrafos de explicação centralizados. Ver o
+     comentário em `.grade`: é o mesmo defeito, no mesmo dia. */
+  text-align:left;
+}
+.antes::backdrop{background:rgba(3,10,20,.72);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.antes-topo{position:relative;padding:26px 26px 18px;border-bottom:1px solid rgba(255,255,255,.09)}
+.antes-olho{
+  margin:0 0 6px;font-size:11.5px;font-weight:700;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--sky-soft);
+}
+.antes-topo h2{
+  margin:0;font-family:var(--fonte-titulo),sans-serif;
+  font-size:26px;font-weight:600;letter-spacing:-.02em;color:#fff;
+}
+.antes-fechar{
+  -webkit-appearance:none;appearance:none;
+  position:absolute;top:20px;right:20px;width:36px;height:36px;display:grid;place-items:center;
+  border-radius:10px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);
+  color:var(--on-dark-2);cursor:pointer;font-size:14px;
+}
+.antes-fechar:hover{background:rgba(255,255,255,.1);color:#fff}
+.antes-lista{list-style:none;margin:0;padding:20px 26px;display:grid;gap:18px}
+.antes-lista li{display:flex;gap:13px;align-items:flex-start}
+.antes-lista li .bi{flex:none;margin-top:2px;font-size:17px;color:var(--sky)}
+.antes-lista li div{display:grid;gap:4px}
+.antes-lista li b{font-size:14.5px;color:#fff}
+.antes-lista li span{font-size:13px;line-height:1.65;color:var(--on-dark-3)}
+/* `.antes-real` foi removida em 27/08/2026 junto com o painel de
+   "a cobrança ainda não existe" — ver o topo de planos/page.tsx.
+   Não recrie por hábito: se o aviso precisar voltar, `.aviso-etapa`
+   já faz esse trabalho e é a que sobrou viva. */
+/* =============================================================
+   OS BOTÕES DA CAIXA ESCURA — classe própria, de propósito
+
+   Eles NÃO usam `.btn--calmo` / `.btn--forte`. Aquelas duas foram
+   desenhadas para viver sobre o cartão BRANCO do verificador:
+   `.btn--calmo` é branco com borda cinza, e ali ele é o discreto
+   da dupla.
+
+   Sobre fundo escuro o branco vira a coisa mais forte da tela. A
+   hierarquia inverte: a saída grita e a ação principal recua.
+
+   Sobre escuro, o discreto é o transparente com borda fina, e o
+   forte é o azul da marca. Mesma intenção, cores trocadas porque
+   o fundo é outro.
+
+   CUIDADO AO MEXER: a tentação é reaproveitar `.btn` aqui e
+   "só sobrescrever a cor". Foi o que eu tentei primeiro, e o
+   resultado foi uma briga de cascata difícil de enxergar. Classe
+   separada custa dez linhas e não custa mais nada nunca.
+   ============================================================= */
+.antes-acoes{display:flex;gap:12px;padding:22px 26px 26px}
+.antes-btn{
+  -webkit-appearance:none;appearance:none;
+  flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  height:50px;padding:0 20px;border-radius:12px;cursor:pointer;
+  font-family:inherit;font-size:15px;font-weight:600;text-decoration:none;
+  transition:background .2s var(--ease),border-color .2s var(--ease),color .2s var(--ease);
+}
+.antes-btn:focus-visible{outline:2px solid var(--sky);outline-offset:3px}
+.antes-btn--sai{
+  background:transparent;color:var(--on-dark-2);
+  border:1px solid rgba(255,255,255,.2);
+}
+.antes-btn--sai:hover{background:rgba(255,255,255,.07);color:#fff;border-color:rgba(255,255,255,.36)}
+.antes-btn--vai{background:var(--sky);color:#04101f;border:1px solid var(--sky)}
+.antes-btn--vai:hover{background:#6fb1ff;border-color:#6fb1ff}
+
+@media (max-width:720px){
+  .qual-voce-grade{grid-template-columns:1fr}
+  .qual-voce-op{padding:17px 18px}
+  .antes-acoes{flex-direction:column-reverse}
+}
+
+/* ---------- comparativo ---------- */
+.comparativo{width:var(--shell);margin:70px auto 0}
+.comparativo h2{margin:0 0 6px;font-family:var(--fonte-titulo),sans-serif;font-size:clamp(22px,2.4vw,28px);
+  font-weight:600;letter-spacing:-.02em;color:#fff}
+.comparativo > p{margin:0 0 26px;font-size:15px;color:var(--on-dark-3)}
+.rolagem{overflow-x:auto;border-radius:var(--r-xl);border:1px solid rgba(255,255,255,.1);
+  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02))}
+.comparativo table{width:100%;border-collapse:collapse;min-width:820px}
+.comparativo th, .comparativo td{padding:14px 18px;text-align:left;font-size:13.5px;border-bottom:1px solid rgba(255,255,255,.07)}
+.comparativo thead th{position:sticky;top:0;background:rgba(7,24,44,.94);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)font-size:13px;font-weight:600;color:#fff;white-space:nowrap;z-index:1}
+.comparativo thead th:first-child{text-align:left}
+.comparativo th:not(:first-child), .comparativo td:not(:first-child){text-align:center;width:150px}
+.comparativo tbody th{font-weight:500;color:var(--on-dark-2)}
+.comparativo td{color:var(--on-dark-2)}
+.comparativo td b{color:#fff;font-weight:600}
+.comparativo .grupo th{background:rgba(255,255,255,.05);font-family:var(--fonte-titulo),sans-serif;font-size:11.5px;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--sky-soft)}
+.comparativo .sim{color:var(--safe);font-size:15px}
+.comparativo .nao{color:rgba(234,241,253,.25);font-size:15px}
+.comparativo tbody tr:hover td, .comparativo tbody tr:hover th{background:rgba(255,255,255,.03)}
+
+/* As regras de `.duvidas` / `.duvida` saíram junto com a seção.
+   Ninguém mais usa a marcação: aquelas seis caixas soltas no fim
+   de /planos viraram a `.antes`, que abre no clique de assinar.
+   CSS de classe que não existe mais é peso morto e engana quem
+   for procurar depois. */
+
+@media (max-width:1080px){
+  :root{--shell:min(760px,100% - 40px)}
+  .grade{grid-template-columns:1fr 1fr}
+}
+@media (max-width:640px){
+  :root{--shell:min(560px,100% - 32px)}
+  .topbar{padding:12px 16px;flex-wrap:wrap;gap:10px}
+  .nav{order:3;width:100%;overflow-x:auto;scrollbar-width:none}
+  .nav::-webkit-scrollbar{display:none}
+  .account{height:42px;width:42px;padding:4px;justify-content:center}
+  .account span:last-child{display:none}
+  .topo{padding-top:150px}
+  .grade{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms !important}}
+
+
+/* ==============================================================
+   DENUNCIAR — /denunciar
+   Componentes: src/app/denunciar/{page,forma}.tsx
+
+   Veio de prototipo/denunciar.html. Só as regras que ainda não
+   existiam no globals entraram.
+   ============================================================== */
+.corpo{width:var(--shell);margin:34px auto 0;display:grid;grid-template-columns:1fr 330px;gap:24px;align-items:start}
+
+/* ==============================================================
+   /noticias — duas folhas de largura igual
+
+   `.corpo` normal é formulário + lateral de apoio (1fr + 330px).
+   Aqui as duas partes têm o MESMO peso: as manchetes e os órgãos
+   oficiais. Uma não é apoio da outra — quando o arquivo está
+   vazio, o bloco oficial é a página inteira.
+
+   ⚠ Por isso `.corpo--largo` e não uma lateral: pôr os órgãos
+   numa coluna estreita de apoio diria, pelo desenho, que eles são
+   secundários. São o contrário: mandar a pessoa para a fonte
+   primária é o melhor conselho da página.
+   ============================================================== */
+.corpo--largo{grid-template-columns:1fr 1fr}
+@media (max-width:900px){
+  .corpo--largo{grid-template-columns:1fr}
+}
+
+.folha > h2{
+  display:flex;align-items:center;gap:9px;margin:0 0 6px;
+  font-family:var(--fonte-titulo),sans-serif;
+  font-size:19px;font-weight:600;letter-spacing:-.01em;color:var(--ink);
+}
+.folha > h2 .bi{font-size:18px;color:var(--sky)}
+
+/* AS MANCHETES
+
+   Sem imagem, sem resumo, sem "leia mais". Só o título e de onde
+   veio — que é exatamente o que se pode republicar, e é o que a
+   pessoa precisa para decidir se clica.
+
+   ⚠ NÃO acrescente imagem aqui. Ela viria de CDN de terceiro e
+   entregaria o IP de cada visitante, contra o que a Política de
+   Privacidade promete. Ver o topo de `app/noticias/page.tsx`. */
+.manchetes{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:2px}
+.manchetes li{
+  padding:14px 0;border-bottom:1px solid #e8edf6;
+}
+.manchetes li:last-child{border-bottom:0}
+.manchetes a{
+  display:inline-flex;align-items:flex-start;gap:7px;
+  font-size:15.5px;line-height:1.5;font-weight:600;
+  color:var(--ink);text-decoration:none;
+}
+.manchetes a:hover{color:#2970d3;text-decoration:underline}
+.manchetes a:focus-visible{outline:2px solid var(--sky);outline-offset:3px;border-radius:4px}
+/* A setinha de "abre fora" é aviso, não enfeite: a pessoa sai do
+   nosso site ao clicar, e ela merece saber disso antes. */
+.manchetes a > .bi{flex:none;margin-top:4px;font-size:12px;color:var(--ink-3)}
+.manchete-pe{margin:5px 0 0;font-size:12.5px;color:var(--ink-3)}
+
+.manchetes-nota{
+  margin:18px 0 0;padding-top:14px;border-top:1px solid #e8edf6;
+  font-size:12.5px;line-height:1.6;color:var(--ink-3);
+}
+
+/* OS ÓRGÃOS OFICIAIS — a parte que nunca fica vazia */
+.oficiais{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:12px}
+.oficiais li{
+  display:flex;gap:13px;padding:15px 16px;
+  border:1px solid #e2e9f4;border-radius:var(--r-md);background:#fbfcfe;
+}
+.oficiais li > .bi{flex:none;margin-top:2px;font-size:19px;color:var(--sky)}
+.oficiais a{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:14.5px;font-weight:650;color:var(--ink);text-decoration:none;
+}
+.oficiais a:hover{color:#2970d3;text-decoration:underline}
+.oficiais a:focus-visible{outline:2px solid var(--sky);outline-offset:3px;border-radius:4px}
+.oficiais a > .bi{font-size:11.5px;color:var(--ink-3)}
+.oficiais span{display:block;margin-top:4px;font-size:13px;line-height:1.55;color:var(--ink-2)}
+.lateral{display:grid;gap:14px;position:sticky;top:100px}
+.bloco h2 .bi{color:var(--sky-soft);font-size:17px}
+.bloco p{margin:0;font-size:13px;line-height:1.65;color:var(--on-dark-3)}
+.bloco ol{margin:10px 0 0;padding-left:18px;display:grid;gap:8px}
+.bloco li{font-size:13px;line-height:1.55;color:var(--on-dark-2)}
+.bloco li b{color:#fff}
+.passos{display:flex;align-items:center;gap:10px;margin-bottom:24px;font-size:12.5px;color:var(--ink-3)}
+.passos i{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;
+    background:var(--navy-800);color:#fff;font-style:normal;font-size:12px;font-weight:700}
+.divisor{height:1px;background:var(--line);margin:26px 0}
+/* =============================================================
+   CAMPO QUE APARECE — a resposta que puxa outra pergunta
+
+   Usado quando escolher uma opção abre um campo: "Outro" pede
+   qual, "com apelido" pede qual apelido.
+
+   Ele NÃO surge do nada. A barra azul à esquerda e o recuo dizem
+   "isto pertence ao que você acabou de escolher" — sem isso, um
+   campo que aparece no meio da página parece erro de tela.
+
+   CUIDADO AO MEXER:
+     - A animação é curta e só de opacidade e altura. Campo que
+       entra saltando faz a página pular embaixo do dedo de quem
+       está preenchendo.
+     - Respeita `prefers-reduced-motion` pela regra geral no fim
+       do arquivo, que zera toda duração.
+     - Quem revela também dá `autoFocus`: o cursor já vai para o
+       campo novo. Sem isso a pessoa precisa achar e clicar num
+       campo que ela não pediu.
+   ============================================================= */
+.campo--revelado{
+  position:relative;margin-left:14px;padding-left:18px;
+  border-left:2px solid var(--sky);
+  animation:campo-abre .28s var(--ease) both;
+}
+.campo--revelado::before{
+  content:"";position:absolute;left:-5px;top:14px;width:8px;height:8px;
+  border-radius:50%;background:var(--sky);
+}
+@keyframes campo-abre{
+  from{opacity:0;transform:translateY(-6px)}
+  to{opacity:1;transform:none}
+}
+@media (max-width:560px){
+  .campo--revelado{margin-left:6px;padding-left:14px}
+}
+
+/* =============================================================
+   O PÉ DO FORMULÁRIO — a dupla que estava torta
+
+   Antes: `display:flex` com `.btn--forte{flex:1}`. O enviar
+   crescia e o cancelar não, então sobrava um par desigual sem
+   nenhuma razão — um grande, um pequeno, os dois com cara de
+   botão.
+
+   A correção não é igualar os dois. É reconhecer que eles NÃO
+   têm o mesmo peso: enviar é a ação da página; cancelar é a
+   porta de saída. Dar aparência de botão à saída é dar a ela um
+   destaque que ela não merece, e é o que criava o desconforto.
+
+   Agora: enviar é botão, com largura própria e à direita, onde a
+   mão vai. Cancelar é link discreto à esquerda. A hierarquia
+   passa a ser visível em vez de acidental.
+
+   CUIDADO AO MEXER:
+     - No celular a ordem VIRA: o enviar sobe para cima, no
+       alcance do polegar, e o cancelar desce. `column-reverse`
+       faz isso sem mexer no HTML — a ordem de leitura e a do
+       teclado continuam as mesmas.
+     - `.btn` tem `width:100%` na base. O `width:auto` aqui é o
+       que impede o enviar de atravessar a tela no computador.
+   ============================================================= */
+.rodape-form{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:14px;margin-top:30px;padding-top:22px;
+  border-top:1px solid var(--line);
+}
+.rodape-form .btn--forte{width:auto;min-width:210px}
+.rodape-form .btn--calmo{
+  width:auto;height:auto;padding:8px 2px;background:none;border:none;
+  font-size:14.5px;font-weight:500;color:var(--ink-3);
+  text-decoration:underline;text-underline-offset:3px;
+  text-decoration-color:rgba(98,115,139,.35);
+}
+.rodape-form .btn--calmo:hover{background:none;color:var(--ink);text-decoration-color:currentColor}
+@media (max-width:560px){
+  .rodape-form{flex-direction:column-reverse;align-items:stretch}
+  .rodape-form .btn--forte{width:100%;min-width:0}
+  .rodape-form .btn--calmo{text-align:center}
+}
+.novo{display:flex;gap:13px;padding:18px 20px;margin-bottom:18px;border-radius:14px;cursor:pointer;
+    border:1.5px solid #f0d68a;background:#fff8e6;
+    transition:border-color .2s var(--ease),background .2s var(--ease)}
+.novo:hover{border-color:#d9a520;background:#fff3d6}
+.novo input{position:absolute;opacity:0;pointer-events:none}
+.marca-novo{width:22px;height:22px;flex:none;margin-top:1px;display:grid;place-items:center;
+    border:1.5px solid #d9a520;border-radius:7px;background:#fff;color:transparent;font-size:13px;
+    transition:background .2s var(--ease),color .2s var(--ease)}
+.novo input:checked + .marca-novo{background:#d9a520;border-color:#d9a520;color:#fff}
+.novo input:focus-visible + .marca-novo{outline:2px solid var(--sky);outline-offset:2px}
+.txt-novo b{display:flex;align-items:center;gap:8px;font-size:14.5px;color:#6b5a10;margin-bottom:5px}
+.txt-novo b .bi{color:#d9a520}
+.txt-novo small{display:block;font-size:12.5px;line-height:1.6;color:#8a7420}
+
+/* ---------- o que é novo, e não veio do protótipo ---------- */
+
+/* A LATERAL VEM ANTES NO HTML, mas à DIREITA no computador.
+
+   No HTML, "Perdeu dinheiro agora?" está antes do formulário: em
+   tela estreita, quem chegou com dinheiro saindo da conta precisa
+   ver o socorro primeiro, não depois de dez campos.
+
+   `order` devolve a lateral para o lado direito, onde há espaço.
+   Isso NÃO atrapalha leitor de tela nem teclado: os dois seguem a
+   ordem do HTML, que é justamente a ordem de urgência. */
+@media (min-width:1081px){
+  .corpo > .lateral{order:2}
+  .corpo > .folha{order:1}
+}
+
+/* O bloco de socorro é o único vermelho da página. Ele compete
+   com o formulário de propósito. */
+.bloco--urgente{
+  background:linear-gradient(180deg,rgba(255,122,107,.12),rgba(255,122,107,.03));
+  border-color:rgba(255,122,107,.28);
+}
+.bloco--urgente h2 > .bi{color:var(--risk)}
+
+/* `fieldset` no grupo de rádios: é o que faz o leitor de tela
+   anunciar "Que tipo de golpe foi?" antes das nove opções, em vez
+   de ler nove itens soltos sem pergunta nenhuma. */
+.campo--grupo{border:none;padding:0;margin:0 0 18px}
+.campo--grupo > legend{
+  padding:0;margin-bottom:7px;
+  font-size:13.5px;font-weight:600;color:var(--ink);
+}
+
+/* "(opcional)" precisa ser visivelmente secundário: é a diferença
+   entre um formulário que assusta e um que não. */
+.campo label em{font-style:normal;font-weight:400;color:var(--ink-3)}
+
+/* ---------- a tela de "deu certo" ---------- */
+.denuncia-pronta{text-align:center;padding:12px 4px 4px}
+.denuncia-pronta > .bi{font-size:46px;color:var(--safe);line-height:1}
+.denuncia-pronta h2{
+  margin:14px 0 8px;font-family:var(--fonte-titulo),sans-serif;font-size:22px;
+  font-weight:600;letter-spacing:-.02em;color:var(--ink);
+}
+.denuncia-pronta > p{margin:0 auto;max-width:46ch;font-size:14.5px;
+  line-height:1.65;color:var(--ink-2)}
+
+.protocolo-rot{
+  margin:26px 0 6px;font-size:11.5px;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);
+}
+/* O protocolo é para ser LIDO EM VOZ ALTA e digitado. Monoespaçada
+   e com letras espaçadas: é o que separa um 8 de um B quando a
+   pessoa dita por telefone. */
+.protocolo{
+  margin:0;font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  font-size:clamp(24px,5vw,32px);font-weight:700;letter-spacing:.12em;
+  color:var(--navy-800);
+  user-select:all;
+}
+.protocolo-nota{margin:10px auto 0;max-width:44ch;font-size:12.5px;
+  line-height:1.55;color:var(--ink-3)}
+/* A TELA DE OBRIGADO — o que veio da lateral, e por quê
+
+   "O que acontece agora" morava na lateral do formulário, ANTES
+   do envio. Veio para cá em 27/08/2026: quem está preenchendo
+   precisa conseguir preencher, e o nosso processo interno só
+   interessa depois que a denúncia saiu.
+
+   ⚠ Repare que `.denuncia-pronta` é `text-align:center` e estes
+   dois blocos voltam para a esquerda. Não é inconsistência: o
+   agradecimento e o protocolo são um momento, e leem centrados.
+   Lista de passos centrada é ilegível — o olho perde o começo da
+   linha a cada item. */
+.denuncia-obrigado{
+  margin:0 auto !important;max-width:48ch;
+}
+
+/* ⚠ CORES DE FUNDO CLARO, E ISSO QUASE PASSOU
+
+   Escrevi este bloco com `rgba(255,255,255,.045)` de fundo e
+   `#fff` de texto — a paleta do FUNDO ESCURO do site. Mas
+   `.denuncia-pronta` vive dentro de `.folha`, que é
+   `background:var(--paper)` com `color:var(--ink)`: um cartão
+   BRANCO. Resultado: texto branco em fundo branco, o bloco
+   inteiro invisível.
+
+   Não deu erro, passou no `npm run confere`, e só apareceu ao
+   olhar a tela depois de enviar uma denúncia de verdade.
+
+   REGRA: antes de escrever cor aqui, veja em que cartão o bloco
+   mora. `--ink*` para o que vive em `.folha` (branco);
+   `--on-dark*` para o que vive direto na página (escura). */
+.depois{
+  margin:26px auto 0;max-width:52ch;text-align:left;
+  padding:20px 22px;border-radius:var(--r-lg);
+  background:#f4f7fc;border:1px solid #e2e9f4;
+}
+.depois h3{
+  display:flex;align-items:center;gap:9px;margin:0 0 14px;
+  font-family:var(--fonte-titulo),sans-serif;
+  font-size:15px;font-weight:600;color:var(--ink);
+}
+.depois h3 .bi{font-size:16px;color:var(--sky)}
+
+/* Numerado porque é sequência: um passo acontece depois do outro,
+   e a pessoa quer saber em que ponto a denúncia dela está. */
+.depois ol{margin:0;padding:0;list-style:none;counter-reset:etapa;display:grid;gap:12px}
+.depois ol li{
+  counter-increment:etapa;position:relative;padding-left:32px;
+  font-size:13.5px;line-height:1.6;color:var(--ink-2);
+}
+.depois ol li::before{
+  content:counter(etapa);position:absolute;left:0;top:0;
+  width:22px;height:22px;display:grid;place-items:center;border-radius:50%;
+  background:var(--sky-wash);color:#2970d3;
+  font-size:11.5px;font-weight:700;
+}
+.depois ol b{color:var(--ink)}
+
+/* O aviso de guardar as provas. Veio do "Tem print da conversa?"
+   que saiu da lateral — mas com outro sentido: lá mandava
+   ESPERAR a gente pedir; aqui é sobre o que sustenta um boletim
+   de ocorrência ou uma contestação no banco. */
+.denuncia-guarde{
+  display:flex;gap:11px;text-align:left;
+  margin:18px auto 0;max-width:52ch;padding:14px 16px;
+  border-radius:var(--r-md);
+  background:#fff8e9;border:1px solid #f0dcae;
+  font-size:13px;line-height:1.6;color:var(--ink-2);
+}
+.denuncia-guarde .bi{flex:none;margin-top:2px;font-size:16px;color:#a9740c}
+.denuncia-guarde b{color:var(--ink)}
+
+.denuncia-pronta-acoes{
+  display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:26px;
+}
+
+@media (max-width:600px){
+  .denuncia-pronta-acoes .btn{width:100%}
+  .depois{padding:16px 16px}
+  .denuncia-guarde{padding:13px 14px}
+}
+
+/* ==============================================================
+   REGISTRAR LOJA — /registrar-loja
+   Componentes: src/app/registrar-loja/{page,forma}.tsx
+   ============================================================== */
+.bloco p + p{margin-top:9px}
+.bloco b{color:#fff}
+/* ⚠ `.escada` e `.degrau` ESTAVAM DEFINIDAS DUAS VEZES neste
+   arquivo, e este bloco era a cópia morta — apagada em
+   27/08/2026. A que vale está mais abaixo, junto do comentário
+   que explica por que a escada é um <ol>.
+
+   É exatamente a armadilha que este projeto já pagou uma vez com
+   o `.eyebrow`: dois blocos com o mesmo nome de classe se somam
+   em silêncio, e o navegador fica com a ÚLTIMA declaração de
+   cada propriedade — misturando os dois. Aqui um dizia
+   `display:grid` e o outro `display:flex`; sobrava um
+   `grid-template-columns` sem grid nenhum para governar.
+
+   Não dava erro, não aparecia no console, e só apareceu porque
+   alguém olhou a tela ampliada. Se for escrever CSS novo para
+   uma página, PROCURE A CLASSE ANTES. */
+/* O QUE O SELO DIZ — o par "diz / não diz"
+
+   O bloco antigo eram três parágrafos seguidos, e a dona do
+   projeto leu sem entender. O problema não era a redação: era a
+   falta de forma. Prosa corrida não separa duas ideias opostas;
+   dois blocos rotulados separam.
+
+   Verde e vermelho fazem o trabalho antes da leitura — a pessoa
+   já sabe qual é qual pelo canto do olho. Mas a cor NÃO é a única
+   pista: cada linha tem ícone próprio (✓ e ✕) e a frase começa
+   dizendo o que é. Quem não distingue cor entende igual, que é
+   requisito, não gentileza. */
+.selo-diz{display:grid;gap:10px;margin:0 0 14px}
+.selo-diz p{display:flex;gap:10px;margin:0;font-size:13px;line-height:1.6}
+.selo-diz .bi{flex:none;margin-top:2px;font-size:15px}
+.selo-sim .bi{color:var(--safe)}
+.selo-nao .bi{color:var(--risk)}
+
+/* A perda do selo fica separada das duas: não é "o que ele diz",
+   é o que faz ele cair. Assunto diferente, caixa diferente. */
+.selo-cai{
+  display:flex;gap:10px;margin:0;padding:12px 14px;
+  border-radius:12px;background:rgba(255,198,92,.08);
+  border:1px solid rgba(255,198,92,.2);
+  font-size:12.5px;line-height:1.6;
+}
+.selo-cai .bi{flex:none;margin-top:2px;font-size:15px;color:var(--warn)}
+
+.prova{
+    margin-top:22px;padding:20px 22px;border-radius:14px;
+    background:var(--sky-wash);border:1.5px solid rgba(77,159,255,.3);
+  }
+.prova h3{margin:0 0 8px;font-size:15px;font-weight:600;color:var(--ink);
+    display:flex;align-items:center;gap:8px}
+.prova h3 .bi{color:#2970d3}
+.prova p{margin:0 0 14px;font-size:13.5px;line-height:1.7;color:var(--ink-2)}
+.prova .codigo{
+    display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;
+    background:#fff;border:1px solid #cfe0f7;font-family:ui-monospace,Menlo,monospace;
+    font-size:13px;color:var(--navy-700);word-break:break-all;
+  }
+.prova .codigo button{flex:none;border:none;border-radius:7px;cursor:pointer;padding:6px 10px;
+    background:var(--navy-800);color:#fff;font-family:inherit;font-size:11.5px;font-weight:600}
+.prova .codigo button:hover{background:var(--navy-700)}
+.prova ol{margin:14px 0 0;padding-left:20px;display:grid;gap:7px}
+.prova li{font-size:13px;line-height:1.6;color:var(--ink-2)}
+.prova li b{color:var(--ink)}
+.resultado{display:none}
+.resultado.aparece{display:block;animation:sobe .3s var(--ease)}
+
+/* ---------- o que é novo ---------- */
+
+/* A ESCADA DOS QUATRO NÍVEIS.
+
+   É um <ol> de propósito: cada degrau exige o anterior, e essa
+   ordem é informação, não estilo. Um leitor de tela anuncia
+   "lista de 4 itens" e a pessoa entende que é uma progressão.
+
+   `list-style:none` tira só a marcação visual — a semântica de
+   lista ordenada continua. */
+.escada{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.degrau{
+  display:flex;gap:11px;align-items:flex-start;
+  padding:12px 13px;border-radius:var(--r-md);
+  background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09);
+}
+.degrau > .bi{flex:none;font-size:17px;line-height:1.35}
+.degrau b{display:block;font-size:14px;color:#fff;margin-bottom:2px}
+.degrau span span{display:block;font-size:12.5px;line-height:1.5;color:var(--on-dark-3)}
+
+/* Cada degrau tem a sua cor, e elas SOBEM: cinza, azul, verde,
+   dourado. O olho lê a progressão antes de ler o texto. */
+/* O primeiro degrau é o mais apagado de propósito — a escada
+   SOBE, e cinza é o degrau de baixo. Mas em `--on-dark-3` (55%)
+   ele sumia a ponto de parecer ícone que não carregou, que foi
+   a queixa da dona do projeto. Em `--on-dark-2` (74%) ele
+   continua sendo o mais discreto dos quatro e dá para ver. */
+.degrau--1 > .bi{color:var(--on-dark-2)}
+.degrau--2 > .bi{color:var(--sky)}
+.degrau--3 > .bi{color:var(--safe)}
+.degrau--4 > .bi{color:var(--warn)}
+.degrau--4{background:rgba(255,198,92,.08);border-color:rgba(255,198,92,.22)}
+
+/* ---------- títulos de seção dentro do formulário ---------- */
+.forma-secao{
+  margin:0 0 4px;font-family:var(--fonte-titulo),sans-serif;
+  font-size:18px;font-weight:600;letter-spacing:-.01em;color:var(--ink);
+}
+.forma-secao-nota{margin:0 0 20px;font-size:13.5px;line-height:1.6;color:var(--ink-3)}
+
+/* A DECLARAÇÃO FINAL DO CADASTRO DE LOJA
+
+   Antes era `.opcao--bloco`, e `.opcao` esconde o checkbox
+   (`opacity:0`) para desenhar uma pílula no lugar. Resultado: a
+   declaração tinha exatamente o mesmo traço dos botões de
+   categoria logo acima — lia como preferência, não como
+   responsabilidade. A dona do projeto apontou isso olhando a
+   tela, e estava certa.
+
+   Agora: bloco próprio, quadrado de marcar à vista, e o peso da
+   frase escrito embaixo. O checkbox É o nativo de propósito —
+   ele já vem com semântica, foco e alvo de toque que qualquer
+   leitor de tela entende, e nenhum desenho nosso melhora isso.
+
+   SE VOCÊ MEXER AQUI: o alvo de toque não pode cair abaixo de
+   44px no celular (regra de todas as telas, ver PLANO.md). O
+   `padding` do bloco é o que garante isso — o quadrado sozinho
+   tem 22px, e é a área inteira do <label> que recebe o toque. */
+.declaracao{
+  display:flex;gap:13px;align-items:flex-start;
+  margin:4px 0 18px;padding:16px 18px;
+  border:1.5px solid #d7e0ee;border-radius:var(--r-md);
+  background:#fbfcfe;cursor:pointer;
+  transition:border-color .18s ease, background .18s ease;
+}
+.declaracao:hover{border-color:#c1cfe2;background:#f7faff}
+.declaracao input{
+  width:22px;height:22px;flex:none;margin:1px 0 0;
+  accent-color:var(--navy-800);cursor:pointer;
+}
+.declaracao > span{font-size:14px;line-height:1.6;color:var(--ink-2)}
+.declaracao b{color:var(--ink);font-weight:650}
+
+/* Marcada, o bloco confirma sozinho — sem isso a pessoa marca e
+   nada muda na tela, que é quando ela desconfia se pegou. */
+.declaracao:has(input:checked){border-color:var(--sky);background:var(--sky-wash)}
+
+/* Foco visível é obrigação, e aqui ele precisa aparecer no BLOCO,
+   não só no quadradinho: o foco chega neste elemento vindo do
+   botão barrado, e a pessoa tem que enxergar para onde foi. */
+.declaracao:has(input:focus-visible){outline:2px solid var(--sky);outline-offset:2px}
+
+/* Só depois de a pessoa TENTAR enviar sem marcar. Cobrar antes
+   disso é implicar com quem ainda está preenchendo. */
+.declaracao--cobrada{border-color:#e0857a;background:#fdeceb}
+.declaracao--cobrada .declaracao-peso{color:#8a2f22}
+
+.declaracao-peso{
+  display:block;margin-top:6px;
+  font-size:12.5px;line-height:1.55;color:var(--ink-3);
+}
+
+/* O botão travado: apagado, mas NÃO com `disabled` — ver o
+   comentário em registrar-loja/forma.tsx. Ele continua clicável
+   de propósito, e o clique é que explica o que falta. */
+.btn--travado{opacity:.55}
+
+.passos-seta{color:var(--ink-3)}
+
+/* `code` dentro de dica: o "https://" que a pessoa NÃO deve
+   digitar. Precisa parecer código para o olho separar do texto. */
+.dica code{
+  padding:1px 5px;border-radius:5px;
+  background:var(--paper-2);border:1px solid var(--line);
+  font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  font-size:.92em;color:var(--ink-2);
+}
+
+/* ==============================================================
+   RESPONSIVO DAS PÁGINAS DE FORMULÁRIO E DE PLANOS
+
+   ISTO FALTOU NA MIGRAÇÃO. Os extratores que trouxeram o CSS do
+   protótipo pulavam qualquer regra começando com `@`, para não
+   duplicar media query — e junto foram embora os colapsos para
+   uma coluna. O resultado: /denunciar e /registrar-loja abriam
+   com duas colunas num celular de 390px, a lateral espremida em
+   140px e o texto quebrando a uma palavra por linha.
+
+   CUIDADO AO MEXER: `.lateral{position:static}` é obrigatório
+   aqui. `sticky` numa coluna que ocupa a largura toda gruda o
+   bloco no topo e ele passa a cobrir o formulário enquanto a
+   pessoa rola.
+   ============================================================== */
+@media (max-width:900px){
+  .corpo{grid-template-columns:1fr}
+  .lateral{position:static;top:auto}
+}
+
+/* O RODAPÉ DO FORMULÁRIO ESTOURAVA A LARGURA.
+
+   `display:flex` com dois botões lado a lado e `white-space` que
+   não quebra: em tela estreita a soma das larguras mínimas passa
+   da viewport e a PÁGINA INTEIRA passa a rolar de lado — o pior
+   defeito de layout que existe no celular, porque acontece em
+   toda rolagem e a pessoa não entende de onde vem.
+
+   `column-reverse` e não `column`: a ação principal (enviar) fica
+   EMBAIXO, que é onde o polegar alcança, e "cancelar" fica acima
+   dela — longe do toque acidental. */
+@media (max-width:600px){
+  .rodape-form{flex-direction:column-reverse;gap:10px}
+  .rodape-form .btn{width:100%;flex:none}
+}
+
+/* Em /denunciar a ordem já é a certa no HTML (socorro primeiro),
+   então aqui não se mexe. A regra que troca a ordem vale só a
+   partir de 1081px e está junto do bloco de /denunciar. */
+
+@media (max-width:1080px){
+  .grade{grid-template-columns:1fr 1fr}
+}
+@media (max-width:640px){
+  .topo{padding-top:132px}
+  .grade{grid-template-columns:1fr}
+  /* A tabela comparativa tem largura mínima de 820px e rola
+     dentro da `.rolagem`. Sem `max-width` aqui ela empurraria a
+     página inteira para o lado. */
+  .comparativo .rolagem{max-width:100%}
+}
+/* ==============================================================
+   RESPONSIVO
+   ============================================================== */
+@media (max-width:1080px){
+  :root{--shell:min(720px, 100% - 40px)}
+  .hero{grid-template-columns:1fr;gap:44px;min-height:auto;padding:116px 0 64px}
+  .pitch{text-align:center}
+  .sub{margin-inline:auto}
+  .marks{justify-content:center;margin-inline:auto}
+  .kicker{margin-inline:auto}
+  .steps,.grid-check,.grid-pol{grid-template-columns:1fr 1fr}
+}
+@media (max-width:760px){
+  :root{--shell:min(560px, 100% - 32px)}
+  .topbar{padding:12px 16px;gap:10px;flex-wrap:wrap}
+  .brand svg{width:92px}
+  /* No celular o menu vira uma faixa que rola de lado. O último
+     item fica cortado na borda — e sem nenhum sinal disso a pessoa
+     não descobre que pode arrastar. Boa parte de quem mais precisa
+     deste site tem 60 anos ou mais e não vai tentar por conta.
+
+     O esmaecido na borda direita é esse sinal: texto que some
+     gradualmente lê-se como "continua". É o mesmo recurso que o
+     .haze do cabeçalho usa.
+
+     ATENÇÃO À ORDEM: -webkit- primeiro, padrão depois. Invertido,
+     o compilador descarta o padrão — ver CSS-ARMADILHAS.md. */
+  .glass{order:3;width:100%;overflow-x:auto;scrollbar-width:none;
+    -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 34px),transparent);
+    mask-image:linear-gradient(to right,#000 calc(100% - 34px),transparent)}
+  .glass::-webkit-scrollbar{display:none}
+
+  /* Chegou no fim: tira o esmaecido, senão o último item fica
+     apagado para sempre e parece desativado. */
+  .glass:has(.nav-link:last-child:focus-visible),
+  .glass[data-fim]{-webkit-mask-image:none;mask-image:none}
+  .pin{display:none}
+  .nav-link{padding:9px 14px;font-size:13.5px}
+  .account{height:42px;padding:4px;width:42px;justify-content:center}
+  .account .label{display:none}
+  .account .ring{width:34px;height:34px;font-size:15px}
+  .hero{padding:140px 0 52px}
+  .tablet{padding:12px;border-radius:26px}
+  .tablet::before{inset:6px;border-radius:20px}
+  .screen{padding:24px 18px 22px;border-radius:18px}
+  .actions{flex-direction:column-reverse}
+  .btn{width:100%;flex:none}
+  .steps,.grid-check,.grid-pol{grid-template-columns:1fr}
+  #como,#checagens,#politicas{padding-bottom:60px}
+  .foot{flex-direction:column;align-items:flex-start}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;transition-duration:.01ms !important}
+  html{scroll-behavior:auto}
+  /* O cenário é estático por natureza — nada aqui se move. Era a
+     esfera à deriva que precisava ser desligada, e ela não existe
+     mais. Fica a regra geral acima. */
+}
+
+
+/* ==============================================================
+   RESULTADO — /resultado (DEMONSTRAÇÃO)
+   Componentes: src/app/resultado/{page,tela}.tsx
+
+   Fica no FIM do arquivo de propósito: são seletores novos, e
+   ficar depois do responsivo geral evita brigar com ele.
+   ============================================================== */
+.res-pagina{width:var(--shell);margin:0 auto;padding:112px 0 70px;
+  display:flex;flex-direction:column;align-items:center;gap:16px}
+.res-tablet{max-width:620px;min-height:0}
+
+/* A FAIXA QUE NÃO DEIXA DÚVIDA.
+
+   Não é rodapé nem letra miúda: é a PRIMEIRA coisa da página, em
+   vermelho. Esta é a única tela do site que dá um VEREDITO, e
+   dúvida sobre o que é análise real seria o pior erro possível —
+   a pessoa sairia daqui achando que um endereço foi conferido
+   quando não foi.
+
+   Ela sai junto com a chegada do motor de análise, e não antes. */
+.faixa-demo{
+  display:flex;gap:12px;align-items:flex-start;
+  width:100%;max-width:620px;
+  padding:14px 18px;border-radius:var(--r-lg);
+  background:linear-gradient(180deg,rgba(255,122,107,.16),rgba(255,122,107,.05));
+  border:1px solid rgba(255,122,107,.32);
+}
+.faixa-demo > .bi{flex:none;font-size:19px;color:var(--risk);line-height:1.3}
+.faixa-demo p{margin:0;font-size:13.5px;line-height:1.6;color:var(--on-dark-2)}
+.faixa-demo b{color:#fff}
+
+.demo{
+  display:flex;align-items:center;gap:6px;padding:6px;border-radius:999px;
+  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);
+  font-size:12.5px;
+}
+.demo b{padding:0 10px;color:var(--on-dark-3);font-weight:500;letter-spacing:.04em;text-transform:uppercase;font-size:11px}
+.demo button{
+  padding:8px 15px;border:none;border-radius:999px;cursor:pointer;
+  background:transparent;color:rgba(234,241,253,.72);
+  font-family:inherit;font-size:12.5px;font-weight:500;
+  transition:background .2s var(--ease),color .2s var(--ease);
+}
+.demo button:hover{color:#fff;background:rgba(255,255,255,.08)}
+.demo button[aria-pressed="true"]{background:rgba(255,255,255,.16);color:#fff;font-weight:600}
+.tablet::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:0;
+  -webkit-backdrop-filter:blur(.6px) saturate(150%);backdrop-filter:blur(.6px) saturate(150%)
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.28);
+}
+.tela{
+  position:relative;z-index:3;background:var(--paper);border-radius:var(--r-xl);
+  padding:30px 26px 26px;
+}
+.marca{display:block;width:min(58%,210px);margin:0 auto 22px}
+.veredito{
+  display:flex;align-items:center;gap:14px;
+  padding:16px 18px;border-radius:var(--r-md);margin-bottom:20px;
+}
+.veredito i.sinal{font-size:34px;line-height:1;flex:none}
+.veredito h1{margin:0;font-family:var(--fonte-titulo),sans-serif;font-size:23px;font-weight:700;letter-spacing:-.01em}
+.veredito .alvo{
+  display:block;margin-top:2px;font-size:12.5px;font-weight:500;
+  word-break:break-all;opacity:.82;
+}
+.v-risco{background:var(--risco);color:#fff}
+.v-risco .alvo{color:rgba(255,255,255,.9)}
+.v-alerta{background:var(--alerta);color:var(--alerta-tinta)}
+.v-ok{background:var(--ok);color:var(--ok-tinta)}
+.score{background:var(--navy-800);border-radius:var(--r-md);padding:16px 18px 14px;margin-bottom:22px}
+.score-topo{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:12px}
+.score-topo span{font-size:13.5px;font-weight:600;color:#fff}
+.score-topo b{font-family:var(--fonte-texto),system-ui,sans-serif;font-size:16px;font-weight:700;color:#fff}
+.score-topo b i{font-style:normal;font-size:12px;font-weight:500;color:rgba(255,255,255,.55)}
+.res-barra{position:relative;height:9px;border-radius:999px;background:rgba(255,255,255,.14);overflow:hidden}
+.res-barra span{
+  position:absolute;inset:0 auto 0 0;width:var(--v,0%);border-radius:999px;
+  background:linear-gradient(90deg,var(--risco) 0%,var(--alerta) 52%,var(--ok) 100%);
+  background-size:calc(100% * (100 / max(var(--n,60),1))) 100%;
+  transition:width .8s var(--ease);
+}
+.escala{display:flex;justify-content:space-between;margin-top:8px;
+  font-size:10.5px;font-weight:500;color:rgba(255,255,255,.5)}
+.res-rotulo{margin:0 0 10px;font-size:11px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-3)}
+.itens{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.item{background:var(--navy-800);border-radius:var(--r-md);overflow:hidden}
+.item > button{
+  width:100%;display:flex;align-items:center;gap:11px;
+  padding:14px 16px;border:none;background:transparent;cursor:pointer;
+  font-family:inherit;font-size:13.5px;font-weight:600;color:#fff;text-align:left;
+}
+.item > button .sinal{font-size:15px;flex:none}
+.item > button .cheva{margin-left:auto;font-size:12px;color:rgba(255,255,255,.45);
+  transition:transform .3s var(--ease)}
+.item[open] > button .cheva{transform:rotate(180deg)}
+.s-ok{color:#6fd99b}
+.s-alerta{color:var(--alerta)}
+.s-risco{color:#ff7d6b}
+.detalhe{padding:0 16px 15px 42px}
+.detalhe p{margin:0;font-size:12.5px;line-height:1.6;color:rgba(234,241,253,.72)}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.tag{
+  padding:5px 11px;border-radius:999px;font-size:11px;font-weight:600;
+  background:rgba(255,255,255,.08);color:rgba(234,241,253,.8);
+}
+.tag--risco{background:rgba(226,96,76,.22);color:#ffb3a6}
+.tag--alerta{background:rgba(242,220,87,.18);color:#f7e488}
+.tag--ok{background:rgba(111,217,155,.18);color:#a5eec4}
+.acoes{display:flex;gap:12px;margin-top:22px}
+.acao{
+  flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  height:48px;border-radius:12px;cursor:pointer;text-decoration:none;
+  font-family:inherit;font-size:14px;font-weight:600;
+  transition:background .2s var(--ease),border-color .2s var(--ease),color .2s var(--ease);
+}
+.acao--ghost{background:#fff;color:var(--ink-2);border:1.5px solid var(--line)}
+.acao--ghost:hover{background:var(--paper-2);border-color:#bcc8db;color:var(--navy-800)}
+.acao--forte{background:var(--navy-800);color:#fff;border:none;box-shadow:0 1px 2px rgba(11,36,67,.28)}
+.acao--forte:hover{background:var(--navy-700)}
+.aviso-demo{
+  display:flex;align-items:flex-start;gap:9px;max-width:600px;
+  padding:12px 16px;border-radius:14px;
+  background:rgba(255,255,255,.04);border:1px dashed rgba(255,255,255,.16);
+  font-size:12.5px;line-height:1.55;color:var(--on-dark-3);
+}
+.aviso-demo .bi{color:var(--alerta);font-size:15px;line-height:1.4}
+
+/* ---------- detalhes que abrem ----------
+   <details>/<summary> nativos: teclado e leitor de tela de graça,
+   sem uma linha de JavaScript. */
+.itens summary{
+  display:flex;align-items:center;gap:10px;cursor:pointer;
+  padding:13px 0;list-style:none;
+  font-size:14.5px;font-weight:600;color:var(--ink);
+}
+.itens summary::-webkit-details-marker{display:none}
+.itens summary > span{flex:1}
+.itens summary .seta{font-size:13px;color:var(--ink-3);
+  transition:transform .25s var(--ease)}
+.itens details[open] summary .seta{transform:rotate(180deg)}
+.itens summary:focus-visible{outline:2px solid var(--sky);outline-offset:3px;border-radius:6px}
+.item-corpo{padding:0 0 14px 28px}
+.item-corpo p{margin:0;font-size:13.5px;line-height:1.65;color:var(--ink-2)}
+.e-ok{color:var(--safe)}
+.e-alerta{color:#d9a520}
+.e-risco{color:#e0523f}
+
+@media (max-width:640px){
+  .res-pagina{padding:100px 0 50px}
+  .faixa-demo{padding:12px 14px}
+  .item-corpo{padding-left:0}
 }

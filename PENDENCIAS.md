@@ -2,7 +2,7 @@
 
 **Situação do projeto:** versão beta, em construção.
 **Domínio:** confiia.com.br
-**Última revisão:** 22/08/2026
+**Última revisão:** 26/08/2026
 
 Este arquivo é a lista viva do que **só você pode resolver** — contratos, contas,
 chaves e decisões. Marque `[x]` conforme for concluindo.
@@ -59,11 +59,46 @@ chaves e decisões. Marque `[x]` conforme for concluindo.
 - [ ] Garantir que **toda** decisão passe pela função `registra()` e caia em `auditoria`
 - [ ] Decidir quem mais terá acesso e em qual nível (1 = dono, 2 = operação)
 
+### 6. A chave do cofre — copiar para o servidor ANTES de subir o site
+> Isto é a única coisa desta lista que, se for feita errado, **tranca gente do
+> lado de fora da própria conta** — e não tem conserto depois.
+
+O segredo do segundo fator de cada pessoa (aquele que gera o código de 6 dígitos
+no aplicativo) fica **cifrado** no banco desde a migração de agosto/2026. Quem
+abre o cofre é uma chave que **não está no banco e não está no Git** — mora só no
+arquivo `web/.env.local`, aqui nesta máquina. Abra e copie a linha que começa
+com `COFRE_CHAVE=`.
+
+> **A chave não está escrita neste arquivo de propósito.** Este arquivo vai para
+> o GitHub; `web/.env.local` não vai (está no `.gitignore`). Chave em documento
+> versionado é chave publicada — ainda que o repositório seja privado hoje,
+> ninguém desapaga um commit do histórico de todo mundo que já clonou.
+
+
+- [ ] **Copiar essa linha** para o `.env` do servidor, exatamente igual
+- [ ] **Guardar uma segunda cópia** fora do computador — gerenciador de senha,
+      ou papel no cofre de casa. Não vale só no OneDrive: se a conta cair, cai junto
+- [ ] **Nunca trocar essa chave** depois que houver usuário real. Trocar a chave
+      transforma todos os segredos guardados em lixo, e **toda conta com 2FA fica
+      trancada por fora** — nem você entra, nem eles
+
+**Por que não dá para "resetar depois":** o segredo cifrado não é uma senha que a
+gente possa comparar; é o segredo em si. Sem a chave, não existe operação que o
+traga de volta. A única saída seria desligar o 2FA de todo mundo na marra e pedir
+que cada pessoa cadastre de novo.
+
+Para conferir se está tudo certo no servidor:
+
+```bash
+npm run cifra-segredos -- --conferir    # quantos ainda estão em texto puro (deve ser 0)
+npm run confere-banco                   # se as trancas do banco continuam de pé
+```
+
 ---
 
 ## 🟡 NECESSÁRIO — para o serviço funcionar de verdade
 
-### 6. Contas e chaves de API
+### 7. Contas e chaves de API
 
 | Serviço | Para quê | Onde pegar | Custo |
 |---|---|---|---|
@@ -77,13 +112,13 @@ chaves e decisões. Marque `[x]` conforme for concluindo.
 > Guarde todas as chaves em variáveis de ambiente no servidor.
 > **Nunca** coloque chave dentro do código ou em arquivo que vá pro Git.
 
-### 7. Configuração de e-mail (senão cai em spam)
+### 8. Configuração de e-mail (senão cai em spam)
 - [ ] **SPF** — registro TXT no DNS autorizando o Resend
 - [ ] **DKIM** — assinatura, o Resend gera os registros
 - [ ] **DMARC** — política de tratamento; comece com `p=none` e depois endureça
 - [ ] Testar em `mail-tester.com` — buscar nota 9 ou 10 antes de enviar em volume
 
-### 8. Servidor (Hostinger)
+### 9. Servidor (Hostinger)
 - [ ] Contratar o VPS
 - [ ] Apontar o domínio (registros A e AAAA)
 - [ ] Certificado SSL (Let's Encrypt, gratuito)
@@ -92,7 +127,7 @@ chaves e decisões. Marque `[x]` conforme for concluindo.
 - [ ] Backup automático do Postgres, com cópia **fora** do servidor
 - [ ] Fail2ban contra tentativa de invasão
 
-### 9. Asaas
+### 10. Asaas
 - [ ] Conta aprovada (leva alguns dias, envia documento antes)
 - [ ] Chave de API de produção
 - [ ] Configurar **webhook** apontando para `confiia.com.br/api/asaas/webhook`
@@ -103,19 +138,19 @@ chaves e decisões. Marque `[x]` conforme for concluindo.
 
 ## 🟢 IMPORTANTE — antes de crescer
 
-### 10. Segurança
+### 11. Segurança
 - [ ] Rate limit por IP e por conta (impede alguém torrar sua cota de IA)
 - [ ] Captcha ou desafio no cadastro (evita conta em massa)
 - [ ] Monitorar gasto diário das APIs, com alerta de teto
 - [ ] Rotina que apaga imagens antigas de fato — não só marcar como apagada
 - [ ] Rotina que apaga logs de acesso com mais de 6 meses
 
-### 11. Marca e presença
+### 12. Marca e presença
 - [ ] Perfis oficiais (Instagram, TikTok) — **registre antes que golpista registre**
 - [ ] Registro da marca no INPI
 - [ ] WhatsApp Business no número **(16) 99706-2339**
 
-### 12. Base de conhecimento
+### 13. Base de conhecimento
 - [ ] Lista de números oficiais de bancos e empresas grandes (alimenta `numeros_oficiais`)
 - [ ] Lista de domínios oficiais das marcas mais imitadas (alimenta `empresa_dominios`)
 - [ ] Definir quem revisa denúncia e em quanto tempo

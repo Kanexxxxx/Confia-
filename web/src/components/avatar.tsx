@@ -288,6 +288,211 @@ export const AVATARES: Record<string, Bicho> = {
       </>
     ),
   },
+  /* ---------- LOBO-GUARÁ ----------
+     O bicho do Cerrado, e o que estampa a nota de 200 reais.
+     A marca dele são as orelhas enormes e a pelagem laranja. */
+  lobo: {
+    nome: 'Lobo-guará',
+    fundo: '#3d2411',
+    desenho: (
+      <>
+        {/* orelhas: altas e pontudas, o traço que o identifica */}
+        <path d="M11 17c-1-6 0-10 2-11 2.4 1.6 4.4 5 5 9z" fill="#c9662a" />
+        <path d="M33 17c1-6 0-10-2-11-2.4 1.6-4.4 5-5 9z" fill="#c9662a" />
+        <path d="M12.5 16c-.6-4 0-6.6 1.2-7.2 1.4 1.2 2.6 3.4 3 6z" fill="#f0b088" />
+        <path d="M31.5 16c.6-4 0-6.6-1.2-7.2-1.4 1.2-2.6 3.4-3 6z" fill="#f0b088" />
+        {/* cabeça */}
+        <path d="M9 25c0-7 5.8-11 13-11s13 4 13 11c0 6-4 10-13 10S9 31 9 25z" fill="#d4732f" />
+        {/* focinho comprido e claro */}
+        <path d="M15.5 28c0-3.4 2.8-5 6.5-5s6.5 1.6 6.5 5c0 3.6-3 6-6.5 6s-6.5-2.4-6.5-6z"
+              fill="#f2c9a4" />
+        {olho(16, 22, 2.7)}
+        {olho(28, 22, 2.7)}
+        <ellipse cx="22" cy="28.5" rx="2.6" ry="1.9" fill="#2b1a0c" />
+        <path d="M22 30.4v2.2" stroke="#2b1a0c" strokeWidth="1.3" strokeLinecap="round" />
+      </>
+    ),
+  },
+
+  /* ---------- TAMANDUÁ ----------
+     Focinho comprido é a silhueta inteira do bicho: sem ele,
+     vira um cachorro escuro qualquer. */
+  tamandua: {
+    nome: 'Tamanduá',
+    fundo: '#2a2f24',
+    desenho: (
+      <>
+        <path d="M13 20c0-5 4.6-8 9.5-8S32 15 32 20v5c0 5-4 8-9.5 8S13 30 13 25z" fill="#6b6152" />
+        {/* a faixa preta do peito, marca da espécie */}
+        <path d="M15 22c4-1.6 9-1.6 13.6.6-.6 5.4-3.4 9-6.6 10.2-3.4-1.4-6-5-7-10.8z"
+              fill="#2f2b25" />
+        {/* focinho: fino, longo e curvado para baixo */}
+        <path d="M14 21c-4.4 1.6-8 5.6-9.4 10.6 1.4.9 2.8 1.1 4 .6
+                 1.6-4.2 4-7 7-8.6z" fill="#6b6152" />
+        <circle cx="5.2" cy="31.4" r="1.5" fill="#221f1a" />
+        {/* orelha pequena e redonda */}
+        <circle cx="27.5" cy="14.5" r="3.4" fill="#544c40" />
+        {olho(20, 19, 2.3)}
+      </>
+    ),
+  },
+
+  /* ---------- JACARÉ ---------- */
+  jacare: {
+    nome: 'Jacaré',
+    fundo: '#12331f',
+    desenho: (
+      <>
+        {/* olhos no alto da cabeça, como o bicho de verdade */}
+        <ellipse cx="22" cy="26" rx="15" ry="10" fill="#4e8c46" />
+        <ellipse cx="22" cy="30" rx="13" ry="5.6" fill="#7bb96a" />
+        {/* dentes: a fileira é o que faz ler "jacaré" na hora */}
+        <path d="M11 29.5l2 2.6 2-2.6 2 2.6 2-2.6 2 2.6 2-2.6 2 2.6 2-2.6 2 2.6 2-2.6"
+              fill="#fff" stroke="#fff" strokeWidth=".6" strokeLinejoin="round" />
+        {/* protuberâncias dos olhos */}
+        <circle cx="15" cy="17" r="5.4" fill="#4e8c46" />
+        <circle cx="29" cy="17" r="5.4" fill="#4e8c46" />
+        <circle cx="15" cy="16.5" r="3.6" fill="#dcae2e" />
+        <circle cx="29" cy="16.5" r="3.6" fill="#dcae2e" />
+        {/* pupila em fenda vertical, de réptil */}
+        <ellipse cx="15" cy="16.5" rx="1.1" ry="3" fill="#14180f" />
+        <ellipse cx="29" cy="16.5" rx="1.1" ry="3" fill="#14180f" />
+        <circle cx="15.9" cy="15" r="1" fill="#fff" opacity=".9" />
+        <circle cx="29.9" cy="15" r="1" fill="#fff" opacity=".9" />
+        {/* narinas */}
+        <ellipse cx="19" cy="24" rx="1.3" ry="1" fill="#2c5c2a" />
+        <ellipse cx="25" cy="24" rx="1.3" ry="1" fill="#2c5c2a" />
+      </>
+    ),
+  },
+
+  /* ---------- BOTO-COR-DE-ROSA ---------- */
+  boto: {
+    nome: 'Boto',
+    fundo: '#3d1f33',
+    desenho: (
+      <>
+        <ellipse cx="21" cy="24" rx="14" ry="12" fill="#e79ab8" />
+        <ellipse cx="21" cy="28" rx="11" ry="7" fill="#f6c6d8" />
+        {/* bico comprido, que é o que diferencia do golfinho comum */}
+        <path d="M33 25c4.4.4 7.6 2 8.6 3.8-1.4 1.8-4.6 2.8-8.6 2.6z" fill="#e79ab8" />
+        <path d="M33 28.6c4-.2 7.2.2 8.6 1.2-1.4 1.2-4.6 1.8-8.6 1.6z" fill="#f6c6d8" />
+        {/* nadadeira dorsal */}
+        <path d="M18 12.6c2.6-2.6 6-3.4 8.6-2-.6 2.6-2.6 4.8-5.4 6z" fill="#d2789c" />
+        {olho(15, 22, 2.6)}
+        {/* o sorriso do boto */}
+        <path d="M26 30.4q3 2 5.6.6" stroke="#a85277" strokeWidth="1.4"
+              fill="none" strokeLinecap="round" />
+      </>
+    ),
+  },
+
+  /* ---------- BEIJA-FLOR ----------
+     Pequeno, mas o bico longo e as asas em movimento dão a
+     silhueta inconfundível. */
+  'beija-flor': {
+    nome: 'Beija-flor',
+    fundo: '#0d3330',
+    desenho: (
+      <>
+        {/* asas: uma acima e outra abaixo, sugerindo o bater */}
+        <path d="M20 20c-5-4.4-11-5.6-15-3.4 2.6 3.4 7.6 5.6 13 5.6z" fill="#2fa88f" opacity=".85" />
+        <path d="M20 26c-5 4.4-10.4 6-14.4 4.4 2.4-3.6 7-6 12.4-6.6z" fill="#1d7d6c" opacity=".85" />
+        {/* corpo */}
+        <ellipse cx="25" cy="24" rx="9.6" ry="8.4" fill="#2fd39b" />
+        <ellipse cx="26" cy="27" rx="7" ry="5.4" fill="#8ff0cd" />
+        {/* a garganta iridescente, marca do macho */}
+        <path d="M20 27c2.6 2.4 6 3.4 9.4 2.8-.6 2.4-2.6 4-5.4 4.2-2.2-1.4-3.6-3.8-4-7z"
+              fill="#e0457b" />
+        {/* bico: fino e longo */}
+        <path d="M16 22l-11 2.6 11 1.8z" fill="#1b1b1b" />
+        {olho(25, 21, 2.5)}
+        {/* topete */}
+        <path d="M28 16c1.6-2.6 4-4 6.4-3.6-1 2.4-2.8 4.2-5 5z" fill="#1d7d6c" />
+      </>
+    ),
+  },
+
+  /* ---------- TATU-BOLA ----------
+     As faixas da carapaça são a identidade dele. Sem elas,
+     é só um bicho marrom arredondado. */
+  tatu: {
+    nome: 'Tatu',
+    fundo: '#332a1c',
+    desenho: (
+      <>
+        {/* carapaça */}
+        <path d="M6 27c0-8.6 7.2-14 16-14s16 5.4 16 14c0 4.4-2 7-6 8H12c-4-1-6-3.6-6-8z"
+              fill="#8a7550" />
+        {/* as faixas */}
+        <path d="M13 14.6c-2 3.6-3 8-3 13.4M20 12.4c-1.2 4-1.8 9.4-1.8 15.6
+                 M28 13.2c.8 4 1.2 9.2 1.2 14.8M34.4 17c1 3 1.6 6.6 1.6 11"
+              stroke="#5f4e32" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        {/* cabeça, saindo da carapaça */}
+        <path d="M22 30c-4 0-7 2.2-7 5.4 0 2.4 3 4.2 7 4.2s7-1.8 7-4.2c0-3.2-3-5.4-7-5.4z"
+              fill="#b39a6d" />
+        {olho(18.6, 34.6, 1.9)}
+        {olho(25.4, 34.6, 1.9)}
+        <ellipse cx="22" cy="38.4" rx="2" ry="1.4" fill="#4a3c26" />
+        {/* orelhas pequenas e pontudas */}
+        <path d="M14.6 31.4c-1.6-1.6-2.4-3.4-2-5 1.8.4 3.2 1.8 4 3.6z" fill="#8a7550" />
+        <path d="M29.4 31.4c1.6-1.6 2.4-3.4 2-5-1.8.4-3.2 1.8-4 3.6z" fill="#8a7550" />
+      </>
+    ),
+  },
+
+  /* ---------- BEM-TE-VI ----------
+     O pássaro que todo brasileiro já ouviu antes de ver. Peito
+     amarelo e a faixa branca na cabeça. */
+  bemtevi: {
+    nome: 'Bem-te-vi',
+    fundo: '#2b2410',
+    desenho: (
+      <>
+        <circle cx="21" cy="21" r="12" fill="#3b3b3b" />
+        {/* faixa branca por cima dos olhos, a marca da espécie */}
+        <path d="M9.6 18c3.4-2.6 7.6-4 11.4-4s7.6 1.2 10.8 3.4c-.4 1.6-1 2.6-1.8 3
+                 -6-2.6-12.4-2.6-18.6.4-.8-.6-1.4-1.6-1.8-2.8z" fill="#fdfdfd" />
+        {/* peito amarelo */}
+        <path d="M10 28c2.6 5.6 7 8.8 11.4 9 3.4-2.6 5.4-6.6 6-11.4-5.6 2.6-11.6 3-17.4 2.4z"
+              fill="#f5c518" />
+        <ellipse cx="19" cy="30" rx="7.6" ry="5.6" fill="#ffd94a" />
+        {/* bico curto e forte */}
+        <path d="M31 21.6c4.4-.6 8 .6 9.6 2.6-1.8 2.2-5.4 3.2-9.6 2.6z" fill="#2a2a2a" />
+        <path d="M31 24.2c4.2.4 7.8-.4 9.6-2.6.4.7.6 1.4.6 2-1.8 2.2-5.4 3.2-10.2 2.6z"
+              fill="#4a4a4a" />
+        {olho(17, 19.6, 3)}
+      </>
+    ),
+  },
+
+  /* ---------- PEIXE-BOI ----------
+     Gordo, cinza e manso. O focinho arredondado com bigodes é
+     o que impede de virar uma pedra. */
+  'peixe-boi': {
+    nome: 'Peixe-boi',
+    fundo: '#1f3540',
+    desenho: (
+      <>
+        <ellipse cx="22" cy="25" rx="15" ry="12.4" fill="#7f8f96" />
+        <ellipse cx="22" cy="29" rx="12" ry="8" fill="#a3b1b6" />
+        {/* nadadeiras */}
+        <path d="M8 30c-3.6 2-5.6 4.6-5.6 7 2.8.4 5.6-1 8-4z" fill="#6c7b82" />
+        <path d="M36 30c3.6 2 5.6 4.6 5.6 7-2.8.4-5.6-1-8-4z" fill="#6c7b82" />
+        {/* focinho */}
+        <ellipse cx="22" cy="30.6" rx="7.4" ry="5.4" fill="#c2cdd1" />
+        <ellipse cx="19" cy="29.4" rx="1.6" ry="1.2" fill="#4d5a60" />
+        <ellipse cx="25" cy="29.4" rx="1.6" ry="1.2" fill="#4d5a60" />
+        {/* bigodes */}
+        <path d="M16 32.6l-3.4 1M16 34l-3 1.8M28 32.6l3.4 1M28 34l3 1.8"
+              stroke="#5c696f" strokeWidth=".9" strokeLinecap="round" />
+        <path d="M18.6 34.6q3.4 2.2 6.8 0" stroke="#5c696f" strokeWidth="1.4"
+              fill="none" strokeLinecap="round" />
+        {olho(15.6, 21, 2.4)}
+        {olho(28.4, 21, 2.4)}
+      </>
+    ),
+  },
 };
 
 export const NOMES_AVATAR = ['inicial', ...Object.keys(AVATARES)] as const;

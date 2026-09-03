@@ -42,6 +42,18 @@ export const REGRAS = {
   esqueci_senha: { tentativas: 3,  janelaSeg: 3600, bloqueioSeg: 3600 },
   /* Reenviar confirmação. */
   reenviar:      { tentativas: 3,  janelaSeg: 1800, bloqueioSeg: 1800 },
+  /* Denunciar não exige conta — de propósito: quem acabou de
+     perder dinheiro não vai criar cadastro para avisar. O preço
+     disso é um formulário público que grava no banco, e o limite
+     é o que impede alguém de derrubar a nota de um concorrente
+     honesto mandando cem denúncias. Cinco por hora é folgado para
+     quem denuncia de verdade e caro para quem quer inundar. */
+  denuncia:      { tentativas: 5,  janelaSeg: 3600, bloqueioSeg: 3600 },
+  /* Cadastrar loja grava numa tabela com CNPJ único e dispara
+     análise humana depois. Três por hora é muito mais do que
+     qualquer pessoa honesta precisa, e o bastante para não valer
+     a pena automatizar. */
+  loja:          { tentativas: 3,  janelaSeg: 3600, bloqueioSeg: 3600 },
 } satisfies Record<string, Regra>;
 
 export type Porta = keyof typeof REGRAS;

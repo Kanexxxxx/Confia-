@@ -237,6 +237,11 @@ html[data-contraste="alto"] :focus-visible{
   width:56px;height:56px;border:none;border-radius:50%;cursor:pointer;
   display:grid;place-items:center;
   background:#0b2443;color:#fff;font-size:26px;
+  /* line-height:1 e nao `normal`: a caixa da fonte de icone e mais
+     alta do que larga, e com `normal` o desenho assentava 2px acima
+     do centro do circulo. Medido no pixel: era 14px em cima e 16px
+     embaixo; agora e 15 e 15. */
+  line-height:1;
   box-shadow:0 8px 28px rgba(2,10,24,.6);
   transition:transform .18s ease,background .18s ease;
 }

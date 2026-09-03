@@ -42,6 +42,7 @@ import QRCode from 'qrcode';
 import { eq, and, isNull } from 'drizzle-orm';
 import { db } from '@/db';
 import { contas, codigosReserva } from '@/db/schema';
+import { guardaNoCofre } from '@/lib/cofre';
 
 const EMISSOR = 'confia?';
 
@@ -205,11 +206,18 @@ export async function quantosReservaRestam(contaId: string): Promise<number> {
    LIGAR E DESLIGAR
    ------------------------------------------------------------- */
 
-/** Ativa depois que a pessoa provou que o app funciona. */
+/** Ativa depois que a pessoa provou que o app funciona.
+ *
+ *  O SEGREDO VAI CIFRADO PARA O BANCO. Em texto puro, uma cópia
+ *  do banco — backup exposto, injeção de SQL — permitiria gerar o
+ *  código de 6 dígitos de qualquer conta, e o segundo fator
+ *  deixaria de existir no exato momento em que mais importa.
+ *
+ *  A chave mora no ambiente, não no banco: ver `cofre.ts`. */
 export async function ligaDoisFatores(contaId: string, segredo: string) {
   await db
     .update(contas)
-    .set({ totpSegredo: segredo, totpAtivadoEm: new Date() })
+    .set({ totpSegredo: guardaNoCofre(segredo), totpAtivadoEm: new Date() })
     .where(eq(contas.id, contaId));
 }
 

@@ -244,13 +244,40 @@ isso aparece na sua lista de aparelhos — e é o aviso de que sua senha vazou.
 - [x] O cabeçalho reconhece quem está logado e mostra o bicho + apelido
 - [x] `privacidade`, `termos`, `reembolso`, `cookies` → rotas de verdade
 - [x] Sistema visual do protótipo incorporado
+- [x] **A home (a maior: 62 KB).** O script trouxe o HTML; o
+      comportamento foi reescrito em três componentes de cliente —
+      `verificador`, `menu-vivo` e `revelacao`.
+- [x] `<main>` passou a envolver a página inteira. Antes envolvia só o card
+      do verificador, e todo o resto ficava fora de qualquer marco de
+      navegação — quem usa leitor de tela perdia a página.
+- [x] Seis links que apontavam para `#` agora vão para rotas de verdade
+      (`/criar-conta`, `/entrar`, `/privacidade`, `/termos`, `/denunciar`)
+- [x] "Como funciona" de volta ao menu
+
+### Três defeitos sérios encontrados no caminho
+
+Nenhum dava erro no console nem quebrava o build. Estão documentados em
+`web/CSS-ARMADILHAS.md`:
+
+1. **O efeito de vidro não existia no Chrome.** A ordem das declarações com
+   prefixo estava invertida no CSS, e o compilador guardava só a forma
+   `-webkit-`, que o Chrome atual não reconhece mais.
+2. **O texto do menu era ilegível: 1,29:1** (a norma pede 4,5:1). Duas
+   causas somadas — `isolation:isolate` no vidro apagando o texto, e a
+   tinta clara demais sobre o card branco. Hoje: **10,4:1**, nível AAA.
+3. **`--shell` era usada e nunca definida**, então a largura de contenção
+   sumia e o texto colava na borda esquerda da tela.
 
 ### Falta
 
-- [ ] `index` (a maior: 62 KB), `planos`, `resultado`
-- [ ] `denunciar` e `registrar-loja` (têm formulário, viram componente cliente)
-- [ ] Histórico de consultas
-- [ ] Apagar a pasta `prototipo/` quando tudo tiver migrado
+- [x] `planos` — com seletor mensal/anual e a tabela comparativa
+- [x] `resultado` — como DEMONSTRAÇÃO, com faixa vermelha e `noindex`
+- [x] `denunciar` — grava no banco, com protocolo e limite por IP
+- [x] `registrar-loja` — grava no banco; a conferência na Receita entra na análise
+- [ ] Histórico de consultas — **depende da Etapa 8**: sem motor de verificação
+      não existe consulta para listar. Fica para depois dela, não para agora.
+- [ ] Apagar a pasta `prototipo/` — falta só `admin.html`, que é a Etapa 10.
+      As outras nove já viraram rota.
 
 **Prova até aqui:** as quatro páginas legais abrem em `/termos`, `/privacidade`,
 `/reembolso`, `/cookies`, com Lighthouse **100** em acessibilidade no celular.
@@ -333,6 +360,18 @@ E os contratos de proteção de dados (DPA) da OpenAI e da Hive — está no
 
 **Objetivo:** entra dinheiro.
 
+> 📄 **O mapa desta etapa está em [ASAAS.md](ASAAS.md).** Como a chave é
+> guardada sem vazar, a diferença entre sandbox e produção, e por que o
+> webhook não pode ser testado antes da Etapa 7.
+
+- [x] Guardar a chave sem ela passar por chat, terminal ou Git
+      (`npm run asaas-chave`, teclado mudo)
+- [x] Provar que a chave funciona (`npm run prova-asaas`, só leitura)
+- [x] A porta única de saída para o Asaas (`web/src/lib/asaas.ts`), com
+      `server-only`, tempo limite e o ambiente deduzido do prefixo da chave
+- [x] Pix confirmado de ponta a ponta: cobrança criada, paga de verdade (R$ 5,00)
+      e detectada por consulta — sem webhook. Prova: `pay_txwi7w3wvjj19mgz`, `RECEIVED`
+- [x] Ferramenta de teste com seis travas (`npm run asaas-teste`)
 - [ ] Checkout no Asaas (Pix, cartão, boleto)
 - [ ] Webhook confirmando pagamento
 - [ ] Limite de cada plano valendo de verdade
@@ -450,7 +489,10 @@ final. O que já apareceu até agora:
 | VPS | Sem swap, 1 núcleo — travaria no primeiro pico | ✅ 2 GB |
 | VPS | Docker instalado e ocioso — **fura o firewall** se um dia você publicar porta de container | ⚠️ anotado |
 | Painel | Aberto para quem soubesse o endereço | 🔒 tranca provisória; resolve de verdade na Etapa 5 |
-| Site | Fonte e ícone vindos do Google e do jsDelivr — **o IP de cada visitante vai para eles**, contra o que sua política promete | ⚠️ resolve na Etapa 6 |
+| Site | Fonte e ícone vindos do Google e do jsDelivr — **o IP de cada visitante vai para eles**, contra o que sua política promete | ✅ resolvido, zero requisição externa |
+| Site | Efeito de vidro não renderizava no Chrome: ordem invertida das declarações com prefixo, e o compilador descartava a versão que o navegador entende | ✅ corrigido |
+| Site | Menu ilegível sobre o card branco — 1,29:1 onde a norma pede 4,5:1 | ✅ corrigido, 10,4:1 (AAA) |
+| Site | `<main>` envolvia só o card do verificador; o resto da home ficava fora de qualquer marco para leitor de tela | ✅ corrigido |
 | Cloudflare | O navegador **traduz** o painel: mostra `enviar` no lugar de `send`, `incluir:` no lugar de `include:`, `p=nenhum` no lugar de `p=none`. Editar e salvar com a página traduzida **grava o texto traduzido** e quebra o e-mail em silêncio | ⚠️ **sempre** clicar em "Mostrar original" antes de editar DNS |
 | Senha | Custo do scrypt alto demais para 1 núcleo — viraria porta de ataque | ✅ ajustado |
 | Banco | `002`: índice sobre `criado_em::date` — o Postgres recusa, porque o resultado muda conforme o fuso de quem consulta | ✅ corrigido, fuso fixado em São Paulo |

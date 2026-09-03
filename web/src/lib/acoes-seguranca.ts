@@ -36,6 +36,7 @@ import { conferaSenha } from '@/lib/senha';
 import { confereLimite, zeraLimite, ipDeQuemChama } from '@/lib/limite';
 import { registra } from '@/lib/auditoria';
 import { exigeLogin } from '@/lib/guarda';
+import { abreDoCofre } from '@/lib/cofre';
 
 export type Estado2FA = { erro?: string; ok?: string } | null;
 
@@ -127,8 +128,12 @@ export async function confirmaCodigoLogin(
       return { erro: 'Código de reserva não confere, ou já foi usado.' };
     }
   } else {
+    /* O segredo vem CIFRADO do banco. `abreDoCofre` também
+       aceita o formato antigo, em texto puro, para as contas
+       gravadas antes do cofre existir continuarem entrando
+       enquanto a migração não rodou. Ver cofre.ts. */
     const r = confereCodigo(
-      conta.segredo, conta.email, digitado,
+      abreDoCofre(conta.segredo)!, conta.email, digitado,
       conta.ultimo === null ? null : Number(conta.ultimo),
     );
     if (!r.ok) {

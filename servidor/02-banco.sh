@@ -288,24 +288,40 @@ ok "$APLICADAS aplicada(s), $PULADAS já estavam"
 # garante que tabela criada no futuro já nasça acessível — senão
 # a próxima migração quebra o app em produção.
 # =============================================================
-azul "Dando à aplicação o mínimo que ela precisa"
+azul "Conferindo o que a aplicação alcança"
 
-dono_psql <<EOF >/dev/null
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES    IN SCHEMA public TO $APP;
-GRANT USAGE, SELECT                  ON ALL SEQUENCES IN SCHEMA public TO $APP;
-GRANT EXECUTE                        ON ALL FUNCTIONS IN SCHEMA public TO $APP;
+# -------------------------------------------------------------
+# ANTES AQUI TINHA UM `GRANT ... ON ALL TABLES`.
+#
+# Ele dava a $APP — a conta que atende a internet — o direito de
+# APAGAR as 43 tabelas do banco. Inclusive `auditoria`, o registro
+# de quem fez o quê. A linha de sucesso logo abaixo dizia "lê e
+# grava linha, e nada além disso", e não era verdade.
+#
+# Quem manda nos direitos agora é a migração 015_menos_poder.sql,
+# que dá acesso a NOVE tabelas e nega o resto. Ela roda no laço
+# acima, junto com as outras. Este trecho só confere o resultado.
+#
+# CUIDADO AO MEXER: não volte a colocar GRANT aqui. Se o site
+# passar a usar uma tabela nova, o GRANT dela é escrito na
+# migração que a cria — e fica junto do motivo.
+# -------------------------------------------------------------
 
-ALTER DEFAULT PRIVILEGES FOR ROLE $DONO IN SCHEMA public
-  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO $APP;
-ALTER DEFAULT PRIVILEGES FOR ROLE $DONO IN SCHEMA public
-  GRANT USAGE, SELECT ON SEQUENCES TO $APP;
-ALTER DEFAULT PRIVILEGES FOR ROLE $DONO IN SCHEMA public
-  GRANT EXECUTE ON FUNCTIONS TO $APP;
+dono_psql -c "REVOKE ALL ON migracoes FROM $APP;" >/dev/null
 
--- A tabela de migrações é do dono. A aplicação nem lê.
-REVOKE ALL ON migracoes FROM $APP;
-EOF
-ok "$APP: lê e grava linha, e nada além disso"
+alcance=$(dono_psql -c "
+  SELECT count(DISTINCT table_name)
+    FROM information_schema.role_table_grants
+   WHERE grantee='$APP' AND table_schema='public'")
+
+if [[ "$alcance" -gt 20 ]]; then
+  echo
+  echo "  ATENÇÃO: $APP alcança $alcance tabelas. Deveriam ser 14."
+  echo "  Alguém rodou um GRANT geral, ou a migração 015 não passou."
+  echo "  Confira com:  npm run confere-banco"
+  echo
+fi
+ok "$APP alcança $alcance tabelas — e a auditoria não é uma delas"
 
 # =============================================================
 # 6. BACKUP DIÁRIO
@@ -368,6 +384,56 @@ systemctl enable --now confia-backup.timer >/dev/null
 ok "backup todo dia às 3:30"
 
 /usr/local/bin/confia-backup && ok "primeiro backup feito agora"
+
+# =============================================================
+# FAXINA DO RASTRO DE LOGIN
+#
+# A tabela `sessoes` guarda IP e navegador de cada entrada. Isso
+# serve para a pessoa reconhecer uma invasao — e para nada alem
+# disso. Guardar para sempre transformaria o banco no historico
+# de onde cada pessoa esteve, sem utilidade nenhuma para ela.
+#
+# A promessa esta ESCRITA na tela, em /conta/aparelhos e em
+# /conta/privacidade: apagado em 15 dias. Este timer e o que
+# cumpre a promessa.
+#
+# A funcao `faxina_sessoes()` vem da migracao 013. Ela tenta se
+# agendar sozinha pelo pg_cron; como o pg_cron nao vem no
+# Postgres padrao do Ubuntu, quem agenda de verdade e isto aqui.
+#
+# CUIDADO AO MEXER: mudar o prazo exige mudar em TRES lugares —
+# a funcao SQL, o texto de /conta/aparelhos e o de
+# /conta/privacidade. Promessa escrita e codigo divergentes e o
+# tipo de coisa que so aparece numa fiscalizacao.
+# =============================================================
+
+cat > /etc/systemd/system/confia-faxina.service <<'EOF'
+[Unit]
+Description=Faxina do rastro de login do confia? (LGPD, 15 dias)
+After=postgresql.service
+
+[Service]
+Type=oneshot
+User=postgres
+ExecStart=/usr/bin/psql -d confia -c "SELECT faxina_sessoes()"
+EOF
+
+cat > /etc/systemd/system/confia-faxina.timer <<'EOF'
+[Unit]
+Description=Faxina diaria do rastro de login
+
+[Timer]
+OnCalendar=*-*-* 04:17:00
+Persistent=true
+RandomizedDelaySec=600
+
+[Install]
+WantedBy=timers.target
+EOF
+
+systemctl daemon-reload
+systemctl enable --now confia-faxina.timer >/dev/null
+ok "faxina do rastro de login todo dia as 4:17 (apaga o que tem mais de 15 dias)"
 
 # =============================================================
 # CONFERÊNCIA
