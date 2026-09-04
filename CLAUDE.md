@@ -89,7 +89,8 @@ não é assim que vidro funciona.
 
 | Arquivo | O que tem dentro |
 |---|---|
-| **`MELHORIAS.md` § II** | **A LISTA VIVA.** Comece por aqui. É a última rodada de crítica — onze etapas ditadas em 27/08/2026 — com o que falta e as nove decisões que dependem da dona do projeto. A § I é a rodada anterior, e o que sobrou nela em `[ ]` continua valendo. |
+| **`RETOMAR-TUDO.md`** | **COMECE POR AQUI.** O guia único, escrito em 04/09/2026 quando a dona do projeto formatou o computador: o que está pronto, o que falta, as decisões travadas, as armadilhas e os comandos. Se você só for ler um arquivo, é este. |
+| **`MELHORIAS.md` § II** | **A LISTA VIVA do código**, com o detalhe item a item que o guia acima resume. É a última rodada de crítica — onze etapas ditadas em 27/08/2026 — com o que falta e as nove decisões que dependem da dona do projeto. A § I é a rodada anterior, e o que sobrou nela em `[ ]` continua valendo. |
 | `COMECAR-CHAT-NOVO.md` | O prompt que a dona do projeto cola ao abrir uma conversa nova. Se as regras mudarem, mudam lá também. |
 | `PLANO.md` | As etapas do projeto, 1 a 10. Onde estamos e o que vem. |
 | `PENDENCIAS.md` | O que depende de ação humana (MEI, advogado, chave do cofre). |
@@ -98,8 +99,8 @@ não é assim que vidro funciona.
 | **`PLANO-EMPREENDEDOR/`** | **A ENTREGA DO SENAC, com prazo externo: 09/09/2026, 21h.** Começa em **`AGORA.md`** (o que fazer hoje) e depois `00-MAPA.md`. Não é sobre o código — é o Portfólio de Evidências, o Pitch Deck e o vídeo. O diagnóstico honesto está lá: o projeto tem muita prova de execução e **nenhuma** prova de cliente, e as duas seções que mais pesam na avaliação (3.3 e 3.4) só se escrevem com dado de campo. |
 | `web/AGENTS.md` | Regras do Next.js 16 neste repositório. |
 
-**Ordem de leitura para retomar o trabalho:** `MELHORIAS.md` § II → `PLANO.md` →
-`PENDENCIAS.md`.
+**Ordem de leitura para retomar o trabalho:** `RETOMAR-TUDO.md` → `MELHORIAS.md`
+§ II → `PLANO.md` → `PENDENCIAS.md`.
 
 ---
 

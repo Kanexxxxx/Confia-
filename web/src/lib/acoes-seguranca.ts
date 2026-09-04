@@ -23,6 +23,7 @@
    ============================================================= */
 
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 import { eq } from 'drizzle-orm';
 import { db } from '@/db';
 import { contas } from '@/db/schema';
@@ -86,6 +87,37 @@ export async function confirmaDoisFatores(
     ator: quem.id, acao: 'conta.senha_trocada', alvoTipo: 'conta', alvoId: quem.id,
     depois: { doisFatores: 'ligado' }, ip: await ipDeQuemChama(),
   });
+
+  /* ⚠ ESTE `revalidatePath` É O CONSERTO DE UM BUG REAL — 27/08/2026
+
+     A dona do projeto: "lembro de ter ativado essa proteção de
+     dois fatores e está bugada, mesmo ativando fala pra me
+     ativar".
+
+     Ela não estava enganada, e o banco não estava errado: o
+     `totp_ativado_em` era gravado certinho logo acima.
+
+     O que acontecia é que o aviso "o segundo fator está
+     desligado" vive em DOIS lugares — na visão geral
+     (`conta/page.tsx`) e na barra lateral (`conta/layout.tsx`) —
+     e os dois já eram `force-dynamic`. Só que `force-dynamic`
+     manda no SERVIDOR. O cache do roteador, no navegador, guarda
+     a resposta anterior daquela rota e a reaproveita na próxima
+     navegação. Resultado: o banco dizia ligado, e a tela
+     continuava pedindo para ligar.
+
+     `revalidatePath` é o que joga essa cópia fora. O
+     `acoes-perfil.ts` já fazia isso desde sempre — para o apelido
+     e o avatar aparecerem trocados sem recarregar. Aqui tinha
+     ficado de fora.
+
+     'layout' e não 'page': o aviso da lateral mora no layout, e
+     revalidar só a página deixaria a lateral mentindo.
+
+     ⚠ SE VOCÊ ESCREVER AÇÃO NOVA QUE MUDE ALGO MOSTRADO NO MENU
+     OU NA LATERAL, ela precisa desta linha. Não dá erro quando
+     falta — a tela só fica velha, que é pior de achar. */
+  revalidatePath('/conta', 'layout');
 
   redirect('/conta/seguranca?ligou=1');
 }
@@ -161,6 +193,16 @@ export async function confirmaCodigoLogin(
     ip: await ipDeQuemChama(),
   });
 
+  /* Entrar muda o CABEÇALHO DO SITE INTEIRO: ele deixa de mostrar
+     "Entrar" e passa a mostrar o bicho e o apelido. Sem revalidar
+     a raiz, a pessoa entra, volta para a home e vê "Entrar" de
+     novo — vindo do cache do roteador, não do servidor.
+
+     Mesma família do bug do 2FA logo acima. Ver o comentário
+     longo lá. */
+  revalidatePath('/', 'layout');
+  revalidatePath('/conta', 'layout');
+
   redirect('/conta');
 }
 
@@ -174,6 +216,13 @@ export async function novosCodigosReserva() {
     ator: quem.id, acao: 'conta.senha_trocada', alvoTipo: 'conta', alvoId: quem.id,
     depois: { codigosReserva: 'gerados' }, ip: await ipDeQuemChama(),
   });
+
+  /* A tela de segurança mostra QUANTOS códigos restam. Gerar dez
+     novos e a tela continuar dizendo "2 restantes" faria a pessoa
+     achar que não funcionou — e gerar de novo, invalidando os que
+     ela acabou de anotar. */
+  revalidatePath('/conta/seguranca');
+
   return codigos;
 }
 
@@ -218,6 +267,12 @@ export async function desligaDoisFatoresAcao(
     ator: quem.id, acao: 'conta.senha_trocada', alvoTipo: 'conta', alvoId: quem.id,
     depois: { doisFatores: 'DESLIGADO' }, ip: await ipDeQuemChama(),
   });
+
+  /* Mesmo motivo do `revalidatePath` lá em cima, e igualmente
+     importante: sem ele, DESLIGAR o 2FA deixaria a tela dizendo
+     que ele continua ligado — uma tela que mente sobre segurança
+     na direção perigosa. */
+  revalidatePath('/conta', 'layout');
 
   redirect('/conta/seguranca?desligou=1');
 }

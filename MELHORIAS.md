@@ -730,11 +730,48 @@ Você numerou as duas partes como "seis". Ficaram A e B.
 `web/src/app/conta/` (visão geral, perfil, segurança, aparelhos, plano,
 privacidade) · `web/src/components/avatar.tsx`
 
-- [ ] **BUG: 2FA ligado e a visão geral continua mandando ligar.** Reproduzir
-      antes de mexer. A gravação parece certa — `web/src/lib/dois-fatores.ts:220`
-      escreve `totpAtivadoEm` —, então a suspeita cai em cache de página. O mesmo
-      aviso vive em dois lugares (`conta/page.tsx:52` e `conta/layout.tsx:70`).
-      Não conserto no escuro.
+- [x] **BUG: 2FA ligado e a visão geral continuava mandando ligar.**
+      **Consertado em 27/08/2026.** Você não estava enganada, e o banco não
+      estava errado.
+
+      **O que era.** O `totp_ativado_em` era gravado certinho. As duas telas que
+      mostram o aviso — a visão geral e a barra lateral — já eram
+      `force-dynamic`. Só que **`force-dynamic` manda no servidor**; o cache do
+      roteador, dentro do navegador, guarda a resposta anterior daquela rota e a
+      reaproveita na próxima navegação. Banco dizendo ligado, tela pedindo para
+      ligar.
+
+      **O conserto.** `revalidatePath('/conta', 'layout')` dentro da ação, que é
+      o que joga a cópia velha fora. O `acoes-perfil.ts` já fazia isso desde
+      sempre — para apelido e avatar aparecerem trocados sem recarregar. O
+      `acoes-seguranca.ts` tinha **zero** chamadas. Era a única diferença entre
+      os dois arquivos.
+
+      `'layout'` e não `'page'`: o aviso da lateral mora no layout, e revalidar
+      só a página deixaria a lateral mentindo.
+
+      **Achei mais dois no mesmo arquivo, da mesma família:**
+
+      · **desligar o 2FA** — sem revalidar, a tela continuaria dizendo que ele
+        está ligado. É uma tela mentindo sobre segurança **na direção
+        perigosa**;
+      · **entrar com o código do 2FA** — entrar troca o cabeçalho do site
+        inteiro. Sem revalidar a raiz, a pessoa entra, volta para a home e vê
+        "Entrar" de novo.
+
+      E os **códigos de reserva**: gerar dez novos e a tela continuar dizendo
+      "2 restantes" faria a pessoa gerar de novo, invalidando os que ela acabou
+      de anotar.
+
+      **Provado no navegador, não no papel.** Entrei com `voce@confiia.com.br`,
+      liguei o 2FA de verdade (li o segredo do formulário e calculei o código
+      TOTP), naveguei para a visão geral **pelo menu, sem recarregar** — o aviso
+      sumiu. Depois desliguei e ele voltou. A conta de teste ficou com o 2FA
+      **desligado**, como o `CLAUDE.md` documenta.
+
+      ⚠ **REGRA QUE FICOU:** ação que muda algo mostrado no menu ou na lateral
+      precisa de `revalidatePath`. **Não dá erro quando falta** — a tela só fica
+      velha, que é muito pior de achar.
 
 - [ ] **Visão geral vira vistoria completa:** conta, plano, verificações,
       aparelhos, suas avaliações, registros, denúncias — tudo que precisa de

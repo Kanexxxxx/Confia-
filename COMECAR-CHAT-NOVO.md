@@ -16,6 +16,8 @@ anti-golpe que vou apresentar no Plano Empreenda SENAC. Você não participou
 das conversas anteriores, então comece lendo, NESTA ORDEM, antes de escrever
 qualquer código ou me responder qualquer coisa:
 
+0. RETOMAR-TUDO.md    — O GUIA ÚNICO. Comece por ele: tem o que está pronto,
+                        o que falta, as decisões travadas e os comandos.
 1. CLAUDE.md          — as regras que não se discutem e as armadilhas técnicas
                         que já custaram horas. Leia inteiro.
 2. MELHORIAS.md § II  — a LISTA VIVA. É por aqui que se retoma: as onze etapas
