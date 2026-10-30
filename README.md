@@ -99,3 +99,16 @@ Senhas e chaves ficam em `web/.env.local` (sua máquina) e em
 `confiia.com.br` roda uma versão anterior, **feita por outra pessoa**.
 Ela não se apaga e não se substitui. O que está sendo construído aqui vai
 para `beta.confiia.com.br`.
+
+
+## Consolidação das versões
+
+Esta branch prepara a continuidade em `Kanexxxxx/Confia-`, preservando os quatro
+documentos exclusivos de `confia-minimundo`. A variante de `PLANO-EMPREENDEDOR/AGORA.md`
+foi preservada integralmente como `AGORA-MINIMUNDO-HISTORICO.md`; o AGORA original
+desta base não foi sobrescrito. Esses registros são históricos e não instruções de execução atual.
+
+A comparação das árvores mostrou o mesmo código de aplicação nas duas bases. Não há
+motivo para manter duas implementações independentes desse mesmo código. A retirada
+do repositório secundário depende de aprovar a consolidação, conferir consumidores e
+preservar histórico e metadados. Esta mudança não exclui repositórios nem publica o site.
