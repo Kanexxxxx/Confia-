@@ -2,9 +2,9 @@
 
 ## Relação entre versões
 
-Este projeto compartilha a base com [confia-minimundo](https://github.com/Kanexxxxx/confia-minimundo).
+Este projeto compartilha a base com `confia-minimundo` (versão histórica consolidada).
 Os repositórios possuem diferenças documentais e não devem ser contados como dois
-produtos independentes. A definição da fonte principal de manutenção está pendente;
+produtos independentes. A fonte principal de manutenção é este repositório;
 antes de integrar ou retirar uma cópia, compare branches, documentos e alterações locais.
 Os registros de implantação abaixo são históricos, não uma verificação atual dos serviços.
 
@@ -103,12 +103,12 @@ para `beta.confiia.com.br`.
 
 ## Consolidação das versões
 
-Esta branch prepara a continuidade em `Kanexxxxx/Confia-`, preservando os quatro
+A continuidade está consolidada em `Kanexxxxx/Confia-`, preservando os quatro
 documentos exclusivos de `confia-minimundo`. A variante de `PLANO-EMPREENDEDOR/AGORA.md`
 foi preservada integralmente como `AGORA-MINIMUNDO-HISTORICO.md`; o AGORA original
 desta base não foi sobrescrito. Esses registros são históricos e não instruções de execução atual.
 
 A comparação das árvores mostrou o mesmo código de aplicação nas duas bases. Não há
-motivo para manter duas implementações independentes desse mesmo código. A retirada
-do repositório secundário depende de aprovar a consolidação, conferir consumidores e
-preservar histórico e metadados. Esta mudança não exclui repositórios nem publica o site.
+motivo para manter duas implementações independentes desse mesmo código. O repositório secundário foi excluído com autorização do titular após a conferência
+dos documentos e preservação do histórico completo e dos metadados em backup local.
+Esta consolidação não publica o site nem altera o runtime.
