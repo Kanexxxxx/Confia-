@@ -1,5 +1,13 @@
 # confia?
 
+## Relação entre versões
+
+Este projeto compartilha a base com [confia-minimundo](https://github.com/Kanexxxxx/confia-minimundo).
+Os repositórios possuem diferenças documentais e não devem ser contados como dois
+produtos independentes. A definição da fonte principal de manutenção está pendente;
+antes de integrar ou retirar uma cópia, compare branches, documentos e alterações locais.
+Os registros de implantação abaixo são históricos, não uma verificação atual dos serviços.
+
 Serviço brasileiro de verificação antigolpe. A pessoa cola um link, um perfil,
 um print ou um número de telefone, e recebe de volta uma resposta em português
 com **o motivo de cada conclusão** — não um "é golpe" sem explicação.
