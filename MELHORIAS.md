@@ -1,5 +1,11 @@
 # Rodada de acabamento — tudo que você apontou
 
+> **Retomada em 04/11/2026:** o pedido atual é continuar o Confia inteiro,
+> começando por layout e movimento fiéis ao pacote Liquid Glass e ao Âmbar CRM,
+> e atualizar o GitHub. Consulte `design/REVISAO-2026-11-04.md` para a auditoria
+> atual e `AMBIENTE.md` para rodar. As listas abaixo preservam o histórico;
+> um checkbox antigo não comprova o estado atual do servidor ou das integrações.
+
 **Aberta em:** 24/08/2026 · **última revisão:** 26/08/2026
 **Regra desta rodada:** estética e experiência primeiro. Motor de análise,
 pagamento e app ficam para depois.

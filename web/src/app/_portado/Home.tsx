@@ -2,8 +2,8 @@
    GERADO por scripts/porta-pagina.mjs a partir de
    index.html
 
-   Foi conferido à mão depois? Se este aviso ainda estiver aqui,
-   NÃO. Confira antes de publicar.
+   Revisão visual retomada em 04/11/2026. O material agora vem
+   de optical.css; a home ainda não representa um motor pronto.
    ============================================================= */
 
 import Link from 'next/link';
@@ -33,6 +33,7 @@ export function Home() {
       <div className="hero" id="topo">
 
         <section className="pitch">
+          <p className="optical-kicker"><span /> Uma pausa antes do clique</p>
           <h1>
             <span className="ln"><span className="w" style={{ '--d': '.06s' } as React.CSSProperties}>Aquele link</span></span>
             <span className="ln"><span className="w" style={{ '--d': '.15s' } as React.CSSProperties}>é de verdade ou</span></span>
@@ -102,11 +103,12 @@ export function Home() {
           <span className="lg-refract"></span><span className="lg-tint"></span><span className="lg-shine"></span>
 
           <div className="screen">
+            <div className="verificador-topo"><span>01 / VERIFICADOR</span><span className="estado-construcao">Em construção</span></div>
             <svg className="mark-logo" role="img" aria-label="confia?"><use href="#logo-confia"/></svg>
 
             <p className="assinatura">
               Antes de clicar ou pagar… <b>confia?</b><br />
-              Verifique links, sites e perfis em segundos.
+              Comece pelo que chegou até você.
             </p>
 
             <Verificador />

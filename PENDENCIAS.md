@@ -1,5 +1,10 @@
 # confia? — O que precisa ser adquirido, contratado e configurado
 
+> **Atenção ao histórico:** esta lista foi escrita em agosto. Alguns itens
+> técnicos já aparecem implementados no código, enquanto a infraestrutura antiga
+> não pôde ser reutilizada. O diagnóstico observado em novembro está em
+> `design/REVISAO-2026-11-04.md`; o ambiente local está em `AMBIENTE.md`.
+
 **Situação do projeto:** versão beta, em construção.
 **Domínio:** confiia.com.br
 **Última revisão:** 26/08/2026

@@ -1,0 +1,46 @@
+[
+  {
+    "Nome": "001-cortina-de-cristal.html",
+    "SHA256": "a4277c5ed9a522855f2a8b342632f0f915427fd793102056925e2462da30a972"
+  },
+  {
+    "Nome": "REFERENCIAS_E_LICENCAS.md",
+    "SHA256": "282ffdcca20b2852466206ec2fe68364e8dfd2ed644c62684fdfae936832a727"
+  },
+  {
+    "Nome": "01-distortion-card\\index.html",
+    "SHA256": "eecea6e8b616b672302add9bb0dce72524fd04585f7e7b3426033d2b5ce9cd32"
+  },
+  {
+    "Nome": "01-distortion-card\\script.js",
+    "SHA256": "6fc3175507d048da3f0e690ce57f19e1b4e62373a69c60d369bb9b5ce14a8c76"
+  },
+  {
+    "Nome": "01-distortion-card\\style.css",
+    "SHA256": "e86700086d8821f1454ae311e764e365eec8b1dbd73dd6ac584850eae8eadd84"
+  },
+  {
+    "Nome": "03-floating-dock\\index.html",
+    "SHA256": "30467639c1a1babcb976e4e4965b229e8f248e78d432cff9b6175deaadde39bf"
+  },
+  {
+    "Nome": "03-floating-dock\\script.js",
+    "SHA256": "f1c51c01580d63dd5d10c5bccd7170cec587841370d4d03d2d01568ff1e9d2a5"
+  },
+  {
+    "Nome": "03-floating-dock\\style.css",
+    "SHA256": "f3d3396ca9625731618899b4e993789178748710c56a5ff732fdb708b01f9854"
+  },
+  {
+    "Nome": "09-optical-button\\index.html",
+    "SHA256": "6d8974133d0403cfe9158c346914b95cb675f9ff88875a11ebe88143f2c24272"
+  },
+  {
+    "Nome": "09-optical-button\\script.js",
+    "SHA256": "8730e0b6abcb242fb2a4fb8065a5890da0e5788e99da0c8d7fe5d77f20ef8d52"
+  },
+  {
+    "Nome": "09-optical-button\\style.css",
+    "SHA256": "ae92039c699bd1e18a0a21e5dd7819a8daf44d06aab63a95d5c8680e061bffe1"
+  }
+]

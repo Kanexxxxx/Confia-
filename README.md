@@ -1,5 +1,13 @@
 # confia?
 
+## Continuidade — novembro de 2026
+
+Revisão de layout e efeitos em andamento, com as referências ópticas fornecidas
+pelo titular e o Âmbar CRM como exemplo. Estado observado, alterações e pendências
+na [auditoria da retomada](design/REVISAO-2026-11-04.md). As fontes selecionadas
+foram preservadas em `design/referencias/`. O motor de verificação ainda não está
+implementado; esta revisão não representa publicação nem conclusão do produto.
+
 ## Relação entre versões
 
 Este projeto compartilha a base com `confia-minimundo` (versão histórica consolidada).

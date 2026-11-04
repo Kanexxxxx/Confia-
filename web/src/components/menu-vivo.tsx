@@ -24,10 +24,13 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 type Item = { href: string; texto: string };
 
 export function MenuVivo({ itens, atual }: { itens: Item[]; atual?: string }) {
+  const rota = usePathname();
+  const paginaAtual = atual ?? rota;
   const menu = useRef<HTMLElement>(null);
   const pino = useRef<HTMLSpanElement>(null);
 
@@ -94,7 +97,7 @@ export function MenuVivo({ itens, atual }: { itens: Item[]; atual?: string }) {
       removeEventListener('scroll', aoRolar);
       faixa?.removeEventListener('scroll', aoRolarAFaixa);
     };
-  }, [voltarAoAtual]);
+  }, [voltarAoAtual, paginaAtual]);
 
   return (
     <nav
@@ -114,7 +117,7 @@ export function MenuVivo({ itens, atual }: { itens: Item[]; atual?: string }) {
           key={i.href}
           className="nav-link"
           href={i.href}
-          aria-current={atual === i.href ? 'page' : undefined}
+          aria-current={paginaAtual === i.href ? 'page' : undefined}
           onPointerEnter={(e) => mover(e.currentTarget)}
           onFocus={(e) => mover(e.currentTarget)}
         >

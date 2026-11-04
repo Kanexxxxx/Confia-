@@ -36,12 +36,14 @@ import { Inter, Poppins } from 'next/font/google';
 
 import { FiltrosVidro } from '@/components/filtros-vidro';
 import { Revelacao } from '@/components/revelacao';
+import { CenaOptica } from '@/components/cena-optica';
 import { BotaoWhatsApp } from '@/components/botao-whatsapp';
 import { AvisoCookies } from '@/components/aviso-cookies';
 
 /* Ícones: do pacote instalado, não de CDN. */
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './globals.css';
+import './optical.css';
 
 /* =============================================================
    AS DUAS FONTES — Inter no texto, Poppins nos títulos
@@ -171,6 +173,7 @@ export default function RootLayout({
             existir na página onde o vidro aparece — ou seja, todas. */}
         <FiltrosVidro />
 
+        <CenaOptica />
         {children}
 
         {/* Entrada da página, revelação ao rolar e o brilho do
