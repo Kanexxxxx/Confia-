@@ -39,6 +39,7 @@
    ============================================================= */
 
 import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 
 /* Blocos que sobem ao entrar na tela. `.rv` é o que já vem
    marcado no JSX; o resto são as famílias de card do desenho. */
@@ -48,6 +49,7 @@ const ALVOS = '.rv, .sec-head, .step, .check, .pol, .aviso';
 const GRADES = ['.steps', '.grid-check', '.grid-pol'];
 
 export function Revelacao() {
+  const rota = usePathname();
   useEffect(() => {
     /* --- cascata dos chips do herói ("Loja e marketplace", etc.) ---
        Começa em .44s para entrar depois do subtítulo, não junto. */
@@ -126,7 +128,9 @@ export function Revelacao() {
          pelo histórico, a entrada acontece de novo do começo. */
       document.body.classList.remove('is-ready');
     };
-  }, []);
+  // Layouts sobrevivem à navegação do Next. Sem a rota nesta dependência,
+  // os novos blocos ficam escondidos e o efeito só funciona no primeiro acesso.
+  }, [rota]);
 
   return null;
 }
