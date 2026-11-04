@@ -49,6 +49,10 @@ confia/
 
 ## Como mexer no dia a dia
 
+Para preparar um banco independente da VPS no Windows, siga
+[AMBIENTE.md](AMBIENTE.md). Inclui instalação, partida e verificações locais.
+Os comandos de túnel abaixo descrevem o ambiente remoto histórico.
+
 ```bash
 cd web
 npm run tunel     # terminal 1 — túnel até o banco na VPS. Deixe aberto.
