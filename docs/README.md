@@ -19,6 +19,12 @@ Não altera código de produção.
 | [ROADMAP.md](ROADMAP.md) | Fases: correções críticas, pagamentos, celular com PWA, desktop, vidro líquido, integrações |
 | [auditoria/screens/](auditoria/screens/) | Capturas a 1440 px e 390 px do Next local (`desktop/`, `celular/`, `fluxos/`) e do site no ar (`ao-vivo/`) |
 
+## Operação
+
+| Arquivo | O que tem |
+|---|---|
+| [ADMIN.md](ADMIN.md) | Passo a passo para a dona do projeto abrir o painel real do Next (`PAINEL_CAMINHO`, `admin.mjs`, 2FA, recuperação, máquina local e VPS). Sem valores de segredo |
+
 ## Pesquisa anexada (4 de novembro de 2026)
 
 Material de referência. Descreve o site público como ele estava
