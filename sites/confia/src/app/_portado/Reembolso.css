@@ -1,0 +1,16 @@
+/* CSS extraído de reembolso.html por porta-pagina.mjs.
+   Revise: pode haver regra que agora vive no globals.css. */
+
+
+  .conta-exemplo{background:var(--paper-2);border:1px solid var(--line);border-radius:14px;
+    padding:18px 20px;margin:0 0 18px}
+  .conta-exemplo b{display:block;margin-bottom:10px;font-size:14px;color:var(--ink)}
+  .conta-exemplo table{margin:0}
+  .conta-exemplo td:last-child{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .conta-exemplo tr:last-child td{border-bottom:none;font-weight:600;color:var(--ink);
+    border-top:2px solid var(--line);padding-top:12px}
+  .zap{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:12px;
+    background:#25D366;color:#04321a;font-weight:600;font-size:14.5px;text-decoration:none;
+    transition:filter .2s var(--ease),transform .18s var(--ease)}
+  .zap:hover{filter:brightness(1.06);transform:translateY(-1px)}
+  .zap .bi{font-size:19px}

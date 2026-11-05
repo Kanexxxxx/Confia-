@@ -1,0 +1,12 @@
+import { mesmaOrigem,corpo,falha,json,FalhaHttp } from '@/lib/confia/acesso';
+import { administrador } from '@/lib/confia/admin';
+import { configuracaoMeta } from '@/lib/confia/meta';
+import { templatesWhatsApp } from '@/lib/confia/templates';
+import { lista,grava } from '@/lib/confia/banco';
+export async function GET(req:Request){try{await administrador(req);return json({modelos:templatesWhatsApp,submetidos:await lista('SELECT name,remote_id,status,updated_at FROM confia_meta_templates')});}catch(e){return falha(e);}}
+export async function POST(req:Request){try{mesmaOrigem(req);const u=await administrador(req);const b=await corpo(req);if(b.confirmado!==true)throw new FalhaHttp(400,'Confirme o envio do template à Meta.');const template=templatesWhatsApp.find(t=>t.name===b.nome);if(!template)throw new FalhaHttp(400,'Template não encontrado.');const {version,token,waba}=configuracaoMeta();const claimed=await grava("INSERT INTO confia_meta_templates (name,status,updated_at) VALUES (?,'enviando',?) ON CONFLICT(name) DO NOTHING",template.name,Date.now());if(!claimed.meta.changes)throw new FalhaHttp(409,'Este template já foi enviado ou está aguardando conferência. Não repetiremos a submissão.');
+ let response:Response;
+ try{response=await fetch(`https://graph.facebook.com/${version}/${waba}/message_templates`,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify(template),signal:AbortSignal.timeout(10000)});}catch{await grava("UPDATE confia_meta_templates SET status='conferir_na_meta',updated_at=? WHERE name=?",Date.now(),template.name);throw new FalhaHttp(503,'Não foi possível confirmar a resposta. Confira na Meta antes de tentar reenviar.');}
+ const data=await response.json() as {id?:string;status?:string};if(!response.ok||!data.id){await grava("UPDATE confia_meta_templates SET status='recusado_pela_api',updated_at=? WHERE name=?",Date.now(),template.name);throw new FalhaHttp(502,'A Meta recusou a solicitação. Confira as permissões e a configuração da conta.');}
+ await grava('UPDATE confia_meta_templates SET remote_id=?,status=?,updated_at=? WHERE name=?',data.id,data.status??'PENDING',Date.now(),template.name);await grava('INSERT INTO confia_audit (id,actor_id,action,entity_id,created_at) VALUES (?,?,?,?,?)',crypto.randomUUID(),u.userId,'meta:template_submetido',template.name,Date.now());return json({id:data.id,status:data.status??'PENDING'},201);
+ }catch(e){return falha(e);}}

@@ -1,0 +1,166 @@
+/* =============================================================
+   confiia.com.br — cabeçalho e rodapé
+
+   No protótipo, cada uma das dez páginas trazia a sua cópia
+   destes dois blocos. Mudar um link do menu era mudar dez
+   arquivos — e esquecer um. Aqui é um lugar só.
+
+   ─────────────────────────────────────────────────────────────
+   O CABEÇALHO DE VIDRO É O PADRÃO AGORA
+
+   No protótipo ele existia só na home e em planos; as páginas
+   legais usavam uma versão simples. Isso era inconsistência de
+   quem escreveu, não decisão de design — o vidro é a assinatura
+   da marca e agora vale em todo lugar.
+
+   As camadas (.lg-refract, .lg-tint, .lg-shine) são o efeito.
+   O filtro SVG que elas usam mora no layout, definido uma vez.
+   ─────────────────────────────────────────────────────────────
+
+   O CABEÇALHO SABE QUEM ESTÁ LOGADO: mostra "Entrar" para quem
+   não está, e o bicho escolhido + o apelido para quem está. Por
+   isso é componente de servidor: a sessão nunca chega ao
+   navegador.
+
+   CUIDADO AO MEXER:
+     - O deslocamento do filtro é proporcional à ALTURA do
+       elemento. O da pílula do menu (52px) usa escala 10; o do
+       card grande usa 30. Trocar sem recalcular deixa borda
+       fantasma — já aconteceu.
+   ============================================================= */
+
+import Link from 'next/link';
+import { eq } from 'drizzle-orm';
+import { db } from '@/db';
+import { contas } from '@/db/schema';
+import { getChatGPTUser } from '@/lib/confia/identidade';
+import { Avatar } from '@/components/avatar';
+import { MenuVivo } from '@/components/menu-vivo';
+import {
+  CIDADE_LONGA, ANO_FUNDACAO, EMAIL_CONTATO, WHATSAPP_LINK, WHATSAPP_VISIVEL,
+} from '@/lib/contato';
+
+/* O MENU, E POR QUE ELE TEM ESTES CINCO ITENS
+
+   "COMO FUNCIONA" SAIU EM 27/08/2026, e "Notícias" entrou no
+   lugar. Decisão da dona do projeto: a explicação já é a primeira
+   coisa da tela inicial, e repetir no topo não acrescentava.
+
+   ⚠ Aqui havia um comentário meu de dez linhas defendendo que ela
+   ficasse — o argumento era que quem mais precisa deste site
+   nunca usou um serviço assim. O argumento não era ruim; a
+   decisão é dela, e a âncora `/#como` continua existindo na home
+   para quem chega por link direto.
+
+   CUIDADO AO MEXER:
+     - Mexer aqui muda o cabeçalho de TODAS as páginas.
+     - Item novo precisa de rota que exista: link morto no menu
+       principal aparece em todo lugar de uma vez.
+     - O indicador que desliza (menu-vivo.tsx) mede os itens no
+       navegador, então não precisa de ajuste ao acrescentar um. */
+const MENU = [
+  { href: '/', texto: 'Confia?' },
+  { href: '/noticias', texto: 'Notícias' },
+  { href: '/planos', texto: 'Planos' },
+  { href: '/registrar-loja', texto: 'Registrar loja' },
+  { href: '/denunciar', texto: 'Denunciar' },
+] as const;
+
+export async function Cabecalho({ atual }: { atual?: string }) {
+  const user = await getChatGPTUser();
+  const quem = user ? {nome:user.displayName,id:user.userId} : null;
+  const apelido = user?.displayName.split(' ')[0] ?? '';
+  const avatar = 'inicial';
+
+  return (
+    <header className="topbar" id="topbar">
+      {/* desfoque em camadas: some suave em vez de cortar reto */}
+      <div className="haze" aria-hidden="true">
+        <span /><span /><span /><span /><span /><span />
+      </div>
+
+      <Link className="brand" href="/" aria-label="confia? — início">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/assets/logo-confia.svg" alt="confia?" />
+      </Link>
+
+      <MenuVivo itens={MENU as unknown as { href: string; texto: string }[]} atual={atual} />
+
+      {quem ? (
+        <Link className="account" href="/conta">
+          <Avatar nome={quem.nome} avatar={avatar} tamanho={36} />
+          <span className="label rotulo">{apelido}</span>
+        </Link>
+      ) : (
+        <Link className="account" href="/entrar">
+          <span className="ring"><i className="bi bi-person-fill" aria-hidden="true" /></span>
+          <span className="label rotulo">Entrar</span>
+        </Link>
+      )}
+    </header>
+  );
+}
+
+export function Rodape() {
+  return (
+    <footer>
+      <div className="foot">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/assets/logo-confia.svg" alt="confia?" />
+        <div className="links">
+          <Link href="/privacidade">Privacidade</Link>
+          <Link href="/termos">Termos</Link>
+          <Link href="/reembolso">Reembolso</Link>
+          <Link href="/cookies">Cookies</Link>
+          <Link href="/denunciar">Denunciar</Link>
+          <a
+            href="https://www.instagram.com/confia.iia/"
+            target="_blank" rel="noopener noreferrer"
+          >
+            <i className="bi bi-instagram" aria-hidden="true" /> Instagram
+          </a>
+          <a
+            href="https://www.facebook.com/profile.php?id=100081737570267"
+            target="_blank" rel="noopener noreferrer"
+          >
+            <i className="bi bi-facebook" aria-hidden="true" /> Facebook
+          </a>
+        </div>
+        {/* A ASSINATURA DO RODAPÉ.
+
+            Cidade e ano de fundação vêm de src/lib/contato.ts, e não
+            escritos aqui: os mesmos dados aparecem nos documentos
+            legais, e dois lugares divergindo sobre onde a empresa
+            fica é o tipo de detalhe que derruba a confiança.
+
+            NÃO tem endereço completo, e é de propósito: enquanto não
+            houver CNPJ, o endereço seria o residencial de uma pessoa
+            física. */}
+        <div className="foot-assina">
+          <span>© {ANO_FUNDACAO} confia? — confiia.com.br</span>
+          <span className="foot-onde">
+            {/* "Feito em" virou "Empresa localizada em" — 27/08/2026,
+                a pedido da dona do projeto. Não é só palavra: "feito
+                em" descreve um trabalho artesanal, "empresa localizada
+                em" descreve uma pessoa jurídica com endereço, que é o
+                que um site que pede confiança precisa parecer.
+
+                ⚠ Enquanto não houver CNPJ, isto é a única declaração
+                de onde a empresa fica. O endereço completo continua
+                fora de propósito — sem CNPJ ele seria o residencial de
+                uma pessoa física. Ver `lib/contato.ts`. */}
+            <i className="bi bi-geo-alt" aria-hidden="true" /> Empresa localizada em {CIDADE_LONGA}
+            {' · '}desde {ANO_FUNDACAO}
+          </span>
+          <span className="foot-onde">
+            <a href={`mailto:${EMAIL_CONTATO}`}>{EMAIL_CONTATO}</a>
+            {' · '}
+            <a href={WHATSAPP_LINK} target="_blank" rel="noopener noreferrer">
+              <i className="bi bi-whatsapp" aria-hidden="true" /> {WHATSAPP_VISIVEL}
+            </a>
+          </span>
+        </div>
+      </div>
+    </footer>
+  );
+}
