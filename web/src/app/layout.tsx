@@ -32,6 +32,7 @@
 
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
+import { headers } from 'next/headers';
 import { Inter, Poppins } from 'next/font/google';
 
 import { FiltrosVidro } from '@/components/filtros-vidro';
@@ -103,9 +104,10 @@ export const viewport: Viewport = {
   userScalable: true,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const nonce = (await headers()).get('x-nonce') ?? undefined;
   return (
     <html lang="pt-BR" className={`${inter.variable} ${poppins.variable}`}>
       <head>
@@ -198,7 +200,7 @@ export default function RootLayout({
 
             `lazyOnload` roda depois de tudo estar de pé, então o
             React já terminou e não desfaz nada. */}
-        <Script src="/assets/acessibilidade.js" strategy="lazyOnload" />
+        <Script src="/assets/acessibilidade.js" strategy="lazyOnload" nonce={nonce} />
       </body>
     </html>
   );

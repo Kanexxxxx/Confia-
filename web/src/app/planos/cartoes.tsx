@@ -115,7 +115,7 @@ const PLANOS: Plano[] = [
     euSou: 'Eu compro bastante pela internet e recebo link o dia todo.',
     mes: '12,90', ano: '8,25',
     notaAno: 'R$ 99 por ano, à vista',
-    acao: { texto: 'Assinar Básico', href: '/criar-conta', assina: true },
+    acao: { texto: 'Conhecer o Básico', href: '/criar-conta', assina: true },
     itens: [
       {
         termo: '30 verificações por mês',
@@ -151,7 +151,7 @@ const PLANOS: Plano[] = [
     notaAno: 'R$ 199 por ano, à vista',
     destaque: true,
     fita: 'Mais escolhido',
-    acao: { texto: 'Assinar Premium', href: '/criar-conta', forte: true, assina: true },
+    acao: { texto: 'Conhecer o Premium', href: '/criar-conta', forte: true, assina: true },
     itens: [
       {
         termo: 'Até 5 pessoas na mesma conta',
@@ -312,7 +312,7 @@ function AntesDeAssinar({
       {plano && (
         <>
           <div className="antes-topo">
-            <p className="antes-olho">Antes de assinar</p>
+            <p className="antes-olho">Detalhes do plano</p>
             <h2 id="antes-t">{plano.nome}</h2>
             <button
               type="button"
@@ -324,6 +324,7 @@ function AntesDeAssinar({
             </button>
           </div>
 
+          <p>A contratação online ainda está em preparação. Você já pode criar uma conta grátis.</p>
           <ul className="antes-lista">
             {ANTES.map((a) => (
               <li key={a.t}>

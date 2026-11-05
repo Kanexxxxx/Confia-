@@ -103,6 +103,7 @@ export function proxy(request: NextRequest) {
      lê-lo com `headers()` e repassar aos scripts que precisarem. */
   const cabecalhosDaRequisicao = new Headers(request.headers);
   cabecalhosDaRequisicao.set('x-nonce', nonce);
+  cabecalhosDaRequisicao.set('Content-Security-Policy', politica);
 
   const resposta = NextResponse.next({
     request: { headers: cabecalhosDaRequisicao },
@@ -139,13 +140,5 @@ export const config = {
   /* Não roda nos arquivos estáticos nem nos pedaços do Next: eles
      não precisam de CSP e a conta de gerar um nonce por imagem
      seria desperdício em toda visita. */
-  matcher: [
-    {
-      source: '/((?!_next/static|_next/image|favicon.ico).*)',
-      missing: [
-        { type: 'header', key: 'next-router-prefetch' },
-        { type: 'header', key: 'purpose', value: 'prefetch' },
-      ],
-    },
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|assets/).*)'],
 };

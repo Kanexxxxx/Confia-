@@ -1,5 +1,7 @@
 'use server';
 
+import { destinoLogin } from '@/lib/destino-login';
+
 /* =============================================================
    confiia.com.br — AÇÕES DE CONTA
 
@@ -258,7 +260,7 @@ export async function entrar(_anterior: Estado, form: FormData): Promise<Estado>
   /* Só aceita destino interno: sem isto, um link com
      ?destino=https://site-de-golpe levaria a pessoa para fora
      logo depois de entrar. */
-  redirect(paraOnde.startsWith('/') && !paraOnde.startsWith('//') ? paraOnde : '/conta');
+  redirect(destinoLogin(paraOnde));
 }
 
 /* =============================================================
