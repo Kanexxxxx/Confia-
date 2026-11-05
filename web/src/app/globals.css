@@ -1870,6 +1870,10 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
      flutuantes da esquerda. */
   .cookies{left:16px;right:16px;bottom:16px;width:auto;padding:18px}
   .cookies-acoes{grid-template-columns:1fr}
+
+  /* Em telas de acesso, o aviso precisa ficar depois do formulário.
+     Fixo no rodapé, ele interceptava o botão Entrar em 390 px. */
+  body:has(.porta) > .cookies{position:static;margin:0 16px 80px}
 }
 
 /* ==============================================================
@@ -1993,7 +1997,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 .dado-val{font-size:14px;font-weight:600;color:#fff;text-align:right;word-break:break-word}
 
 @media (max-width:1080px){
-  .painel{grid-template-columns:1fr;gap:20px;padding-top:112px}
+  .painel{grid-template-columns:minmax(0,1fr);gap:20px;padding-top:112px}
 
   /* No celular a barra lateral vira uma faixa horizontal que rola.
      Ela para de ser `sticky` porque uma faixa colada no topo
@@ -2007,7 +2011,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
     mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent);
   }
   .conta-nav::-webkit-scrollbar{display:none}
-  .conta-nav-item{white-space:nowrap;padding:10px 14px}
+  .conta-nav > .conta-nav-item{flex:none;width:auto;min-height:44px;white-space:nowrap;padding:10px 14px}
   .conta-nav-item[aria-current="page"]{box-shadow:inset 0 -3px 0 var(--sky)}
   .conta-nav-aviso{display:none}
   .painel-sair{margin-top:10px}
@@ -2016,6 +2020,8 @@ footer{border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 @media (max-width:760px){
   .painel{padding:104px 0 60px}
   .cartao{padding:20px 18px}
+  .cartao-topo{flex-wrap:wrap}
+  .cartao-topo .btn--linha{width:auto;max-width:100%;min-height:44px}
   /* Rótulo em cima, valor embaixo: lado a lado em tela estreita o
      valor longo (e-mail, data) espremia o rótulo até sumir. */
   .dado{flex-direction:column;align-items:flex-start;gap:4px}
