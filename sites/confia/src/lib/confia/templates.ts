@@ -1,0 +1,6 @@
+export const templatesWhatsApp=[
+  {name:'confia_denuncia_recebida_v1',language:'pt_BR',category:'UTILITY',components:[{type:'BODY',text:'Recebemos sua denúncia no Confia. Protocolo: {{1}}. Você pode acompanhar o andamento na sua conta. Esta mensagem confirma o recebimento, não a conclusão da análise.',example:{body_text:[['D-12345678']]}}]},
+  {name:'confia_atualizacao_denuncia_v1',language:'pt_BR',category:'UTILITY',components:[{type:'BODY',text:'Há uma atualização na denúncia {{1}} enviada por você ao Confia. Consulte sua conta para ver o andamento e a resposta.',example:{body_text:[['D-12345678']]}}]},
+  {name:'confia_loja_recebida_v1',language:'pt_BR',category:'UTILITY',components:[{type:'BODY',text:'Recebemos o cadastro da loja {{1}} no Confia. Protocolo: {{2}}. O cadastro está em análise e ainda não representa um selo de loja verificada.',example:{body_text:[['Loja Exemplo','L-12345678']]}}]},
+  {name:'confia_atendimento_atualizado_v1',language:'pt_BR',category:'UTILITY',components:[{type:'BODY',text:'Seu atendimento {{1}} no Confia recebeu uma atualização. Acesse sua conta para consultar a resposta. Nunca solicitamos sua senha ou código de autenticação por mensagem.',example:{body_text:[['A-12345678']]}}]},
+] as const;
